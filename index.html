@@ -215,6 +215,7 @@
             padding: var(--spacing-lg);
             overflow-y: auto;
             transition: all 0.3s ease;
+            position: relative; 
         }
 
         .sidebar.collapsed {
@@ -223,15 +224,23 @@
             overflow: hidden;
         }
 
-        .sidebar-section {
-            margin-bottom: var(--spacing-xl);
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
         }
 
         .sidebar-title {
             font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: var(--spacing-md);
+            margin: 0; 
             color: var(--text-primary);
+        }
+
+        .sidebar-section {
+            margin-bottom: var(--spacing-xl);
         }
 
         .widget-list {
@@ -268,61 +277,103 @@
             justify-content: center;
         }
 
-        /* Sidebar Handle */
+        /* Sidebar Handle (for opening when collapsed - left side) */
         .sidebar-handle {
             position: fixed;
-            left: -30px; /* Hidden by default, adjusted from -50px */
+            left: -30px; 
             top: 50%;
             transform: translateY(-50%);
             background: var(--bg-secondary);
-            color: var(--text-primary); /* Color de la flecha: blanco/negro según el tema */
-            padding: var(--spacing-sm) var(--spacing-xs); /* Aumentado el padding para visibilidad */
+            color: var(--text-primary);
+            padding: var(--spacing-xs) var(--spacing-xs); 
             border-top-right-radius: var(--border-radius);
             border-bottom-right-radius: var(--border-radius);
             cursor: pointer;
-            z-index: 1001; /* Z-index más alto */
+            z-index: 1001; 
             box-shadow: 2px 0 8px var(--shadow);
             transition: left 0.3s ease, opacity 0.3s ease;
             display: flex; 
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem; /* Tamaño de fuente más grande para el SVG */
+            font-size: 1.5rem; 
             opacity: 0; 
             pointer-events: none; 
-            border: 1px solid var(--border); /* Borde sutil */
+            border: 1px solid var(--border); 
         }
 
         .sidebar-handle svg {
-            width: 1em; /* Controla el tamaño del SVG, 1em = 1.8rem */
+            width: 1em; 
             height: 1em;
-            vertical-align: middle; /* Alineación del ícono */
-            transition: transform 0.3s ease; /* Transición para la rotación */
+            vertical-align: middle; 
+            transition: transform 0.3s ease;
+            stroke-width: 4; 
+            transform: rotate(0deg); /* Always points right for opening */
         }
-
 
         /* Show handle when sidebar is collapsed on desktop */
-        .sidebar.collapsed + .sidebar-handle {
-            left: 0; /* Visible position */
+        .sidebar.collapsed ~ .sidebar-handle { 
+            left: 0; 
             opacity: 1;
-            pointer-events: auto; /* Clickable */
+            pointer-events: auto; 
         }
 
-        /* When sidebar is open, ensure handle is hidden and unclickable */
-        .sidebar:not(.collapsed) + .sidebar-handle {
-            left: -30px; /* Hidden position, adjusted from -50px */
+        /* Hide handle when sidebar is open */
+        .sidebar:not(.collapsed) ~ .sidebar-handle { 
+            left: -30px; 
             opacity: 0;
             pointer-events: none;
         }
 
-        /* MODIFICACIÓN: Rotar la flecha cuando la barra lateral está abierta */
-        .sidebar:not(.collapsed) + .sidebar-handle svg {
-            transform: rotate(180deg);
+        /* Styles for the close button inside the sidebar (right side of sidebar) */
+        #sidebarCloseBtn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: var(--spacing-xxs); 
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px; 
+            height: 38px;
+            box-shadow: var(--shadow); 
+            z-index: 100; 
+            margin-left: auto; 
+            margin-right: 0; 
+
+            opacity: 0; 
+            pointer-events: none;
+        }
+        
+        #sidebarCloseBtn:hover {
+            background: var(--border); 
+        }
+
+        #sidebarCloseBtn svg {
+            width: 1em; 
+            height: 1em;
+            vertical-align: middle;
+            stroke-width: 4; 
+            /* MODIFICACIÓN: Eliminar rotación aquí para que el SVG apunte directamente a la izquierda */
+            transform: rotate(0deg); 
+        }
+
+        /* Show sidebarCloseBtn when sidebar is NOT collapsed */
+        .sidebar:not(.collapsed) #sidebarCloseBtn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Hide sidebarCloseBtn when sidebar IS collapsed */
+        .sidebar.collapsed #sidebarCloseBtn {
+            opacity: 0;
+            pointer-events: none;
         }
 
         @media (max-width: 768px) {
-            .sidebar-handle {
-                display: none !important; /* Always hidden on mobile */
-                left: -30px !important; /* Ensure it stays hidden even with !important */
+            .sidebar-handle, #sidebarCloseBtn {
+                display: none !important; 
                 opacity: 0 !important;
                 pointer-events: none !important;
             }
@@ -371,7 +422,7 @@
             box-shadow: 0 4px 12px var(--shadow);
             transition: all 0.3s ease;
             position: relative;
-            min-height: 280px; /* Un poco más alto para asegurar espacio para controles y video */
+            min-height: 280px; 
             display: flex;
             flex-direction: column;
         }
@@ -416,17 +467,17 @@
             padding: 0;
         }
 
-        /* MODIFICACIÓN: Contenedores de YouTube para maximizar espacio de video */
+        /* Contenedores de YouTube para maximizar espacio de video */
         .youtube-widget {
             display: flex;
             flex-direction: column;
-            height: 100%; /* Ocupa toda la altura del widget-content */
+            height: 100%; 
         }
 
         .youtube-player-section {
             display: flex;
             flex-direction: column;
-            flex: 1; /* Permite que el reproductor ocupe el espacio restante */
+            flex: 1; 
             overflow: hidden;
         }
 
@@ -436,16 +487,16 @@
             padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9 / 16 = 0.5625) */
             height: 0;
             overflow: hidden;
-            background-color: black; /* Fondo negro para el espacio de la relación de aspecto */
-            border-radius: var(--border-radius); /* Asegura que el borde redondeado se aplique */
+            background-color: black; 
+            border-radius: var(--border-radius); 
         }
 
         .widget-iframe {
-            position: absolute; /* Posicionamiento absoluto dentro del contenedor responsivo */
+            position: absolute; 
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%; /* Ocupa el 100% del contenedor responsivo */
+            height: 100%; 
             border: none;
             border-radius: var(--border-radius); 
         }
@@ -667,8 +718,16 @@
     <div class="main-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-section">
+            <div class="sidebar-header">
                 <h3 class="sidebar-title">Widgets Disponibles</h3>
+                <!-- Moved sidebarCloseBtn inside sidebar-header -->
+                <button class="btn-icon" id="sidebarCloseBtn" title="Cerrar barra lateral">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 6 9 12 15 18"></polyline> <!-- Adjusted points to point left -->
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar-section">
                 <div class="widget-list" id="widgetList">
                     <div class="widget-item" data-widget="youtube">
                         <span class="widget-icon icon icon-youtube"></span>
@@ -740,9 +799,9 @@
             </div>
         </aside>
 
-        <!-- Sidebar Handle (the tab to open sidebar when collapsed) -->
+        <!-- Sidebar Handle (the tab to open sidebar when collapsed - left side of screen) -->
         <div class="sidebar-handle" id="sidebarHandle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </div>
@@ -1536,7 +1595,7 @@
             // Theme toggle
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
             
-            // Sidebar toggle
+            // Sidebar toggle (main button in header)
             document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
             
             // Add widget button
@@ -1597,8 +1656,7 @@
                     sidebar.classList.remove('active'); 
                     if (!sidebar.classList.contains('collapsed')) {
                         startSidebarTimer();
-                    } else {
-                    }
+                    } 
                 } else {
                     sidebar.classList.add('collapsed');
                     clearTimeout(sidebarTimeout); 
@@ -1623,6 +1681,7 @@
             const sidebar = document.getElementById('sidebar');
             const dashboardGrid = document.getElementById('dashboardGrid');
             const sidebarHandle = document.getElementById('sidebarHandle');
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn'); 
 
             sidebar.addEventListener('mouseenter', () => {
                 clearTimeout(sidebarTimeout);
@@ -1634,8 +1693,16 @@
             dashboardGrid.addEventListener('click', resetSidebarTimer);
 
             sidebarHandle.addEventListener('click', () => {
-                toggleSidebar(); 
-                clearTimeout(sidebarTimeout); 
+                // When opening sidebar with handle, remove 'collapsed' class
+                sidebar.classList.remove('collapsed');
+                startSidebarTimer(); 
+            });
+
+            // Event listener for the new close button inside the sidebar
+            sidebarCloseBtn.addEventListener('click', () => {
+                // When close button is clicked, add 'collapsed' class
+                sidebar.classList.add('collapsed');
+                clearTimeout(sidebarTimeout); // Stop any active auto-hide timer
             });
         }
 
@@ -1654,20 +1721,15 @@
                         createWidget('youtube', video.title, video.url);
                     });
                     showToast('¡Bienvenido! Se cargaron los videos predeterminados.', 'info');
-                } else {
-                    setTimeout(() => {
-                        showToast('¡Bienvenido! Agrega widgets para comenzar.', 'info');
-                    }, 1000);
-                }
+                } 
                 
                 const sidebar = document.getElementById('sidebar');
+                // Ensure sidebar starts collapsed on desktop for handle visibility
                 if (window.innerWidth > 768) {
-                    if (!sidebar.classList.contains('collapsed')) { 
-                        startSidebarTimer();
-                    } else { 
-                    }
+                    sidebar.classList.add('collapsed'); // Start collapsed on desktop
+                    // No need to start timer here as it's collapsed
                 } else {
-                    sidebar.classList.add('collapsed');
+                    sidebar.classList.add('collapsed'); // Always collapsed on mobile initially
                     clearTimeout(sidebarTimeout); 
                 }
 
@@ -1751,4 +1813,3 @@
     </script>
 </body>
 </html>
-
