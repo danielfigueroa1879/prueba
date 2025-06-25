@@ -24,7 +24,8 @@
             --font-family: 'Poppins', sans-serif;
             
             /* Espaciado */
-            --spacing-xs: 0.25rem; /* Nuevo espaciado extra pequeño */
+            --spacing-xxs: 0.125rem; /* Nuevo espaciado extra extra pequeño */
+            --spacing-xs: 0.25rem; 
             --spacing-sm: 0.5rem;
             --spacing-md: 1rem;
             --spacing-lg: 1.5rem;
@@ -321,7 +322,7 @@
 
         .widget-header {
             /* MODIFICACIÓN: Reducir el padding para un "banner" más delgado */
-            padding: 0.3rem var(--spacing-md); /* Reducido a 0.3rem verticalmente */
+            padding: var(--spacing-xxs) var(--spacing-sm); /* Usando el nuevo espaciado extra pequeño */
             background: var(--bg-tertiary);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -334,8 +335,8 @@
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            font-size: 0.95rem; /* Reducir ligeramente el tamaño de fuente */
+            gap: var(--spacing-xs); /* Reducido a espaciado xs */
+            font-size: 0.85rem; /* Reducir ligeramente el tamaño de fuente */
         }
 
         .widget-controls {
@@ -852,6 +853,17 @@
             renderWidget(widget);
             saveWidgets();
             showToast(`Widget ${widget.title} agregado correctamente`, 'success');
+
+            // Automatically hide sidebar after adding a widget
+            const sidebar = document.getElementById('sidebar');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            } else if (!isMobile && !sidebar.classList.contains('collapsed')) {
+                // For desktop, if sidebar is not collapsed, collapse it
+                sidebar.classList.add('collapsed');
+            }
         }
 
         // New utility functions for widget management
@@ -1021,16 +1033,16 @@
                         </div>
 
                         <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${displayInput ? 'none' : 'block'};">
-                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xs); padding: 0.3rem; background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xxs); padding: var(--spacing-xxs) var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
                                 <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
-                                    <span class="icon icon-youtube" style="font-size: 0.85rem;"></span>
-                                    <span id="youtube-title-${widget.id}" style="font-size: 0.85rem; font-weight: 600;">${widget.title}</span>
+                                    <span class="icon icon-youtube" style="font-size: 0.75rem;"></span>
+                                    <span id="youtube-title-${widget.id}" style="font-size: 0.75rem; font-weight: 600;">${widget.title}</span>
                                 </div>
                                 <button 
                                     class="btn-icon" 
                                     onclick="showYouTubeInput('${widget.id}')" 
                                     title="Cambiar video"
-                                    style="width: 28px; height: 28px; font-size: 0.75rem;"
+                                    style="width: 24px; height: 24px; font-size: 0.65rem;"
                                 >
                                     🔄
                                 </button>
