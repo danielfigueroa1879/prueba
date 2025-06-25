@@ -268,6 +268,62 @@
             justify-content: center;
         }
 
+        /* Sidebar Handle */
+        .sidebar-handle {
+            position: fixed;
+            left: -50px; /* Hidden by default */
+            top: 50%;
+            transform: translateY(-50%);
+            /* MODIFICACIÓN: Color de fondo y borde sutiles, color de ícono dinámico */
+            background: var(--bg-secondary);
+            color: var(--text-primary); /* Color de la flecha: blanco/negro según el tema */
+            padding: var(--spacing-xs) var(--spacing-xxs); /* Reducir padding */
+            border-top-right-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            cursor: pointer;
+            z-index: 999; 
+            box-shadow: 2px 0 8px var(--shadow);
+            transition: left 0.3s ease, opacity 0.3s ease;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem; /* Tamaño del ícono */
+            opacity: 0; 
+            pointer-events: none; 
+            border: 1px solid var(--border); /* Borde sutil */
+        }
+
+        .sidebar-handle svg {
+            width: 1.2em; /* Controla el tamaño del SVG */
+            height: 1.2em;
+            vertical-align: middle; /* Alineación del ícono */
+        }
+
+
+        /* Show handle when sidebar is collapsed on desktop */
+        .sidebar.collapsed + .sidebar-handle {
+            left: 0; /* Visible position */
+            opacity: 1;
+            pointer-events: auto; /* Clickable */
+        }
+
+        /* When sidebar is open, ensure handle is hidden and unclickable */
+        .sidebar:not(.collapsed) + .sidebar-handle {
+            left: -50px; /* Hidden position */
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-handle {
+                display: none !important; /* Always hidden on mobile */
+                left: -50px !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        }
+
+
         /* Dashboard */
         .dashboard {
             flex: 1;
@@ -653,6 +709,13 @@
             </div>
         </aside>
 
+        <!-- Sidebar Handle (the tab to open sidebar when collapsed) -->
+        <div class="sidebar-handle" id="sidebarHandle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </div>
+
         <!-- Dashboard -->
         <main class="dashboard">
             <div class="dashboard-grid" id="dashboardGrid">
@@ -713,12 +776,15 @@
         let widgets = [];
         let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
 
+        // Global variables for sidebar auto-hide
+        let sidebarTimeout;
+        const AUTO_HIDE_DELAY = 10000; // 10 seconds
+
         // Widget configurations
         const widgetConfigs = {
             youtube: {
                 title: 'YouTube',
                 icon: 'icon-youtube',
-                // Keep the original embedUrl for the default playlist option in the form
                 embedUrl: 'https://www.youtube.com/embed/videoseries?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
                 type: 'youtube'
             },
@@ -785,7 +851,6 @@
         };
 
         // Videos de YouTube para cargar al inicio si no hay widgets guardados
-        // Se han eliminado los duplicados
         const initialYouTubeVideos = [
             { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHs0' },
             { title: '🔴 EN VIVO - Canal Principal', url: 'https://youtu.be/HgOYT2_oiJg' },
@@ -808,7 +873,25 @@
             localStorage.setItem('dashboard-theme', currentTheme);
         }
 
-        // Toggle sidebar
+        // Function to start the auto-hide timer
+        function startSidebarTimer() {
+            clearTimeout(sidebarTimeout); // Clear any existing timer
+            const sidebar = document.getElementById('sidebar');
+            // Only start timer if sidebar is NOT collapsed (i.e., open) and on desktop
+            if (!sidebar.classList.contains('collapsed') && window.innerWidth > 768) {
+                sidebarTimeout = setTimeout(() => {
+                    sidebar.classList.add('collapsed'); // Hide the sidebar by adding collapsed class
+                }, AUTO_HIDE_DELAY);
+            }
+        }
+
+        // Function to reset the auto-hide timer
+        function resetSidebarTimer() {
+            clearTimeout(sidebarTimeout);
+            startSidebarTimer();
+        }
+
+        // Modified toggleSidebar to manage handle visibility (CSS handles it, just toggles class)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const isMobile = window.innerWidth <= 768;
@@ -817,6 +900,11 @@
                 sidebar.classList.toggle('active');
             } else {
                 sidebar.classList.toggle('collapsed');
+                if (!sidebar.classList.contains('collapsed')) { // If sidebar just opened on desktop
+                    startSidebarTimer();
+                } else { // If sidebar just collapsed on desktop
+                    clearTimeout(sidebarTimeout); // Ensure no timer is running if collapsed manually
+                }
             }
         }
 
@@ -853,15 +941,16 @@
             saveWidgets();
             showToast(`Widget ${widget.title} agregado correctamente`, 'success');
 
-            // Automatically hide sidebar after adding a widget
+            // Automatically hide sidebar after adding a widget if on desktop
             const sidebar = document.getElementById('sidebar');
             const isMobile = window.innerWidth <= 768;
 
-            if (isMobile && sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-            } else if (!isMobile && !sidebar.classList.contains('collapsed')) {
-                // For desktop, if sidebar is not collapsed, collapse it
+            if (!isMobile && !sidebar.classList.contains('collapsed')) {
                 sidebar.classList.add('collapsed');
+                clearTimeout(sidebarTimeout); // Clear any running timer for auto-hide
+            } else if (isMobile && sidebar.classList.contains('active')) {
+                // For mobile, if active, close it
+                sidebar.classList.remove('active');
             }
         }
 
@@ -1445,10 +1534,6 @@
                     const widgetType = widgetItem.getAttribute('data-widget');
                     if (widgetType) {
                         createWidget(widgetType);
-                        // Close sidebar on mobile
-                        if (window.innerWidth <= 768) {
-                            document.getElementById('sidebar').classList.remove('active');
-                        }
                     }
                 }
             });
@@ -1476,9 +1561,7 @@
                     widgetTitle.value = config.title;
                     
                     // Show URL field for custom widgets (or if a custom URL is generally expected)
-                    // The 'custom' type is not explicitly defined in widgetConfigs, so this part might be a remnant
-                    // but keeping it in case future expansion includes a generic custom URL widget type.
-                    if (e.target.value === 'youtube') { // For YouTube, we also allow custom URLs
+                    if (e.target.value === 'youtube') { 
                         urlGroup.style.display = 'block';
                     } else {
                         urlGroup.style.display = 'none';
@@ -1497,10 +1580,21 @@
             window.addEventListener('resize', () => {
                 const sidebar = document.getElementById('sidebar');
                 if (window.innerWidth > 768) {
-                    sidebar.classList.remove('active');
+                    sidebar.classList.remove('active'); // Ensure mobile class is off on desktop
+                    // Re-evaluate auto-hide timer if desktop sidebar is open
+                    if (!sidebar.classList.contains('collapsed')) {
+                        startSidebarTimer();
+                    } else {
+                        // Ensure handle is visible if sidebar is collapsed on desktop
+                        // CSS will handle this based on .collapsed class
+                    }
+                } else {
+                    // On mobile, ensure sidebar is collapsed and handle is hidden
+                    sidebar.classList.add('collapsed');
+                    clearTimeout(sidebarTimeout); // No auto-hide on mobile
                 }
             });
-            
+
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
                 // Ctrl/Cmd + K to focus search
@@ -1513,6 +1607,26 @@
                 if (e.key === 'Escape') {
                     closeModal();
                 }
+            });
+
+            // Auto-hide and handle event listeners
+            const sidebar = document.getElementById('sidebar');
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            const sidebarHandle = document.getElementById('sidebarHandle');
+
+            sidebar.addEventListener('mouseenter', () => {
+                clearTimeout(sidebarTimeout);
+            });
+
+            sidebar.addEventListener('mouseleave', startSidebarTimer);
+
+            // Using general mousemove and click on dashboard to reset timer
+            dashboardGrid.addEventListener('mousemove', resetSidebarTimer);
+            dashboardGrid.addEventListener('click', resetSidebarTimer);
+
+            sidebarHandle.addEventListener('click', () => {
+                toggleSidebar(); // Show the sidebar
+                clearTimeout(sidebarTimeout); // Clear timer immediately after showing
             });
         }
 
@@ -1533,12 +1647,25 @@
                     });
                     showToast('¡Bienvenido! Se cargaron los videos predeterminados.', 'info');
                 } else {
-                    // Show welcome message if widgets were loaded (or if they were just added above)
                     setTimeout(() => {
                         showToast('¡Bienvenido! Agrega widgets para comenzar.', 'info');
                     }, 1000);
                 }
                 
+                // Initial state for desktop sidebar and handle on load
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth > 768) {
+                    if (!sidebar.classList.contains('collapsed')) { // If sidebar is open by default (or from saved state)
+                        startSidebarTimer();
+                    } else { 
+                        // If sidebar starts collapsed, CSS will handle handle visibility
+                    }
+                } else {
+                    // On mobile, ensure sidebar is collapsed and handle is hidden
+                    sidebar.classList.add('collapsed');
+                    clearTimeout(sidebarTimeout); // No auto-hide on mobile
+                }
+
                 console.log('Dashboard initialized successfully');
                 
             } catch (error) {
