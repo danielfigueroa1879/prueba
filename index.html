@@ -274,7 +274,6 @@
             left: -50px; /* Hidden by default */
             top: 50%;
             transform: translateY(-50%);
-            /* MODIFICACIÓN: Color de fondo y borde sutiles, color de ícono dinámico */
             background: var(--bg-secondary);
             color: var(--text-primary); /* Color de la flecha: blanco/negro según el tema */
             padding: var(--spacing-xs) var(--spacing-xxs); /* Reducir padding */
@@ -366,7 +365,8 @@
             box-shadow: 0 4px 12px var(--shadow);
             transition: all 0.3s ease;
             position: relative;
-            min-height: 350px;
+            /* MODIFICACIÓN: Altura mínima del widget ajustada para contenido */
+            min-height: 280px; /* Un poco más alto para asegurar espacio para controles y video */
             display: flex;
             flex-direction: column;
         }
@@ -411,12 +411,39 @@
             padding: 0;
         }
 
+        /* MODIFICACIÓN: Contenedores de YouTube para maximizar espacio de video */
+        .youtube-widget {
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Ocupa toda la altura del widget-content */
+        }
+
+        .youtube-player-section {
+            display: flex;
+            flex-direction: column;
+            flex: 1; /* Permite que el reproductor ocupe el espacio restante */
+            overflow: hidden;
+        }
+
+        /* Nueva clase para el contenedor responsivo del iframe */
+        .youtube-responsive-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9 / 16 = 0.5625) */
+            height: 0;
+            overflow: hidden;
+            background-color: black; /* Fondo negro para el espacio de la relación de aspecto */
+            border-radius: var(--border-radius); /* Asegura que el borde redondeado se aplique */
+        }
 
         .widget-iframe {
+            position: absolute; /* Posicionamiento absoluto dentro del contenedor responsivo */
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100%; 
+            height: 100%; /* Ocupa el 100% del contenedor responsivo */
             border: none;
-            min-height: 200px; 
+            /* min-height ya no es necesario aquí, lo maneja el padding-bottom */
+            border-radius: var(--border-radius); 
         }
 
         .widget-placeholder {
@@ -854,11 +881,11 @@
         const initialYouTubeVideos = [
             { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHs0' },
             { title: '🔴 EN VIVO - Canal Principal', url: 'https://youtu.be/HgOYT2_oiJg' },
-            { title: '📺 Noticias 24/7', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
-            { title: '🎵 Música Relajante', url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw' },
-            { title: '🌊 Sonidos de Naturaleza', url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk' },
+            { title: 'Chilevisión 2', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
+            { title: 'Chilevision', url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw' },
+            { title: '24 horas TVN', url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk' },
             { title: '🎬 Contenido Especial', url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8' },
-            { title: '📻 Radio Online', url: 'https://www.youtube.com/watch?v=bpo70sR9Kps' }
+            { title: 'CNN', url: 'https://www.youtube.com/watch?v=bpo70sR9Kps' }
         ];
 
         // Initialize theme
@@ -1052,24 +1079,24 @@
                                         <div style="font-weight: 600; font-size: 0.875rem;">🔴 EN VIVO - Canal Principal</div>
                                         <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión en directo</div>
                                     </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=5IugcHLsC0E', '📺 Noticias 24/7')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">📺 Noticias 24/7</div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=5IugcHLsC0E', 'Chilevisión 2')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">Chilevisión 2</div>
                                         <div style="font-size: 0.75rem; color: var(--text-secondary);">Canal de noticias continuas</div>
                                     </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=8lZ_NEYGAnw', '🎵 Música Relajante')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">🎵 Música Relajante</div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=8lZ_NEYGAnw', 'Chilevision')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">Chilevision</div>
                                         <div style="font-size: 0.75rem; color: var(--text-secondary);">Música para relajarse</div>
                                     </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=XZAfU-X9Euk', '🌊 Sonidos de Naturaleza')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">🌊 Sonidos de Naturaleza</div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=XZAfU-X9Euk', '24 horas TVN')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">24 horas TVN</div>
                                         <div style="font-size: 0.75rem; color: var(--text-secondary);">Relajación con sonidos naturales</div>
                                     </div>
                                     <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=CSXA3ICbX-8', '🎬 Contenido Especial')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
                                         <div style="font-weight: 600; font-size: 0.875rem;">🎬 Contenido Especial</div>
                                         <div style="font-size: 0.75rem; color: var(--text-secondary);">Video destacado</div>
                                     </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=bpo70sR9Kps', '📻 Radio Online')" style="padding: var(--spacing-sm); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">📻 Radio Online</div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=bpo70sR9Kps', 'CNN')" style="padding: var(--spacing-sm); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">CNN</div>
                                         <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión de radio</div>
                                     </div>
                                 </div>
@@ -1134,7 +1161,7 @@
                                     🔄
                                 </button>
                             </div>
-                            <div class="youtube-iframe-container" id="youtube-iframe-${widget.id}">
+                            <div class="youtube-iframe-container youtube-responsive-container" id="youtube-iframe-${widget.id}">
                                 <!-- El iframe se insertará aquí dinámicamente por loadYouTubeVideoInitial -->
                             </div>
                         </div>
@@ -1272,7 +1299,7 @@
             const playerSection = document.getElementById(`youtube-player-${widgetId}`);
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
             const youtubeTitleElement = document.getElementById(`youtube-title-${widgetId}`);
-            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); // Get the parent widget-content
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); 
 
             if (inputSection && playerSection && iframeContainer && youtubeTitleElement && widgetContentElement) {
                 inputSection.style.display = 'none';
@@ -1282,75 +1309,59 @@
                     <iframe 
                         src="${embedUrl}"
                         class="widget-iframe"
-                        style="width: 100%; height: 100%; border: none; border-radius: var(--border-radius);"
                         frameborder="0"
                         allowfullscreen
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerpolicy="strict-origin-when-cross-origin">
                     </iframe>
                 `;
-                // Add the class to remove padding from widget-content
                 widgetContentElement.classList.add('youtube-no-padding');
             }
         }
 
         function showYouTubeInput(widgetId) {
-            // Show input section and hide player
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
             document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
             
-            // Remove the no-padding class from widget-content
             const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
             if (widgetContentElement) {
                 widgetContentElement.classList.remove('youtube-no-padding');
             }
 
-            // Clear the input
             document.getElementById(`youtube-url-${widgetId}`).value = '';
         }
 
         function convertToEmbedUrl(url) {
             try {
-                // Remove any whitespace
                 url = url.trim();
                 
-                // Regular expressions for different YouTube URL formats
                 const patterns = {
-                    // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
                     watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
-                    // Short URL: https://youtu\.be/VIDEO_ID
                     short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
-                    // Playlist URL: https://www.youtube.com/playlist?list=PLAYLIST_ID
                     playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
-                    // Watch with playlist: https://www.youtube.com/watch?v=VIDEO_ID&list=PLAYLIST_ID
                     watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
                 };
 
-                // Check for watch with playlist
                 let match = url.match(patterns.watchPlaylist);
                 if (match) {
                     return `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
                 }
 
-                // Check for standard watch URL
                 match = url.match(patterns.watch);
                 if (match) {
                     return `https://www.youtube.com/embed/${match[1]}`;
                 }
 
-                // Check for short URL
                 match = url.match(patterns.short);
                 if (match) {
                     return `https://www.youtube.com/embed/${match[1]}`;
                 }
 
-                // Check for playlist URL
                 match = url.match(patterns.playlist);
                 if (match) {
                     return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
                 }
 
-                // If already an embed URL, return as is
                 if (url.includes('youtube.com/embed/')) {
                     return url;
                 }
@@ -1560,7 +1571,6 @@
                     const config = widgetConfigs[e.target.value];
                     widgetTitle.value = config.title;
                     
-                    // Show URL field for custom widgets (or if a custom URL is generally expected)
                     if (e.target.value === 'youtube') { 
                         urlGroup.style.display = 'block';
                     } else {
@@ -1580,18 +1590,14 @@
             window.addEventListener('resize', () => {
                 const sidebar = document.getElementById('sidebar');
                 if (window.innerWidth > 768) {
-                    sidebar.classList.remove('active'); // Ensure mobile class is off on desktop
-                    // Re-evaluate auto-hide timer if desktop sidebar is open
+                    sidebar.classList.remove('active'); 
                     if (!sidebar.classList.contains('collapsed')) {
                         startSidebarTimer();
                     } else {
-                        // Ensure handle is visible if sidebar is collapsed on desktop
-                        // CSS will handle this based on .collapsed class
                     }
                 } else {
-                    // On mobile, ensure sidebar is collapsed and handle is hidden
                     sidebar.classList.add('collapsed');
-                    clearTimeout(sidebarTimeout); // No auto-hide on mobile
+                    clearTimeout(sidebarTimeout); 
                 }
             });
 
@@ -1620,13 +1626,12 @@
 
             sidebar.addEventListener('mouseleave', startSidebarTimer);
 
-            // Using general mousemove and click on dashboard to reset timer
             dashboardGrid.addEventListener('mousemove', resetSidebarTimer);
             dashboardGrid.addEventListener('click', resetSidebarTimer);
 
             sidebarHandle.addEventListener('click', () => {
-                toggleSidebar(); // Show the sidebar
-                clearTimeout(sidebarTimeout); // Clear timer immediately after showing
+                toggleSidebar(); 
+                clearTimeout(sidebarTimeout); 
             });
         }
 
@@ -1638,9 +1643,8 @@
                 initTheme();
                 initEventListeners();
                 initSearch();
-                loadWidgets(); // Load saved widgets first
+                loadWidgets(); 
 
-                // If no widgets were loaded from local storage, add the default YouTube videos
                 if (widgets.length === 0) {
                     initialYouTubeVideos.forEach(video => {
                         createWidget('youtube', video.title, video.url);
@@ -1652,18 +1656,15 @@
                     }, 1000);
                 }
                 
-                // Initial state for desktop sidebar and handle on load
                 const sidebar = document.getElementById('sidebar');
                 if (window.innerWidth > 768) {
-                    if (!sidebar.classList.contains('collapsed')) { // If sidebar is open by default (or from saved state)
+                    if (!sidebar.classList.contains('collapsed')) { 
                         startSidebarTimer();
                     } else { 
-                        // If sidebar starts collapsed, CSS will handle handle visibility
                     }
                 } else {
-                    // On mobile, ensure sidebar is collapsed and handle is hidden
                     sidebar.classList.add('collapsed');
-                    clearTimeout(sidebarTimeout); // No auto-hide on mobile
+                    clearTimeout(sidebarTimeout); 
                 }
 
                 console.log('Dashboard initialized successfully');
@@ -1746,3 +1747,4 @@
     </script>
 </body>
 </html>
+
