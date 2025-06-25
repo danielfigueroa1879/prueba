@@ -1,1 +1,1888 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Multifuncional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Colores modo claro */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent: #007bff;
+            --accent-hover: #0056b3;
+            --success: #28a745;
+            --danger: #dc3545;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --border: #dee2e6;
+            
+            /* Tipografía */
+            --font-family: 'Poppins', sans-serif;
+            
+            /* Espaciado */
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* Bordes */
+            --border-radius: 0.5rem;
+            --border-radius-lg: 1rem;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --accent: #4dabf7;
+            --accent-hover: #339af0;
+            --success: #51cf66;
+            --danger: #ff6b6b;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --border: #495057;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 10px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-weight: 400;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            text-decoration: none;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            padding: var(--spacing-sm);
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(28px);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .widget-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-item {
+            padding: var(--spacing-md);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-item:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .widget-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            flex: 1;
+            padding: var(--spacing-lg);
+            background: var(--bg-primary);
+            overflow-y: auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            min-height: 600px;
+        }
+
+        .dashboard-empty {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            min-height: 400px;
+        }
+
+        .dashboard-empty .icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        /* Widget Container */
+        .widget {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+
+        .widget-header {
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .widget-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            min-height: 300px;
+        }
+
+        .widget-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: var(--spacing-lg);
+        }
+
+        .widget-placeholder .icon {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 400;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--border-radius);
+            z-index: 3000;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-controls {
+                justify-content: space-between;
+            }
+
+            .search-input {
+                width: 100%;
+                min-width: 200px;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 80px;
+                left: -300px;
+                height: calc(100vh - 80px);
+                z-index: 1500;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .dashboard {
+                padding: var(--spacing-md);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .widget {
+                min-height: 300px;
+            }
+        }
+
+        /* Icons (Simple CSS icons) */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+        }
+
+        .icon-dashboard::before { content: "📊"; }
+        .icon-youtube::before { content: "📺"; }
+        .icon-music::before { content: "🎵"; }
+        .icon-whatsapp::before { content: "💬"; }
+        .icon-gmail::before { content: "📧"; }
+        .icon-calendar::before { content: "📅"; }
+        .icon-drive::before { content: "📁"; }
+        .icon-weather::before { content: "🌤️"; }
+        .icon-news::before { content: "📰"; }
+        .icon-netflix::before { content: "🎬"; }
+        .icon-twitch::before { content: "🎮"; }
+        .icon-tv::before { content: "📻"; }
+        .icon-crypto::before { content: "💰"; }
+        .icon-menu::before { content: "☰"; }
+        .icon-plus::before { content: "➕"; }
+        .icon-x::before { content: "✖️"; }
+        .icon-briefcase::before { content: "💼"; }
+        .icon-gamepad::before { content: "🎮"; }
+        .icon-users::before { content: "👥"; }
+        .icon-save::before { content: "💾"; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="icon icon-dashboard"></span>
+                Dashboard Pro
+            </div>
+            <div class="header-controls">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Buscar widgets..." id="searchInput">
+                </div>
+                <button class="btn-icon" id="toggleSidebar">
+                    <span class="icon icon-menu"></span>
+                </button>
+                <div class="theme-toggle" id="themeToggle"></div>
+                <button class="btn btn-primary" id="addWidgetBtn">
+                    <span class="icon icon-plus"></span>
+                    Agregar Widget
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Widgets Disponibles</h3>
+                <div class="widget-list" id="widgetList">
+                    <div class="widget-item" data-widget="youtube">
+                        <span class="widget-icon icon icon-youtube"></span>
+                        <span>YouTube</span>
+                    </div>
+                    <div class="widget-item" data-widget="spotify">
+                        <span class="widget-icon icon icon-music"></span>
+                        <span>Spotify</span>
+                    </div>
+                    <div class="widget-item" data-widget="whatsapp">
+                        <span class="widget-icon icon icon-whatsapp"></span>
+                        <span>WhatsApp Web</span>
+                    </div>
+                    <div class="widget-item" data-widget="gmail">
+                        <span class="widget-icon icon icon-gmail"></span>
+                        <span>Gmail</span>
+                    </div>
+                    <div class="widget-item" data-widget="calendar">
+                        <span class="widget-icon icon icon-calendar"></span>
+                        <span>Google Calendar</span>
+                    </div>
+                    <div class="widget-item" data-widget="drive">
+                        <span class="widget-icon icon icon-drive"></span>
+                        <span>Google Drive</span>
+                    </div>
+                    <div class="widget-item" data-widget="weather">
+                        <span class="widget-icon icon icon-weather"></span>
+                        <span>Clima</span>
+                    </div>
+                    <div class="widget-item" data-widget="news">
+                        <span class="widget-icon icon icon-news"></span>
+                        <span>Noticias</span>
+                    </div>
+                    <div class="widget-item" data-widget="netflix">
+                        <span class="widget-icon icon icon-netflix"></span>
+                        <span>Netflix</span>
+                    </div>
+                    <div class="widget-item" data-widget="twitch">
+                        <span class="widget-icon icon icon-twitch"></span>
+                        <span>Twitch</span>
+                    </div>
+                    <div class="widget-item" data-widget="crypto">
+                        <span class="widget-icon icon icon-crypto"></span>
+                        <span>Crypto</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Layouts</h3>
+                <div class="widget-list">
+                    <div class="widget-item" onclick="loadLayout('productivity')">
+                        <span class="widget-icon icon icon-briefcase"></span>
+                        <span>Productividad</span>
+                    </div>
+                    <div class="widget-item" onclick="loadLayout('entertainment')">
+                        <span class="widget-icon icon icon-gamepad"></span>
+                        <span>Entretenimiento</span>
+                    </div>
+                    <div class="widget-item" onclick="loadLayout('social')">
+                        <span class="widget-icon icon icon-users"></span>
+                        <span>Social</span>
+                    </div>
+                    <div class="widget-item" onclick="saveCurrentLayout()">
+                        <span class="widget-icon icon icon-save"></span>
+                        <span>Guardar Layout</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Dashboard -->
+        <main class="dashboard">
+            <div class="dashboard-grid" id="dashboardGrid">
+                <div class="dashboard-empty">
+                    <div class="icon">📊</div>
+                    <h3>Bienvenido a tu Dashboard</h3>
+                    <p>Agrega widgets desde la barra lateral para comenzar</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Widget Modal -->
+    <div class="modal" id="addWidgetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Agregar Widget</h2>
+                <button class="btn-icon" onclick="closeModal()">
+                    <span class="icon icon-x"></span>
+                </button>
+            </div>
+            <form id="addWidgetForm">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Widget</label>
+                    <select class="form-select" id="widgetType" required>
+                        <option value="">Seleccionar tipo</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="whatsapp">WhatsApp Web</option>
+                        <option value="gmail">Gmail</option>
+                        <option value="calendar">Google Calendar</option>
+                        <option value="drive">Google Drive</option>
+                        <option value="weather">Clima</option>
+                        <option value="news">Noticias</option>
+                        <option value="netflix">Netflix</option>
+                        <option value="twitch">Twitch</option>
+                        <option value="crypto">Crypto</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Título del Widget</label>
+                    <input type="text" class="form-input" id="widgetTitle" placeholder="Título personalizado">
+                </div>
+                <div class="form-group" id="urlGroup" style="display: none;">
+                    <label class="form-label">URL Personalizada</label>
+                    <input type="url" class="form-input" id="widgetUrl" placeholder="https://ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Agregar Widget</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let widgets = [];
+        let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
+
+        // Predefined YouTube videos that will auto-load
+        const predefinedVideos = [
+            {
+                id: 'playlist-default',
+                title: '📃 Playlist Principal',
+                url: 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'live-main',
+                title: '🔴 EN VIVO - Canal Principal',
+                url: 'https://youtu.be/HgOYT2_oiJg',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'news-24-7',
+                title: '📺 Noticias 24/7',
+                url: 'https://www.youtube.com/watch?v=5IugcHLsC0E',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'chilevision',
+                title: '📺 CHILEVISION',
+                url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'tvn-24-horas',
+                title: '📺 24 HORAS',
+                url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'special-content',
+                title: '🎬 Contenido Especial',
+                url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'radio-online',
+                title: '📻 Radio Online',
+                url: 'https://www.youtube.com/watch?v=bpo70sR9Kps',
+                type: 'youtube-preset'
+            }
+        ];
+
+        // Widget configurations
+        const widgetConfigs = {
+            youtube: {
+                title: 'YouTube Player',
+                icon: 'icon-youtube',
+                url: '',
+                type: 'youtube'
+            },
+            'youtube-preset': {
+                title: 'YouTube Video',
+                icon: 'icon-youtube',
+                url: '',
+                type: 'youtube-preset'
+            },
+            spotify: {
+                title: 'Spotify',
+                icon: 'icon-music',
+                url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd?utm_source=generator&theme=0',
+                type: 'iframe'
+            },
+            whatsapp: {
+                title: 'WhatsApp Web',
+                icon: 'icon-whatsapp',
+                url: 'https://web.whatsapp.com/',
+                type: 'external'
+            },
+            gmail: {
+                title: 'Gmail',
+                icon: 'icon-gmail',
+                url: 'https://mail.google.com/mail/u/0/#inbox',
+                type: 'external'
+            },
+            calendar: {
+                title: 'Google Calendar',
+                icon: 'icon-calendar',
+                url: 'https://calendar.google.com/calendar/embed?src=primary&ctz=America%2FNew_York',
+                type: 'iframe'
+            },
+            drive: {
+                title: 'Google Drive',
+                icon: 'icon-drive',
+                url: 'https://drive.google.com/embeddedfolderview?id=root',
+                type: 'iframe'
+            },
+            weather: {
+                title: 'Clima',
+                icon: 'icon-weather',
+                url: 'https://embed.windy.com/?lat=40.749&lon=-73.980&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&detailLat=40.749&detailLon=-73.980&metricWind=default&metricTemp=default&radarRange=-1',
+                type: 'iframe'
+            },
+            news: {
+                title: 'Noticias',
+                icon: 'icon-news',
+                url: 'https://rss.cnn.com/rss/edition.rss',
+                type: 'rss'
+            },
+            netflix: {
+                title: 'Netflix',
+                icon: 'icon-netflix',
+                url: 'https://www.netflix.com/browse',
+                type: 'external'
+            },
+            twitch: {
+                title: 'Twitch',
+                icon: 'icon-twitch',
+                url: 'https://player.twitch.tv/?channel=directory&parent=localhost',
+                type: 'iframe'
+            },
+            crypto: {
+                title: 'Crypto Prices',
+                icon: 'icon-crypto',
+                url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true',
+                type: 'crypto'
+            }
+        };
+
+        // Initialize theme
+        function initTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        }
+
+        // Toggle theme
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('dashboard-theme', currentTheme);
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                sidebar.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('addWidgetModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addWidgetModal').classList.remove('active');
+            document.getElementById('addWidgetForm').reset();
+            document.getElementById('urlGroup').style.display = 'none';
+        }
+
+        // Widget functions
+        function generateWidgetId() {
+            return 'widget-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function createWidget(type, customTitle = null, customUrl = null) {
+            const config = widgetConfigs[type];
+            if (!config) return;
+
+            const widget = {
+                id: generateWidgetId(),
+                type: type,
+                title: customTitle || config.title,
+                url: customUrl || config.embedUrl || config.url,
+                icon: config.icon
+            };
+
+            widgets.push(widget);
+            renderWidget(widget);
+            saveWidgets();
+            showToast(`Widget ${widget.title} agregado correctamente`, 'success');
+        }
+
+        // New utility functions for widget management
+        function refreshWidget(widgetId) {
+            const widgetElement = document.getElementById(widgetId);
+            const iframe = widgetElement.querySelector('.widget-iframe');
+            if (iframe) {
+                iframe.src = iframe.src;
+                showToast('Widget actualizado', 'success');
+            }
+        }
+
+        function openInNewTab(url) {
+            window.open(url, '_blank');
+        }
+
+        function renderWidget(widget) {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            const emptyState = dashboardGrid.querySelector('.dashboard-empty');
+            
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const widgetElement = document.createElement('div');
+            widgetElement.className = 'widget';
+            widgetElement.id = widget.id;
+            
+            let widgetContent = '';
+            const config = widgetConfigs[widget.type];
+            
+            // Generate content based on widget type
+            switch (config?.type || widget.type) {
+                case 'youtube':
+                    widgetContent = createYouTubeWidget(widget);
+                    break;
+                case 'youtube-preset':
+                    widgetContent = createYouTubePresetWidget(widget);
+                    break;
+                case 'crypto':
+                    widgetContent = createCryptoWidget(widget);
+                    break;
+                case 'rss':
+                    widgetContent = createRSSWidget(widget);
+                    break;
+                case 'external':
+                    widgetContent = createExternalWidget(widget);
+                    break;
+                case 'iframe':
+                default:
+                    widgetContent = createIframeWidget(widget);
+                    break;
+            }
+
+            widgetElement.innerHTML = `
+                <div class="widget-header">
+                    <div class="widget-title">
+                        <span class="icon ${widget.icon}"></span>
+                        ${widget.title}
+                    </div>
+                    <div class="widget-controls">
+                        <button class="btn-icon" onclick="refreshWidget('${widget.id}')" title="Actualizar">
+                            <span class="icon">🔄</span>
+                        </button>
+                        <button class="btn-icon" onclick="openInNewTab('${widget.url}')" title="Abrir en nueva pestaña">
+                            <span class="icon">🔗</span>
+                        </button>
+                        <button class="btn-icon" onclick="removeWidget('${widget.id}')" title="Eliminar">
+                            <span class="icon icon-x"></span>
+                        </button>
+                    </div>
+                </div>
+                ${widgetContent}
+            `;
+
+            dashboardGrid.appendChild(widgetElement);
+            
+            // Initialize widget-specific functionality
+            initializeWidgetContent(widget);
+        }
+
+        function createYouTubePresetWidget(widget) {
+            // Handle different URL formats for the first video (playlist)
+            let embedUrl;
+            if (widget.url.includes('videoseries')) {
+                embedUrl = widget.url; // Already in embed format
+            } else {
+                embedUrl = convertToEmbedUrl(widget.url);
+            }
+            
+            if (!embedUrl) {
+                console.error('Failed to convert URL:', widget.url);
+                return `
+                    <div class="widget-content" style="padding: var(--spacing-md); text-align: center;">
+                        <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm); opacity: 0.5;"></div>
+                        <p style="color: var(--text-secondary);">Error al cargar el video</p>
+                        <button class="btn btn-secondary" onclick="window.open('${widget.url}', '_blank')" style="margin-top: var(--spacing-sm);">
+                            Abrir en YouTube
+                        </button>
+                    </div>
+                `;
+            }
+            
+            console.log('Loading YouTube widget:', widget.title, 'URL:', embedUrl);
+            
+            return `
+                <div class="widget-content" style="padding: 0; position: relative;">
+                    <iframe 
+                        src="${embedUrl}"
+                        class="widget-iframe"
+                        style="width: 100%; height: 350px; border: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);"
+                        frameborder="0"
+                        allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        loading="lazy">
+                    </iframe>
+                </div>
+            `;
+        }
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="youtube-widget" id="youtube-widget-${widget.id}">
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}">
+                            <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                                <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                                <h3>YouTube Player</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Selecciona un video o pega tu enlace</p>
+                            </div>
+                            
+                            <!-- Lista de videos predefinidos -->
+                            <div class="youtube-presets" style="margin-bottom: var(--spacing-lg);">
+                                <h4 style="margin-bottom: var(--spacing-sm); font-size: 0.9rem; color: var(--text-primary);">📺 Videos Disponibles:</h4>
+                                <div class="youtube-list" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--border-radius); background: var(--bg-secondary);">
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://youtu.be/HgOYT2_oiJg', '🔴 EN VIVO - Canal Principal')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🔴 EN VIVO - Canal Principal</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión en directo</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=5IugcHLsC0E', '📺 Noticias 24/7')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">📺 Noticias 24/7</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Canal de noticias continuas</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=8lZ_NEYGAnw', '🎵 Música Relajante')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🎵 Música Relajante</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Música para relajarse</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=XZAfU-X9Euk', '🌊 Sonidos de Naturaleza')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🌊 Sonidos de Naturaleza</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Relajación con sonidos naturales</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=CSXA3ICbX-8', '🎬 Contenido Especial')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🎬 Contenido Especial</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Video destacado</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=bpo70sR9Kps', '📻 Radio Online')" style="padding: var(--spacing-sm); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">📻 Radio Online</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión de radio</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Separador -->
+                            <div style="text-align: center; margin: var(--spacing-md) 0; color: var(--text-secondary); font-size: 0.875rem;">
+                                <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: var(--spacing-sm);">
+                                O pega tu propio enlace:
+                            </div>
+                            
+                            <div class="youtube-url-input" style="margin-bottom: var(--spacing-md);">
+                                <div class="form-group">
+                                    <input 
+                                        type="text" 
+                                        class="form-input" 
+                                        id="youtube-url-${widget.id}"
+                                        placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..."
+                                        style="margin-bottom: var(--spacing-sm);"
+                                    >
+                                    <div style="display: flex; gap: var(--spacing-sm);">
+                                        <button 
+                                            class="btn btn-primary flex-1" 
+                                            onclick="loadYouTubeVideo('${widget.id}')"
+                                            style="flex: 1;"
+                                        >
+                                            <span class="icon">▶️</span>
+                                            Reproducir URL
+                                        </button>
+                                        <button 
+                                            class="btn btn-secondary" 
+                                            onclick="loadDefaultPlaylist('${widget.id}')"
+                                        >
+                                            <span class="icon">📃</span>
+                                            Playlist
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enlace adicional -->
+                            <div style="text-align: center; margin-top: var(--spacing-md);">
+                                <a href="https://www.miradiotv.cl/" target="_blank" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+                                    <span class="icon">📻</span>
+                                    Mi Radio TV
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: none;">
+                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); padding: var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                    <span class="icon icon-youtube"></span>
+                                    <span id="youtube-title-${widget.id}" style="font-size: 0.875rem; font-weight: 600;">YouTube Player</span>
+                                </div>
+                                <button 
+                                    class="btn-icon" 
+                                    onclick="showYouTubeInput('${widget.id}')" 
+                                    title="Cambiar video"
+                                    style="font-size: 0.75rem;"
+                                >
+                                    🔄
+                                </button>
+                            </div>
+                            <div class="youtube-iframe-container" id="youtube-iframe-${widget.id}">
+                                <!-- El iframe se insertará aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createCryptoWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="crypto-widget" id="crypto-${widget.id}">
+                        <div class="crypto-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                            <div class="icon icon-crypto" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                            <h3>Crypto Prices</h3>
+                        </div>
+                        <div class="crypto-loading" style="text-align: center; color: var(--text-secondary);">
+                            <p>Cargando precios...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createRSSWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="rss-widget" id="rss-${widget.id}">
+                        <div class="rss-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                            <div class="icon icon-news" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                            <h3>Últimas Noticias</h3>
+                        </div>
+                        <div class="rss-content">
+                            <div class="rss-item" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); margin-bottom: var(--spacing-sm);">
+                                <h4 style="font-size: 0.875rem; margin-bottom: var(--spacing-xs);">📰 Noticias disponibles</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-secondary);">Las noticias más recientes se mostrarán aquí</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createExternalWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="external-widget" style="text-align: center; height: 250px; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="icon ${widget.icon}" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.7;"></div>
+                        <h3 style="margin-bottom: var(--spacing-sm);">${widget.title}</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg); font-size: 0.875rem;">
+                            Este servicio se abre en nueva pestaña por seguridad
+                        </p>
+                        <button class="btn btn-primary" onclick="openInNewTab('${widget.url}')">
+                            <span class="icon">🔗</span>
+                            Abrir ${widget.title}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createIframeWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: 0; position: relative;">
+                    <iframe 
+                        src="${widget.url}" 
+                        class="widget-iframe"
+                        frameborder="0"
+                        allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        loading="lazy">
+                    </iframe>
+                </div>
+            `;
+        }
+
+        // Initialize widget-specific functionality
+        function initializeWidgetContent(widget) {
+            const config = widgetConfigs[widget.type];
+            
+            if (config?.type === 'crypto' || widget.type === 'crypto') {
+                loadCryptoPrices(widget.id);
+            }
+            
+            // Debug log for YouTube widgets
+            if (widget.type === 'youtube-preset') {
+                console.log('Initialized YouTube preset widget:', widget.title, widget.url);
+            }
+        }
+
+        // YouTube widget functions
+        function loadPresetVideo(widgetId, url, title) {
+            const embedUrl = convertToEmbedUrl(url);
+            if (!embedUrl) {
+                showToast('Error al cargar el video', 'error');
+                return;
+            }
+
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Update title
+            document.getElementById(`youtube-title-${widgetId}`).textContent = title;
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${embedUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast(`Reproduciendo: ${title}`, 'success');
+        }
+
+        function loadYouTubeVideo(widgetId) {
+            const urlInput = document.getElementById(`youtube-url-${widgetId}`);
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showToast('Por favor ingresa una URL de YouTube', 'error');
+                return;
+            }
+
+            const embedUrl = convertToEmbedUrl(url);
+            if (!embedUrl) {
+                showToast('URL de YouTube no válida', 'error');
+                return;
+            }
+
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Update title
+            document.getElementById(`youtube-title-${widgetId}`).textContent = 'Video Personalizado';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${embedUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Video cargado correctamente', 'success');
+        }
+
+        function loadDefaultPlaylist(widgetId) {
+            const defaultUrl = 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
+            
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Update title
+            document.getElementById(`youtube-title-${widgetId}`).textContent = 'Playlist por Defecto';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${defaultUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Playlist por defecto cargada', 'success');
+        }
+
+        function showYouTubeInput(widgetId) {
+            // Show input section and hide player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
+            
+            // Clear the input
+            document.getElementById(`youtube-url-${widgetId}`).value = '';
+        }
+
+        function convertToEmbedUrl(url) {
+            try {
+                // Remove any whitespace
+                url = url.trim();
+                
+                // Regular expressions for different YouTube URL formats
+                const patterns = {
+                    // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+                    watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
+                    // Short URL: https://youtu.be/VIDEO_ID
+                    short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
+                    // Playlist URL: https://www.youtube.com/playlist?list=PLAYLIST_ID
+                    playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
+                    // Watch with playlist: https://www.youtube.com/watch?v=VIDEO_ID&list=PLAYLIST_ID
+                    watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
+                };
+
+                // Check for watch with playlist
+                let match = url.match(patterns.watchPlaylist);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
+                }
+
+                // Check for standard watch URL
+                match = url.match(patterns.watch);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for short URL
+                match = url.match(patterns.short);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for playlist URL
+                match = url.match(patterns.playlist);
+                if (match) {
+                    return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
+                }
+
+                // If already an embed URL, return as is
+                if (url.includes('youtube.com/embed/')) {
+                    return url;
+                }
+
+                return null;
+            } catch (error) {
+                console.error('Error converting YouTube URL:', error);
+                return null;
+            }
+        }
+
+        async function loadCryptoPrices(widgetId) {
+        function loadYouTubeVideo(widgetId) {
+            const urlInput = document.getElementById(`youtube-url-${widgetId}`);
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showToast('Por favor ingresa una URL de YouTube', 'error');
+                return;
+            }
+
+            const embedUrl = convertToEmbedUrl(url);
+            if (!embedUrl) {
+                showToast('URL de YouTube no válida', 'error');
+                return;
+            }
+
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${embedUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Video cargado correctamente', 'success');
+        }
+
+        function loadDefaultPlaylist(widgetId) {
+            const defaultUrl = 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
+            
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${defaultUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Playlist por defecto cargada', 'success');
+        }
+
+        function showYouTubeInput(widgetId) {
+            // Show input section and hide player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
+            
+            // Clear the input
+            document.getElementById(`youtube-url-${widgetId}`).value = '';
+        }
+
+        function convertToEmbedUrl(url) {
+            try {
+                // Remove any whitespace
+                url = url.trim();
+                
+                // Regular expressions for different YouTube URL formats
+                const patterns = {
+                    // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+                    watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
+                    // Short URL: https://youtu.be/VIDEO_ID
+                    short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
+                    // Playlist URL: https://www.youtube.com/playlist?list=PLAYLIST_ID
+                    playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
+                    // Watch with playlist: https://www.youtube.com/watch?v=VIDEO_ID&list=PLAYLIST_ID
+                    watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
+                };
+
+                // Check for watch with playlist
+                let match = url.match(patterns.watchPlaylist);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
+                }
+
+                // Check for standard watch URL
+                match = url.match(patterns.watch);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for short URL
+                match = url.match(patterns.short);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for playlist URL
+                match = url.match(patterns.playlist);
+                if (match) {
+                    return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
+                }
+
+                // If already an embed URL, return as is
+                if (url.includes('youtube.com/embed/')) {
+                    return url;
+                }
+
+                return null;
+            } catch (error) {
+                console.error('Error converting YouTube URL:', error);
+                return null;
+            }
+        }
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true');
+                const data = await response.json();
+                
+                const cryptoContainer = document.getElementById(`crypto-${widgetId}`);
+                const loadingDiv = cryptoContainer.querySelector('.crypto-loading');
+                
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = `
+                        <div class="crypto-prices">
+                            ${Object.entries(data).map(([coin, info]) => `
+                                <div class="crypto-item" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm); border-bottom: 1px solid var(--border);">
+                                    <span style="font-weight: 600; text-transform: capitalize;">${coin.replace('-', ' ')}</span>
+                                    <div style="text-align: right;">
+                                        <div style="font-weight: 600;">${info.usd.toLocaleString()}</div>
+                                        <div style="font-size: 0.75rem; color: ${info.usd_24h_change > 0 ? 'var(--success)' : 'var(--danger)'};">
+                                            ${info.usd_24h_change > 0 ? '↗' : '↘'} ${Math.abs(info.usd_24h_change).toFixed(2)}%
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading crypto prices:', error);
+                const cryptoContainer = document.getElementById(`crypto-${widgetId}`);
+                const loadingDiv = cryptoContainer.querySelector('.crypto-loading');
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = '<p style="color: var(--danger);">Error al cargar precios</p>';
+                }
+            }
+        }
+
+        function removeWidget(widgetId) {
+            const widgetElement = document.getElementById(widgetId);
+            if (widgetElement) {
+                widgetElement.remove();
+            }
+            
+            widgets = widgets.filter(w => w.id !== widgetId);
+            saveWidgets();
+            showToast('Widget eliminado', 'success');
+            
+            // Show empty state if no widgets left
+            if (widgets.length === 0) {
+                showEmptyState();
+            }
+        }
+
+        function showEmptyState() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = `
+                <div class="dashboard-empty">
+                    <div class="icon">📊</div>
+                    <h3>Bienvenido a tu Dashboard</h3>
+                    <p>Agrega widgets desde la barra lateral para comenzar</p>
+                </div>
+            `;
+        }
+
+        // Load predefined videos on startup
+        function loadPredefinedVideos() {
+            console.log('Loading predefined videos...');
+            
+            // Remove empty state if exists
+            const emptyState = document.querySelector('.dashboard-empty');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            // Create each video widget
+            predefinedVideos.forEach((video, index) => {
+                console.log(`Creating widget ${index + 1}:`, video.title);
+                
+                const widget = {
+                    id: `preset-${video.id}`,
+                    type: 'youtube-preset',
+                    title: video.title,
+                    url: video.url,
+                    icon: 'icon-youtube'
+                };
+                
+                widgets.push(widget);
+                renderWidget(widget);
+            });
+            
+            saveWidgets();
+            showToast(`${predefinedVideos.length} videos cargados`, 'success');
+            console.log('All predefined videos loaded');
+        }
+            localStorage.setItem('dashboard-widgets', JSON.stringify(widgets));
+        }
+
+        function loadWidgets() {
+            const savedWidgets = localStorage.getItem('dashboard-widgets');
+            if (savedWidgets) {
+                try {
+                    widgets = JSON.parse(savedWidgets);
+                    console.log('Loaded widgets from storage:', widgets.length);
+                    
+                    // Remove empty state
+                    const emptyState = document.querySelector('.dashboard-empty');
+                    if (emptyState) {
+                        emptyState.remove();
+                    }
+                    
+                    widgets.forEach((widget, index) => {
+                        console.log(`Rendering saved widget ${index + 1}:`, widget.title);
+                        renderWidget(widget);
+                    });
+                } catch (error) {
+                    console.error('Error loading widgets:', error);
+                    // If there's an error, load predefined videos instead
+                    localStorage.removeItem('dashboard-widgets');
+                    loadPredefinedVideos();
+                }
+            }
+        }
+
+        // Layout functions
+        function loadLayout(layoutType) {
+            const layouts = {
+                productivity: [
+                    { type: 'gmail', title: 'Gmail' },
+                    { type: 'calendar', title: 'Calendar' },
+                    { type: 'drive', title: 'Drive' },
+                    { type: 'news', title: 'Noticias' }
+                ],
+                entertainment: [
+                    { type: 'youtube', title: 'YouTube' },
+                    { type: 'spotify', title: 'Spotify' },
+                    { type: 'netflix', title: 'Netflix' },
+                    { type: 'twitch', title: 'Twitch' }
+                ],
+                social: [
+                    { type: 'whatsapp', title: 'WhatsApp' },
+                    { type: 'youtube', title: 'YouTube' },
+                    { type: 'news', title: 'Noticias' },
+                    { type: 'weather', title: 'Clima' }
+                ]
+            };
+
+            if (layouts[layoutType]) {
+                clearDashboard();
+                layouts[layoutType].forEach(widgetData => {
+                    createWidget(widgetData.type, widgetData.title);
+                });
+                showToast(`Layout ${layoutType} cargado`, 'success');
+            }
+        }
+
+        function saveCurrentLayout() {
+            const layoutName = prompt('Nombre del layout:');
+            if (layoutName && layoutName.trim()) {
+                const layouts = JSON.parse(localStorage.getItem('dashboard-layouts') || '{}');
+                layouts[layoutName] = widgets.map(w => ({ type: w.type, title: w.title, url: w.url }));
+                localStorage.setItem('dashboard-layouts', JSON.stringify(layouts));
+                showToast('Layout guardado exitosamente', 'success');
+            }
+        }
+
+        function clearDashboard() {
+            widgets = [];
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = '';
+            saveWidgets();
+        }
+
+        // Search function
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const widgetItems = document.querySelectorAll('#widgetList .widget-item');
+                
+                widgetItems.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        // Toast function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Event listeners
+        function initEventListeners() {
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Sidebar toggle
+            document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
+            
+            // Add widget button
+            document.getElementById('addWidgetBtn').addEventListener('click', openModal);
+            
+            // Widget list items
+            document.getElementById('widgetList').addEventListener('click', (e) => {
+                const widgetItem = e.target.closest('.widget-item');
+                if (widgetItem) {
+                    const widgetType = widgetItem.getAttribute('data-widget');
+                    if (widgetType) {
+                        createWidget(widgetType);
+                        // Close sidebar on mobile
+                        if (window.innerWidth <= 768) {
+                            document.getElementById('sidebar').classList.remove('active');
+                        }
+                    }
+                }
+            });
+            
+            // Add widget form
+            document.getElementById('addWidgetForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const type = document.getElementById('widgetType').value;
+                const title = document.getElementById('widgetTitle').value;
+                const url = document.getElementById('widgetUrl').value;
+                
+                if (type) {
+                    createWidget(type, title || null, url || null);
+                    closeModal();
+                }
+            });
+            
+            // Widget type change
+            document.getElementById('widgetType').addEventListener('change', (e) => {
+                const urlGroup = document.getElementById('urlGroup');
+                const widgetTitle = document.getElementById('widgetTitle');
+                
+                if (e.target.value) {
+                    const config = widgetConfigs[e.target.value];
+                    widgetTitle.value = config.title;
+                    
+                    // Show URL field for custom widgets
+                    if (e.target.value === 'custom') {
+                        urlGroup.style.display = 'block';
+                    } else {
+                        urlGroup.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Close modal when clicking outside
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal();
+                }
+            });
+            
+            // Responsive sidebar
+            window.addEventListener('resize', () => {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + K to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                
+                // Escape to close modal
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        }
+
+        // Add a button to force load predefined videos
+        function addForceLoadButton() {
+            const headerControls = document.querySelector('.header-controls');
+            const forceLoadBtn = document.createElement('button');
+            forceLoadBtn.className = 'btn btn-secondary';
+            forceLoadBtn.innerHTML = '<span class="icon">📺</span> Cargar Videos';
+            forceLoadBtn.onclick = () => {
+                // Clear everything and force load
+                const dashboardGrid = document.getElementById('dashboardGrid');
+                dashboardGrid.innerHTML = '';
+                widgets = [];
+                localStorage.removeItem('dashboard-widgets');
+                loadPredefinedVideos();
+            };
+            headerControls.insertBefore(forceLoadBtn, headerControls.lastElementChild);
+        }
+            console.log('Initializing Dashboard...');
+            
+            try {
+                initTheme();
+                initEventListeners();
+                initSearch();
+                
+                // Check if we have saved widgets first
+                const savedWidgets = localStorage.getItem('dashboard-widgets');
+                if (savedWidgets) {
+                    console.log('Loading saved widgets...');
+                    loadWidgets();
+                } else {
+                    console.log('No saved widgets, loading predefined videos...');
+                    loadPredefinedVideos();
+                }
+                
+                console.log('Dashboard initialized successfully');
+                
+            } catch (error) {
+                console.error('Failed to initialize dashboard:', error);
+                showToast('Error al inicializar el dashboard', 'error');
+            }
+        }
+
+        // Drag and drop functionality
+        function initDragAndDrop() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            let draggedElement = null;
+
+            dashboardGrid.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('widget')) {
+                    draggedElement = e.target;
+                    e.target.style.opacity = '0.5';
+                }
+            });
+
+            dashboardGrid.addEventListener('dragend', (e) => {
+                if (e.target.classList.contains('widget')) {
+                    e.target.style.opacity = '1';
+                    draggedElement = null;
+                }
+            });
+
+            dashboardGrid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            dashboardGrid.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (draggedElement && e.target.classList.contains('widget') && e.target !== draggedElement) {
+                    const rect = e.target.getBoundingClientRect();
+                    const midpoint = rect.left + rect.width / 2;
+                    
+                    if (e.clientX < midpoint) {
+                        dashboardGrid.insertBefore(draggedElement, e.target);
+                    } else {
+                        dashboardGrid.insertBefore(draggedElement, e.target.nextSibling);
+                    }
+                    
+                    // Update widgets array order
+                    const draggedId = draggedElement.id;
+                    const targetId = e.target.id;
+                    
+                    const draggedIndex = widgets.findIndex(w => w.id === draggedId);
+                    const targetIndex = widgets.findIndex(w => w.id === targetId);
+                    
+                    if (draggedIndex !== -1 && targetIndex !== -1) {
+                        const draggedWidget = widgets.splice(draggedIndex, 1)[0];
+                        widgets.splice(targetIndex, 0, draggedWidget);
+                        saveWidgets();
+                    }
+                }
+            });
+
+            // Make widgets draggable when created
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.classList && node.classList.contains('widget')) {
+                            node.draggable = true;
+                        }
+                    });
+                });
+            });
+
+            observer.observe(dashboardGrid, { childList: true });
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            initDragAndDrop();
+        });
+
+        // Fallback for browsers that don't support DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initApp();
+                initDragAndDrop();
+            });
+        } else {
+            initApp();
+            initDragAndDrop();
+        }
+    </script>
+</body>
+</html>
