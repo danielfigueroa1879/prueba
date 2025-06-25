@@ -708,8 +708,8 @@
             youtube: {
                 title: 'YouTube',
                 icon: 'icon-youtube',
-                url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=xi0T43vv4QknHHD3',
-                embedUrl: 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
+                // Keep the original embedUrl for the default playlist option in the form
+                embedUrl: 'https://www.youtube.com/embed/videoseries?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
                 type: 'youtube'
             },
             spotify: {
@@ -774,6 +774,17 @@
             }
         };
 
+        // Videos de YouTube para cargar al inicio si no hay widgets guardados
+        const initialYouTubeVideos = [
+            { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHsP0' },
+            { title: '🔴 EN VIVO - Canal Principal', url: 'https://youtu.be/HgOYT2_oiJg' },
+            { title: '📺 Noticias 24/7', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
+            { title: '🎵 Música Relajante', url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw' },
+            { title: '🌊 Sonidos de Naturaleza', url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk' },
+            { title: '🎬 Contenido Especial', url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8' },
+            { title: '📻 Radio Online', url: 'https://www.youtube.com/watch?v=bpo70sR9Kps' }
+        ];
+
         // Initialize theme
         function initTheme() {
             document.documentElement.setAttribute('data-theme', currentTheme);
@@ -822,7 +833,7 @@
                 id: generateWidgetId(),
                 type: type,
                 title: customTitle || config.title,
-                url: customUrl || config.embedUrl || config.url,
+                url: customUrl || config.embedUrl || config.url, // customUrl takes precedence
                 icon: config.icon
             };
 
@@ -909,10 +920,14 @@
         }
 
         function createYouTubeWidget(widget) {
+            const initialLoadUrl = widget.url;
+            // Determine if we should show the player immediately (if a valid embeddable URL is provided)
+            const displayInput = !initialLoadUrl || !convertToEmbedUrl(initialLoadUrl);
+            
             return `
                 <div class="widget-content" style="padding: var(--spacing-md);">
                     <div class="youtube-widget" id="youtube-widget-${widget.id}">
-                        <div class="youtube-input-section" id="youtube-input-${widget.id}">
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${displayInput ? 'block' : 'none'};">
                             <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                                 <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
                                 <h3>YouTube Player</h3>
@@ -968,7 +983,7 @@
                                     <div style="display: flex; gap: var(--spacing-sm);">
                                         <button 
                                             class="btn btn-primary flex-1" 
-                                            onclick="loadYouTubeVideo('${widget.id}')"
+                                            onclick="loadYouTubeVideoFromInput('${widget.id}')"
                                             style="flex: 1;"
                                         >
                                             <span class="icon">▶️</span>
@@ -994,11 +1009,11 @@
                             </div>
                         </div>
 
-                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: none;">
+                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${displayInput ? 'none' : 'block'};">
                             <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); padding: var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
                                 <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
                                     <span class="icon icon-youtube"></span>
-                                    <span id="youtube-title-${widget.id}" style="font-size: 0.875rem; font-weight: 600;">YouTube Player</span>
+                                    <span id="youtube-title-${widget.id}" style="font-size: 0.875rem; font-weight: 600;">${widget.title}</span>
                                 </div>
                                 <button 
                                     class="btn-icon" 
@@ -1011,6 +1026,17 @@
                             </div>
                             <div class="youtube-iframe-container" id="youtube-iframe-${widget.id}">
                                 <!-- El iframe se insertará aquí -->
+                                ${!displayInput ? `
+                                    <iframe 
+                                        src="${convertToEmbedUrl(initialLoadUrl)}"
+                                        class="widget-iframe"
+                                        style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                                        frameborder="0"
+                                        allowfullscreen
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        referrerpolicy="strict-origin-when-cross-origin">
+                                    </iframe>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -1090,44 +1116,27 @@
         function initializeWidgetContent(widget) {
             const config = widgetConfigs[widget.type];
             
-            if (config?.type === 'crypto') {
+            if (config?.type === 'youtube') {
+                const initialLoadUrl = widget.url;
+                if (initialLoadUrl && convertToEmbedUrl(initialLoadUrl)) {
+                    // Load the video directly if a URL is present
+                    // Use setTimeout to ensure DOM elements are fully rendered before attempting to manipulate them
+                    setTimeout(() => {
+                        loadYouTubeVideoInitial(widget.id, initialLoadUrl, widget.title);
+                    }, 0); 
+                }
+            } else if (config?.type === 'crypto') {
                 loadCryptoPrices(widget.id);
             }
         }
 
         // YouTube widget functions
         function loadPresetVideo(widgetId, url, title) {
-            const embedUrl = convertToEmbedUrl(url);
-            if (!embedUrl) {
-                showToast('Error al cargar el video', 'error');
-                return;
-            }
-
-            // Hide input section and show player
-            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
-
-            // Update title
-            document.getElementById(`youtube-title-${widgetId}`).textContent = title;
-
-            // Create and insert iframe
-            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            iframeContainer.innerHTML = `
-                <iframe 
-                    src="${embedUrl}"
-                    class="widget-iframe"
-                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
-                    frameborder="0"
-                    allowfullscreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin">
-                </iframe>
-            `;
-
+            loadYouTubeVideoInitial(widgetId, url, title);
             showToast(`Reproduciendo: ${title}`, 'success');
         }
 
-        function loadYouTubeVideo(widgetId) {
+        function loadYouTubeVideoFromInput(widgetId) {
             const urlInput = document.getElementById(`youtube-url-${widgetId}`);
             const url = urlInput.value.trim();
             
@@ -1142,55 +1151,45 @@
                 return;
             }
 
-            // Hide input section and show player
-            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
-
-            // Update title
-            document.getElementById(`youtube-title-${widgetId}`).textContent = 'Video Personalizado';
-
-            // Create and insert iframe
-            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            iframeContainer.innerHTML = `
-                <iframe 
-                    src="${embedUrl}"
-                    class="widget-iframe"
-                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
-                    frameborder="0"
-                    allowfullscreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin">
-                </iframe>
-            `;
-
+            loadYouTubeVideoInitial(widgetId, url, 'Video Personalizado');
             showToast('Video cargado correctamente', 'success');
         }
 
         function loadDefaultPlaylist(widgetId) {
-            const defaultUrl = 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
+            const defaultUrl = 'https://www.youtube.com/embed/videoseries?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
             
-            // Hide input section and show player
-            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
-
-            // Update title
-            document.getElementById(`youtube-title-${widgetId}`).textContent = 'Playlist por Defecto';
-
-            // Create and insert iframe
-            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            iframeContainer.innerHTML = `
-                <iframe 
-                    src="${defaultUrl}"
-                    class="widget-iframe"
-                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
-                    frameborder="0"
-                    allowfullscreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin">
-                </iframe>
-            `;
-
+            loadYouTubeVideoInitial(widgetId, defaultUrl, 'Playlist por Defecto');
             showToast('Playlist por defecto cargada', 'success');
+        }
+
+        // Helper function to load YouTube video/playlist into the iframe
+        function loadYouTubeVideoInitial(widgetId, url, title) {
+            const embedUrl = convertToEmbedUrl(url);
+            if (!embedUrl) {
+                return; 
+            }
+
+            const inputSection = document.getElementById(`youtube-input-${widgetId}`);
+            const playerSection = document.getElementById(`youtube-player-${widgetId}`);
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            const youtubeTitleElement = document.getElementById(`youtube-title-${widgetId}`);
+
+            if (inputSection && playerSection && iframeContainer && youtubeTitleElement) {
+                inputSection.style.display = 'none';
+                playerSection.style.display = 'block';
+                youtubeTitleElement.textContent = title;
+                iframeContainer.innerHTML = `
+                    <iframe 
+                        src="${embedUrl}"
+                        class="widget-iframe"
+                        style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                        frameborder="0"
+                        allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin">
+                    </iframe>
+                `;
+            }
         }
 
         function showYouTubeInput(widgetId) {
@@ -1211,7 +1210,7 @@
                 const patterns = {
                     // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
                     watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
-                    // Short URL: https://youtu.be/VIDEO_ID
+                    // Short URL: https://youtu\.be/VIDEO_ID
                     short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
                     // Playlist URL: https://www.youtube.com/playlist?list=PLAYLIST_ID
                     playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
@@ -1256,127 +1255,6 @@
         }
 
         async function loadCryptoPrices(widgetId) {
-        function loadYouTubeVideo(widgetId) {
-            const urlInput = document.getElementById(`youtube-url-${widgetId}`);
-            const url = urlInput.value.trim();
-            
-            if (!url) {
-                showToast('Por favor ingresa una URL de YouTube', 'error');
-                return;
-            }
-
-            const embedUrl = convertToEmbedUrl(url);
-            if (!embedUrl) {
-                showToast('URL de YouTube no válida', 'error');
-                return;
-            }
-
-            // Hide input section and show player
-            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
-
-            // Create and insert iframe
-            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            iframeContainer.innerHTML = `
-                <iframe 
-                    src="${embedUrl}"
-                    class="widget-iframe"
-                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
-                    frameborder="0"
-                    allowfullscreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin">
-                </iframe>
-            `;
-
-            showToast('Video cargado correctamente', 'success');
-        }
-
-        function loadDefaultPlaylist(widgetId) {
-            const defaultUrl = 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
-            
-            // Hide input section and show player
-            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
-
-            // Create and insert iframe
-            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            iframeContainer.innerHTML = `
-                <iframe 
-                    src="${defaultUrl}"
-                    class="widget-iframe"
-                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
-                    frameborder="0"
-                    allowfullscreen
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin">
-                </iframe>
-            `;
-
-            showToast('Playlist por defecto cargada', 'success');
-        }
-
-        function showYouTubeInput(widgetId) {
-            // Show input section and hide player
-            document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
-            
-            // Clear the input
-            document.getElementById(`youtube-url-${widgetId}`).value = '';
-        }
-
-        function convertToEmbedUrl(url) {
-            try {
-                // Remove any whitespace
-                url = url.trim();
-                
-                // Regular expressions for different YouTube URL formats
-                const patterns = {
-                    // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
-                    watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
-                    // Short URL: https://youtu.be/VIDEO_ID
-                    short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
-                    // Playlist URL: https://www.youtube.com/playlist?list=PLAYLIST_ID
-                    playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
-                    // Watch with playlist: https://www.youtube.com/watch?v=VIDEO_ID&list=PLAYLIST_ID
-                    watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
-                };
-
-                // Check for watch with playlist
-                let match = url.match(patterns.watchPlaylist);
-                if (match) {
-                    return `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
-                }
-
-                // Check for standard watch URL
-                match = url.match(patterns.watch);
-                if (match) {
-                    return `https://www.youtube.com/embed/${match[1]}`;
-                }
-
-                // Check for short URL
-                match = url.match(patterns.short);
-                if (match) {
-                    return `https://www.youtube.com/embed/${match[1]}`;
-                }
-
-                // Check for playlist URL
-                match = url.match(patterns.playlist);
-                if (match) {
-                    return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
-                }
-
-                // If already an embed URL, return as is
-                if (url.includes('youtube.com/embed/')) {
-                    return url;
-                }
-
-                return null;
-            } catch (error) {
-                console.error('Error converting YouTube URL:', error);
-                return null;
-            }
-        }
             try {
                 const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true');
                 const data = await response.json();
@@ -1578,8 +1456,10 @@
                     const config = widgetConfigs[e.target.value];
                     widgetTitle.value = config.title;
                     
-                    // Show URL field for custom widgets
-                    if (e.target.value === 'custom') {
+                    // Show URL field for custom widgets (or if a custom URL is generally expected)
+                    // The 'custom' type is not explicitly defined in widgetConfigs, so this part might be a remnant
+                    // but keeping it in case future expansion includes a generic custom URL widget type.
+                    if (e.target.value === 'youtube') { // For YouTube, we also allow custom URLs
                         urlGroup.style.display = 'block';
                     } else {
                         urlGroup.style.display = 'none';
@@ -1625,10 +1505,16 @@
                 initTheme();
                 initEventListeners();
                 initSearch();
-                loadWidgets();
-                
-                // Show welcome message if no widgets
+                loadWidgets(); // Load saved widgets first
+
+                // If no widgets were loaded from local storage, add the default YouTube videos
                 if (widgets.length === 0) {
+                    initialYouTubeVideos.forEach(video => {
+                        createWidget('youtube', video.title, video.url);
+                    });
+                    showToast('¡Bienvenido! Se cargaron los videos predeterminados.', 'info');
+                } else {
+                    // Show welcome message if widgets were loaded (or if they were just added above)
                     setTimeout(() => {
                         showToast('¡Bienvenido! Agrega widgets para comenzar.', 'info');
                     }, 1000);
@@ -1725,3 +1611,4 @@
     </script>
 </body>
 </html>
+
