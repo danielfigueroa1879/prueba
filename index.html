@@ -24,6 +24,7 @@
             --font-family: 'Poppins', sans-serif;
             
             /* Espaciado */
+            --spacing-xs: 0.25rem; /* Nuevo espaciado extra pequeño */
             --spacing-sm: 0.5rem;
             --spacing-md: 1rem;
             --spacing-lg: 1.5rem;
@@ -320,7 +321,7 @@
 
         .widget-header {
             /* MODIFICACIÓN: Reducir el padding para un "banner" más delgado */
-            padding: var(--spacing-sm) var(--spacing-md); 
+            padding: 0.3rem var(--spacing-md); /* Reducido a 0.3rem verticalmente */
             background: var(--bg-tertiary);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -334,6 +335,7 @@
             display: flex;
             align-items: center;
             gap: var(--spacing-sm);
+            font-size: 0.95rem; /* Reducir ligeramente el tamaño de fuente */
         }
 
         .widget-controls {
@@ -358,7 +360,7 @@
             width: 100%;
             height: 100%; /* Ajustar la altura para que el video ocupe el espacio */
             border: none;
-            min-height: 250px; /* Reducir la altura mínima para permitir más espacio si es necesario */
+            min-height: 200px; /* Reducir la altura mínima para permitir más espacio si es necesario */
         }
 
         .widget-placeholder {
@@ -1019,16 +1021,16 @@
                         </div>
 
                         <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${displayInput ? 'none' : 'block'};">
-                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); padding: var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
-                                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
-                                    <span class="icon icon-youtube"></span>
-                                    <span id="youtube-title-${widget.id}" style="font-size: 0.875rem; font-weight: 600;">${widget.title}</span>
+                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xs); padding: 0.3rem; background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                                <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
+                                    <span class="icon icon-youtube" style="font-size: 0.85rem;"></span>
+                                    <span id="youtube-title-${widget.id}" style="font-size: 0.85rem; font-weight: 600;">${widget.title}</span>
                                 </div>
                                 <button 
                                     class="btn-icon" 
                                     onclick="showYouTubeInput('${widget.id}')" 
                                     title="Cambiar video"
-                                    style="font-size: 0.75rem;"
+                                    style="width: 28px; height: 28px; font-size: 0.75rem;"
                                 >
                                     🔄
                                 </button>
@@ -1629,5 +1631,3 @@
     </script>
 </body>
 </html>
-
-
