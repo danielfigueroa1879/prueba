@@ -703,14 +703,65 @@
         let widgets = [];
         let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
 
+        // Predefined YouTube videos that will auto-load
+        const predefinedVideos = [
+            {
+                id: 'playlist-default',
+                title: '📃 Playlist Principal',
+                url: 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'live-main',
+                title: '🔴 EN VIVO - Canal Principal',
+                url: 'https://youtu.be/HgOYT2_oiJg',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'news-24-7',
+                title: '📺 Noticias 24/7',
+                url: 'https://www.youtube.com/watch?v=5IugcHLsC0E',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'chilevision',
+                title: '📺 CHILEVISION',
+                url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'tvn-24-horas',
+                title: '📺 24 HORAS',
+                url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'special-content',
+                title: '🎬 Contenido Especial',
+                url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8',
+                type: 'youtube-preset'
+            },
+            {
+                id: 'radio-online',
+                title: '📻 Radio Online',
+                url: 'https://www.youtube.com/watch?v=bpo70sR9Kps',
+                type: 'youtube-preset'
+            }
+        ];
+
         // Widget configurations
         const widgetConfigs = {
             youtube: {
-                title: 'YouTube',
+                title: 'YouTube Player',
                 icon: 'icon-youtube',
-                url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=xi0T43vv4QknHHD3',
-                embedUrl: 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
+                url: '',
                 type: 'youtube'
+            },
+            'youtube-preset': {
+                title: 'YouTube Video',
+                icon: 'icon-youtube',
+                url: '',
+                type: 'youtube-preset'
             },
             spotify: {
                 title: 'Spotify',
@@ -862,9 +913,12 @@
             const config = widgetConfigs[widget.type];
             
             // Generate content based on widget type
-            switch (config?.type) {
+            switch (config?.type || widget.type) {
                 case 'youtube':
                     widgetContent = createYouTubeWidget(widget);
+                    break;
+                case 'youtube-preset':
+                    widgetContent = createYouTubePresetWidget(widget);
                     break;
                 case 'crypto':
                     widgetContent = createCryptoWidget(widget);
@@ -908,7 +962,22 @@
             initializeWidgetContent(widget);
         }
 
-        function createYouTubeWidget(widget) {
+        function createYouTubePresetWidget(widget) {
+            const embedUrl = convertToEmbedUrl(widget.url);
+            return `
+                <div class="widget-content" style="padding: 0; position: relative;">
+                    <iframe 
+                        src="${embedUrl}"
+                        class="widget-iframe"
+                        style="width: 100%; height: 350px; border: none;"
+                        frameborder="0"
+                        allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin">
+                    </iframe>
+                </div>
+            `;
+        }
             return `
                 <div class="widget-content" style="padding: var(--spacing-md);">
                     <div class="youtube-widget" id="youtube-widget-${widget.id}">
@@ -1438,8 +1507,27 @@
             `;
         }
 
-        // Storage functions
-        function saveWidgets() {
+        // Load predefined videos on startup
+        function loadPredefinedVideos() {
+            // Only load if no widgets exist (first time)
+            if (widgets.length === 0) {
+                predefinedVideos.forEach(video => {
+                    const widget = {
+                        id: generateWidgetId(),
+                        type: video.type,
+                        title: video.title,
+                        url: video.url,
+                        icon: 'icon-youtube'
+                    };
+                    
+                    widgets.push(widget);
+                    renderWidget(widget);
+                });
+                
+                saveWidgets();
+                showToast('Videos de YouTube cargados automáticamente', 'success');
+            }
+        }
             localStorage.setItem('dashboard-widgets', JSON.stringify(widgets));
         }
 
@@ -1626,6 +1714,11 @@
                 initEventListeners();
                 initSearch();
                 loadWidgets();
+                
+                // Load predefined videos if no widgets exist
+                setTimeout(() => {
+                    loadPredefinedVideos();
+                }, 500);
                 
                 // Show welcome message if no widgets
                 if (widgets.length === 0) {
