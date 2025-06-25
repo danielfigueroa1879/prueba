@@ -3,526 +3,1653 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Media Hub Personalizable</title>
-    <!-- Carga de Tailwind CSS desde CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Carga de la fuente Poppins desde Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <title>Dashboard Multifuncional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-      /* Configuración global para usar Poppins */
-      body {
-        font-family: 'Poppins', sans-serif;
-      }
-      /* Asegura que el iframe y el video se ajusten correctamente */
-      iframe, video {
-        max-width: 100%;
-        height: auto;
-      }
-      /* Estilo para el modo oscuro si se necesita una configuración inicial */
-      html.dark {
-        color-scheme: dark;
-      }
+        :root {
+            /* Colores modo claro */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent: #007bff;
+            --accent-hover: #0056b3;
+            --success: #28a745;
+            --danger: #dc3545;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --border: #dee2e6;
+            
+            /* Tipografía */
+            --font-family: 'Poppins', sans-serif;
+            
+            /* Espaciado */
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* Bordes */
+            --border-radius: 0.5rem;
+            --border-radius-lg: 1rem;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --accent: #4dabf7;
+            --accent-hover: #339af0;
+            --success: #51cf66;
+            --danger: #ff6b6b;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --border: #495057;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            padding: var(--spacing-md);
+            box-shadow: 0 2px 10px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: var(--font-family);
+            font-weight: 400;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            text-decoration: none;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            padding: var(--spacing-sm);
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(28px);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .widget-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-item {
+            padding: var(--spacing-md);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-item:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .widget-icon {
+            font-size: 1.2rem;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            flex: 1;
+            padding: var(--spacing-lg);
+            background: var(--bg-primary);
+            overflow-y: auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            min-height: 600px;
+        }
+
+        .dashboard-empty {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            min-height: 400px;
+        }
+
+        .dashboard-empty .icon {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        /* Widget Container */
+        .widget {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .widget:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+
+        .widget-header {
+            padding: var(--spacing-md);
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .widget-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-controls {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .widget-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .widget-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            min-height: 300px;
+        }
+
+        .widget-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: var(--spacing-lg);
+        }
+
+        .widget-placeholder .icon {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 400;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--border-radius);
+            z-index: 3000;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-controls {
+                justify-content: space-between;
+            }
+
+            .search-input {
+                width: 100%;
+                min-width: 200px;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 80px;
+                left: -300px;
+                height: calc(100vh - 80px);
+                z-index: 1500;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .dashboard {
+                padding: var(--spacing-md);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+
+            .widget {
+                min-height: 300px;
+            }
+        }
+
+        /* Icons (Simple CSS icons) */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+        }
+
+        .icon-dashboard::before { content: "📊"; }
+        .icon-youtube::before { content: "📺"; }
+        .icon-music::before { content: "🎵"; }
+        .icon-whatsapp::before { content: "💬"; }
+        .icon-gmail::before { content: "📧"; }
+        .icon-calendar::before { content: "📅"; }
+        .icon-drive::before { content: "📁"; }
+        .icon-weather::before { content: "🌤️"; }
+        .icon-news::before { content: "📰"; }
+        .icon-netflix::before { content: "🎬"; }
+        .icon-twitch::before { content: "🎮"; }
+        .icon-tv::before { content: "📻"; }
+        .icon-crypto::before { content: "💰"; }
+        .icon-menu::before { content: "☰"; }
+        .icon-plus::before { content: "➕"; }
+        .icon-x::before { content: "✖️"; }
+        .icon-briefcase::before { content: "💼"; }
+        .icon-gamepad::before { content: "🎮"; }
+        .icon-users::before { content: "👥"; }
+        .icon-save::before { content: "💾"; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <!-- Carga de React y ReactDOM desde CDN -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Carga de Babel para transformar JSX en JS de navegador -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <script type="text/babel">
-        // Componente para el mensaje modal (reemplaza alert/confirm)
-        function MessageModal({ message, onClose, onConfirm, onCancel }) {
-          if (!message) return null; // No renderizar si no hay mensaje
-
-          return (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 font-poppins">
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full text-center border border-gray-200 dark:border-gray-700">
-                <p className="text-gray-900 dark:text-gray-100 mb-6 text-lg">{message}</p>
-                <div className="flex justify-center space-x-4">
-                  {onConfirm && (
-                    <button
-                      onClick={() => { onConfirm(); onClose(); }}
-                      className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
-                    >
-                      Sí
-                    </button>
-                  )}
-                  {onCancel && (
-                    <button
-                      onClick={() => { onCancel(); onClose(); }}
-                      className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
-                    >
-                      No
-                    </button>
-                  )}
-                  {(!onConfirm && !onCancel) && ( // Si no es una confirmación, mostrar solo el botón "Entendido"
-                    <button
-                      onClick={onClose}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-                    >
-                      Entendido
-                    </button>
-                  )}
-                </div>
-              </div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="icon icon-dashboard"></span>
+                Dashboard Pro
             </div>
-          );
-        }
+            <div class="header-controls">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Buscar widgets..." id="searchInput">
+                </div>
+                <button class="btn-icon" id="toggleSidebar">
+                    <span class="icon icon-menu"></span>
+                </button>
+                <div class="theme-toggle" id="themeToggle"></div>
+                <button class="btn btn-primary" id="addWidgetBtn">
+                    <span class="icon icon-plus"></span>
+                    Agregar Widget
+                </button>
+            </div>
+        </div>
+    </header>
 
-        // Componente para alternar el modo oscuro
-        function DarkModeToggle({ darkMode, toggleDarkMode }) {
-          return (
-            <button
-              onClick={toggleDarkMode}
-              className={`p-3 rounded-full shadow-md focus:outline-none transition-all duration-300 ease-in-out
-                ${darkMode ? 'bg-gray-700 text-yellow-300 hover:bg-gray-600' : 'bg-yellow-400 text-gray-900 hover:bg-yellow-500'}`
-              }
-              title={darkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
-              aria-label={darkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
-            >
-              {darkMode ? (
-                // Icono de Sol (Modo Claro)
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sun">
-                  <circle cx="12" cy="12" r="8"></circle>
-                  <line x1="12" x2="12" y1="1" y2="3"></line>
-                  <line x1="12" x2="12" y1="21" y2="23"></line>
-                  <line x1="4.22" x2="5.64" y1="4.22" y2="5.64"></line>
-                  <line x1="18.36" x2="19.78" y1="18.36" y2="19.78"></line>
-                  <line x1="1" x2="3" y1="12" y2="12"></line>
-                  <line x1="21" x2="23" y1="12" y2="12"></line>
-                  <line x1="4.22" x2="5.64" y1="19.78" y2="18.36"></line>
-                  <line x1="18.36" x2="19.78" y1="5.64" y2="4.22"></line>
-                </svg>
-              ) : (
-                // Icono de Luna (Modo Oscuro)
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-moon">
-                  <path d="M12 3a6.364 6.364 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-                </svg>
-              )}
-            </button>
-          );
-        }
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Widgets Disponibles</h3>
+                <div class="widget-list" id="widgetList">
+                    <div class="widget-item" data-widget="youtube">
+                        <span class="widget-icon icon icon-youtube"></span>
+                        <span>YouTube</span>
+                    </div>
+                    <div class="widget-item" data-widget="spotify">
+                        <span class="widget-icon icon icon-music"></span>
+                        <span>Spotify</span>
+                    </div>
+                    <div class="widget-item" data-widget="whatsapp">
+                        <span class="widget-icon icon icon-whatsapp"></span>
+                        <span>WhatsApp Web</span>
+                    </div>
+                    <div class="widget-item" data-widget="gmail">
+                        <span class="widget-icon icon icon-gmail"></span>
+                        <span>Gmail</span>
+                    </div>
+                    <div class="widget-item" data-widget="calendar">
+                        <span class="widget-icon icon icon-calendar"></span>
+                        <span>Google Calendar</span>
+                    </div>
+                    <div class="widget-item" data-widget="drive">
+                        <span class="widget-icon icon icon-drive"></span>
+                        <span>Google Drive</span>
+                    </div>
+                    <div class="widget-item" data-widget="weather">
+                        <span class="widget-icon icon icon-weather"></span>
+                        <span>Clima</span>
+                    </div>
+                    <div class="widget-item" data-widget="news">
+                        <span class="widget-icon icon icon-news"></span>
+                        <span>Noticias</span>
+                    </div>
+                    <div class="widget-item" data-widget="netflix">
+                        <span class="widget-icon icon icon-netflix"></span>
+                        <span>Netflix</span>
+                    </div>
+                    <div class="widget-item" data-widget="twitch">
+                        <span class="widget-icon icon icon-twitch"></span>
+                        <span>Twitch</span>
+                    </div>
+                    <div class="widget-item" data-widget="crypto">
+                        <span class="widget-icon icon icon-crypto"></span>
+                        <span>Crypto</span>
+                    </div>
+                </div>
+            </div>
 
-        // Componente principal de la aplicación
-        function App() {
-          // Estado para el modo oscuro
-          const [darkMode, setDarkMode] = React.useState(false);
-          // Estado para los canales de la lista M3U
-          const [m3uChannels, setM3uChannels] = React.useState([]);
-          // Estado para la URL del canal M3U seleccionado
-          const [selectedM3uChannelUrl, setSelectedM3uChannelUrl] = React.useState('');
-          // Estado para la URL del video de YouTube
-          const [youtubeUrl, setYoutubeUrl] = React.useState('');
-          // Estado para las secciones personalizadas (array de objetos)
-          const [customSections, setCustomSections] = React.useState([]); // { id, title, embedCode }
-          // Estados para el formulario de añadir/editar secciones
-          const [newSectionTitle, setNewSectionTitle] = React.useState('');
-          const [newSectionEmbedCode, setNewSectionEmbedCode] = React.useState('');
-          // Estado para saber si se está editando una sección (guarda el ID de la sección)
-          const [editingSectionId, setEditingSectionId] = React.useState(null);
-          // Estado para el mensaje del modal
-          const [modalMessage, setModalMessage] = React.useState('');
-          // Estado para la acción de confirmación del modal
-          const [modalConfirmAction, setModalConfirmAction] = React.useState(null);
-          // Estado para la acción de cancelación del modal
-          const [modalCancelAction, setModalCancelAction] = React.useState(null);
-          // Estado para el ID del elemento a eliminar (usado en la confirmación)
-          const [itemToDeleteId, setItemToDeleteId] = React.useState(null);
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">Layouts</h3>
+                <div class="widget-list">
+                    <div class="widget-item" onclick="loadLayout('productivity')">
+                        <span class="widget-icon icon icon-briefcase"></span>
+                        <span>Productividad</span>
+                    </div>
+                    <div class="widget-item" onclick="loadLayout('entertainment')">
+                        <span class="widget-icon icon icon-gamepad"></span>
+                        <span>Entretenimiento</span>
+                    </div>
+                    <div class="widget-item" onclick="loadLayout('social')">
+                        <span class="widget-icon icon icon-users"></span>
+                        <span>Social</span>
+                    </div>
+                    <div class="widget-item" onclick="saveCurrentLayout()">
+                        <span class="widget-icon icon icon-save"></span>
+                        <span>Guardar Layout</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
 
+        <!-- Dashboard -->
+        <main class="dashboard">
+            <div class="dashboard-grid" id="dashboardGrid">
+                <div class="dashboard-empty">
+                    <div class="icon">📊</div>
+                    <h3>Bienvenido a tu Dashboard</h3>
+                    <p>Agrega widgets desde la barra lateral para comenzar</p>
+                </div>
+            </div>
+        </main>
+    </div>
 
-          // Efecto para cargar la preferencia de modo oscuro desde localStorage al iniciar
-          React.useEffect(() => {
-            const savedMode = localStorage.getItem('darkMode');
-            if (savedMode) {
-              setDarkMode(JSON.parse(savedMode));
+    <!-- Add Widget Modal -->
+    <div class="modal" id="addWidgetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Agregar Widget</h2>
+                <button class="btn-icon" onclick="closeModal()">
+                    <span class="icon icon-x"></span>
+                </button>
+            </div>
+            <form id="addWidgetForm">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Widget</label>
+                    <select class="form-select" id="widgetType" required>
+                        <option value="">Seleccionar tipo</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="whatsapp">WhatsApp Web</option>
+                        <option value="gmail">Gmail</option>
+                        <option value="calendar">Google Calendar</option>
+                        <option value="drive">Google Drive</option>
+                        <option value="weather">Clima</option>
+                        <option value="news">Noticias</option>
+                        <option value="netflix">Netflix</option>
+                        <option value="twitch">Twitch</option>
+                        <option value="crypto">Crypto</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Título del Widget</label>
+                    <input type="text" class="form-input" id="widgetTitle" placeholder="Título personalizado">
+                </div>
+                <div class="form-group" id="urlGroup" style="display: none;">
+                    <label class="form-label">URL Personalizada</label>
+                    <input type="url" class="form-input" id="widgetUrl" placeholder="https://ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Agregar Widget</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let widgets = [];
+        let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
+
+        // Widget configurations
+        const widgetConfigs = {
+            youtube: {
+                title: 'YouTube',
+                icon: 'icon-youtube',
+                url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=xi0T43vv4QknHHD3',
+                embedUrl: 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
+                type: 'youtube'
+            },
+            spotify: {
+                title: 'Spotify',
+                icon: 'icon-music',
+                url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd?utm_source=generator&theme=0',
+                type: 'iframe'
+            },
+            whatsapp: {
+                title: 'WhatsApp Web',
+                icon: 'icon-whatsapp',
+                url: 'https://web.whatsapp.com/',
+                type: 'external'
+            },
+            gmail: {
+                title: 'Gmail',
+                icon: 'icon-gmail',
+                url: 'https://mail.google.com/mail/u/0/#inbox',
+                type: 'external'
+            },
+            calendar: {
+                title: 'Google Calendar',
+                icon: 'icon-calendar',
+                url: 'https://calendar.google.com/calendar/embed?src=primary&ctz=America%2FNew_York',
+                type: 'iframe'
+            },
+            drive: {
+                title: 'Google Drive',
+                icon: 'icon-drive',
+                url: 'https://drive.google.com/embeddedfolderview?id=root',
+                type: 'iframe'
+            },
+            weather: {
+                title: 'Clima',
+                icon: 'icon-weather',
+                url: 'https://embed.windy.com/?lat=40.749&lon=-73.980&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&detailLat=40.749&detailLon=-73.980&metricWind=default&metricTemp=default&radarRange=-1',
+                type: 'iframe'
+            },
+            news: {
+                title: 'Noticias',
+                icon: 'icon-news',
+                url: 'https://rss.cnn.com/rss/edition.rss',
+                type: 'rss'
+            },
+            netflix: {
+                title: 'Netflix',
+                icon: 'icon-netflix',
+                url: 'https://www.netflix.com/browse',
+                type: 'external'
+            },
+            twitch: {
+                title: 'Twitch',
+                icon: 'icon-twitch',
+                url: 'https://player.twitch.tv/?channel=directory&parent=localhost',
+                type: 'iframe'
+            },
+            crypto: {
+                title: 'Crypto Prices',
+                icon: 'icon-crypto',
+                url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true',
+                type: 'crypto'
             }
+        };
 
-            // Parsear y cargar los canales M3U directamente al inicio
-            const m3uContent = `
-#EXTINF:-1 tvg-id="156" tvg-name="+ Listas en M3U.CL" tvg-logo="https://cdn.m3u.cl/logo/156___Listas_en_M3U_CL.png", + Listas en M3U.CL ✪ | CL
-https://scl.edge.grupoz.cl/transmision/live/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="4" tvg-name="Retro Plus TV" tvg-logo="https://cdn.m3u.cl/logo/4_Retro_Plus_TV.png", Retro Plus TV ✪ | CL
-https://tls-cl.cdnz.cl/retroplustvuno/live/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="5" tvg-name="Retro Plus TV Señal 2" tvg-logo="https://cdn.m3u.cl/logo/5_Retro_Plus_TV_Senal_2.png", Retro Plus TV Señal 2 ✪ | CL
-https://tls-cl.cdnz.cl/retroplustvdos/live/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="465" tvg-name="Retro Plus TV Señal 3" tvg-logo="https://cdn.m3u.cl/logo/465_Retro_Plus_TV_Senal_3.png", Retro Plus TV Señal 3 ✪ | CL
-https://tls-cl.cdnz.cl/retroplustvtres/live/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1160" tvg-name="VClassicTV" tvg-logo="https://cdn.m3u.cl/logo/1160_VClassicTV.png", VClassicTV ✪ | CL
-https://5eaccbab48461.streamlock.net:1936/8112/8112/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1255" tvg-name="VClassicTV Tropical" tvg-logo="https://cdn.m3u.cl/logo/1255_VClassicTV_Tropical.png", VClassicTV Tropical ✪ | CL
-https://5eaccbab48461.streamlock.net:1936/8076/8076/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="521" tvg-name="Recuerdos Retro Radio TV" tvg-logo="https://cdn.m3u.cl/logo/521_Recuerdos_Retro_Radio_TV.png", Recuerdos Retro Radio TV ✪ | CL
-https://panel.tvstream.cl:1936/8034/8034/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1605" tvg-name="Radio Fin Del Mundo TV" tvg-logo="https://cdn.m3u.cl/logo/1605_Radio_Fin_Del_Mundo_TV.png", Radio Fin Del Mundo TV ✪ | CL
-https://live20.bozztv.com/akamaissh101/ssh101/rfdmtv/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1654" tvg-name="Radio Puangue Curacavi" tvg-logo="https://cdn.m3u.cl/logo/1654_Radio_Puangue_Curacavi.png", Radio Puangue Curacavi ✪ | CL
-https://micanal.ovh/livestreams/242.7KDFJNBISVRZ.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1435" tvg-name="+Cine" tvg-logo="https://cdn.m3u.cl/logo/1435__Cine.png", +Cine ✪ | CL
-https://tv.arkeo.cl:19360/8128/8128.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1692" tvg-name="PRIDEtv Latam" tvg-logo="https://cdn.m3u.cl/logo/1692_PRIDEtv_Latam.png", PRIDEtv Latam ✪ | CL
-https://xui-backend.energeek.cl/live/dem0pRideTVweb/x7Yu50WeVn/16.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1300" tvg-name="Moni TV" tvg-logo="https://cdn.m3u.cl/logo/1300_Moni_TV.png", Moni TV ✪ | CL
-https://tv.arkeo.cl:19360/8134/8134.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1466" tvg-name="Kanade TV" tvg-logo="https://cdn.m3u.cl/logo/1466_Kanade_TV.png", Kanade TV ✪ | CL
-https://xui-backend.energeek.cl/live/13/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
-#EXTINF:-1 tvg-id="1112" tvg-name="EnerGeek FAN" tvg-logo="https://cdn.m3u.cl/logo/1112_EnerGeek_FAN.png", EnerGeek FAN ✪ | CL
-https://xui-backend.energeek.cl/live/10/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
-#EXTINF:-1 tvg-id="947" tvg-name="EnerGeek Retro" tvg-logo="https://cdn.m3u.cl/logo/947_EnerGeek_Retro.png", EnerGeek Retro ✪ | CL
-https://xui-backend.energeek.cl/live/9/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
-#EXTINF:-1 tvg-id="1266" tvg-name="EnerGeek Radio" tvg-logo="https://cdn.m3u.cl/logo/1266_EnerGeek_Radio.png", EnerGeek Radio ✪ | CL
-https://xui-backend.energeek.cl/live/11/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
-#EXTINF:-1 tvg-id="1585" tvg-name="AniRetro" tvg-logo="https://cdn.m3u.cl/logo/1585_AniRetro.png", AniRetro ✪ | CL
-https://tv.arkeo.cl:19360/8000/8000.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1604" tvg-name="ZTV Anime" tvg-logo="https://cdn.m3u.cl/logo/1604_ZTV_Anime.png", ZTV Anime ✪ | CL
-https://mitv.zplay.cl/Ztv/index.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="31" tvg-name="Portal FoxMix" tvg-logo="https://cdn.m3u.cl/logo/31_Portal_FoxMix.png", Portal FoxMix ✪ | CL
-https://panel.tvstream.cl:1936/8040/8040/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="13" tvg-name="Ruidos TV" tvg-logo="https://cdn.m3u.cl/logo/13_Ruidos_TV.png", Ruidos TV ✪ | CL
-https://stream.skarnetchile.com:19360/ruidostv/ruidostv.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1312" tvg-name="Eternal Metal" tvg-logo="https://cdn.m3u.cl/logo/1312_Eternal_Metal.png", Eternal Metal ✪ | CL
-https://vdo1.panelstreaming.live:3350/hybrid/play.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="996" tvg-name="Latinos TV" tvg-logo="https://cdn.m3u.cl/logo/996_Latinos_TV.png", Latinos TV ✪ | CL
-https://cloudpro.servidoresdestream.com:8081/8012/index.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1014" tvg-name="PlanetaTV" tvg-logo="https://cdn.m3u.cl/logo/1014_PlanetaTV.png", PlanetaTV ✪ | CL
-https://tls-cl.cdnz.cl/planetatv/live/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1424" tvg-name="Parentesis TV" tvg-logo="https://cdn.m3u.cl/logo/1424_Parentesis_TV.png", Parentesis TV ✪ | CL
-https://freya.mivideo.pro/parentesistv/index.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="771" tvg-name="Mundo de la Musica TV" tvg-logo="https://cdn.m3u.cl/logo/771_Mundo_de_la_Musica_TV.png", Mundo de la Musica TV ✪ | CL
-https://tv.arkeo.cl:1936/mundodelamusica/mundodelamusica/playlist.m3u8?PlaylistM3UCL
-#EXTINF:-1 tvg-id="1288" tvg-name="Suyai TV" tvg-logo="https://cdn.m3u.cl/logo/1288_Suyai_TV.png", Suyai TV ✪ | CL
-https://signal.suyaitv.cl/live/35/playlist.m3u8?username=ZZDemoM3uCL&password=JpunQr45z7&PlaylistM3UCL
-#EXTINF:-1 tvg-id="1611" tvg-name="Suyai Radio" tvg-logo="https://cdn.m3u.cl/logo/1611_Suyai_Radio.png", Suyai Radio ✪ | CL
-https://signal.suyaitv.cl/live/radio/playlist.m3u8?username=ZZDemoM3uCL&password=JpunQr45z7&PlaylistM3UCL
-            `;
+        // Initialize theme
+        function initTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        }
 
-            const parseM3u = (m3uString) => {
-              const lines = m3uString.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-              const channels = [];
-              for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith('#EXTINF:')) {
-                  const nameMatch = lines[i].match(/tvg-name="([^"]+)"/);
-                  const name = nameMatch ? nameMatch[1] : 'Canal Desconocido';
-                  const url = lines[i + 1];
-                  if (url && url.startsWith('http')) { // Asegurarse de que la siguiente línea sea una URL
-                    channels.push({ name, url });
-                  }
-                }
-              }
-              return channels;
+        // Toggle theme
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('dashboard-theme', currentTheme);
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                sidebar.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('addWidgetModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('addWidgetModal').classList.remove('active');
+            document.getElementById('addWidgetForm').reset();
+            document.getElementById('urlGroup').style.display = 'none';
+        }
+
+        // Widget functions
+        function generateWidgetId() {
+            return 'widget-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function createWidget(type, customTitle = null, customUrl = null) {
+            const config = widgetConfigs[type];
+            if (!config) return;
+
+            const widget = {
+                id: generateWidgetId(),
+                type: type,
+                title: customTitle || config.title,
+                url: customUrl || config.embedUrl || config.url,
+                icon: config.icon
             };
 
-            const parsedChannels = parseM3u(m3uContent);
-            setM3uChannels(parsedChannels);
-            // Establecer el primer canal como el seleccionado por defecto
-            if (parsedChannels.length > 0) {
-              setSelectedM3uChannelUrl(parsedChannels[0].url);
-            }
-          }, []);
-
-          // Efecto para guardar la preferencia de modo oscuro en localStorage y aplicar las clases de Tailwind
-          React.useEffect(() => {
-            localStorage.setItem('darkMode', JSON.stringify(darkMode));
-            if (darkMode) {
-              document.documentElement.classList.add('dark');
-            } else {
-              document.documentElement.classList.remove('dark');
-            }
-          }, [darkMode]);
-
-          // Función para alternar el modo oscuro
-          const toggleDarkMode = () => {
-            setDarkMode(!darkMode);
-          };
-
-          // Función para añadir una nueva sección personalizada
-          const addSection = () => {
-            if (newSectionTitle.trim() === '' || newSectionEmbedCode.trim() === '') {
-              setModalMessage("Por favor, introduce un título y un código de incrustación válidos para la sección.");
-              // Limpia las acciones de confirmación si no es un modal de confirmación
-              setModalConfirmAction(null);
-              setModalCancelAction(null);
-              return;
-            }
-            // Generar un ID único simple basado en la marca de tiempo
-            const newId = Date.now();
-            setCustomSections([...customSections, { id: newId, title: newSectionTitle, embedCode: newSectionEmbedCode }]);
-            // Limpiar los campos del formulario
-            setNewSectionTitle('');
-            setNewSectionEmbedCode('');
-          };
-
-          // Función para iniciar la edición de una sección existente
-          const startEditSection = (section) => {
-            setEditingSectionId(section.id);
-            setNewSectionTitle(section.title);
-            setNewSectionEmbedCode(section.embedCode);
-          };
-
-          // Función para actualizar una sección existente
-          const updateSection = () => {
-            if (newSectionTitle.trim() === '' || newSectionEmbedCode.trim() === '') {
-              setModalMessage("Por favor, introduce un título y un código de incrustación válidos para actualizar la sección.");
-              // Limpia las acciones de confirmación si no es un modal de confirmación
-              setModalConfirmAction(null);
-              setModalCancelAction(null);
-              return;
-            }
-            setCustomSections(customSections.map(sec =>
-              sec.id === editingSectionId ? { ...sec, title: newSectionTitle, embedCode: newSectionEmbedCode } : sec
-            ));
-            // Resetear el estado de edición
-            setEditingSectionId(null);
-            setNewSectionTitle('');
-            setNewSectionEmbedCode('');
-          };
-
-          // Función para cancelar la edición de una sección
-          const cancelEdit = () => {
-            setEditingSectionId(null);
-            setNewSectionTitle('');
-            setNewSectionEmbedCode('');
-          };
-
-          // Función para mostrar el modal de confirmación antes de eliminar
-          const confirmDeleteSection = (id) => {
-            setModalMessage("¿Estás seguro de que quieres eliminar esta sección?");
-            setModalConfirmAction(() => () => performDeleteSection(id)); // Acción a ejecutar si se confirma
-            setModalCancelAction(() => () => setItemToDeleteId(null)); // Acción a ejecutar si se cancela
-            setItemToDeleteId(id); // Guarda el ID para la eliminación
-          };
-
-          // Función que realmente elimina la sección después de la confirmación
-          const performDeleteSection = (id) => {
-            setCustomSections(customSections.filter(section => section.id !== id));
-            setItemToDeleteId(null); // Limpiar el ID después de la eliminación
-          };
-
-          // Función para extraer la URL de incrustación de YouTube desde una URL de video o lista de reproducción
-          const getYouTubeEmbedUrl = (url) => {
-            const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/);
-            if (videoIdMatch && videoIdMatch[1]) {
-              // Retorna la URL de incrustación para el video con el parámetro autoplay deshabilitado
-              return `https://www.youtube.com/embed/${videoIdMatch[1]}?autoplay=0`;
-            }
-            return ''; // Retorna una cadena vacía si no se encuentra un ID de video válido
-          };
-
-          return (
-            // Contenedor principal que aplica el modo oscuro a todo el documento
-            <div className={`${darkMode ? 'dark' : ''} min-h-screen font-poppins`}>
-              <div className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                {/* Cabecera de la página */}
-                <header className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <h1 className="text-4xl font-extrabold text-blue-600 dark:text-blue-400 text-center sm:text-left">
-                    Media Hub
-                  </h1>
-                  {/* Componente para alternar el modo oscuro */}
-                  <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-                </header>
-
-                {/* Contenido principal de la aplicación */}
-                <main className="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {/* Sección de TV en Streaming (Lista M3U) */}
-                  <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">TV en Streaming (Canales M3U)</h2>
-
-                    <div className="mb-4">
-                      <label htmlFor="m3u-channel-select" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-                        Selecciona un canal:
-                      </label>
-                      <select
-                        id="m3u-channel-select"
-                        value={selectedM3uChannelUrl}
-                        onChange={(e) => setSelectedM3uChannelUrl(e.target.value)}
-                        className="block w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-                        aria-label="Selector de canal M3U"
-                      >
-                        {m3uChannels.length === 0 && (
-                            <option value="">Cargando canales...</option>
-                        )}
-                        {m3uChannels.map((channel, index) => (
-                          <option key={index} value={channel.url}>
-                            {channel.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {selectedM3uChannelUrl && (
-                      <div className="relative pt-[56.25%] overflow-hidden rounded-md bg-black"> {/* 16:9 Aspect Ratio */}
-                        <video
-                          key={selectedM3uChannelUrl} // La clave fuerza la re-renderización del componente video cuando la URL cambia
-                          src={selectedM3uChannelUrl}
-                          controls
-                          autoPlay // Reproducir automáticamente el canal seleccionado
-                          className="absolute top-0 left-0 w-full h-full object-cover"
-                          onError={() => setModalMessage(`Error al cargar el stream. Esto puede deberse a políticas de seguridad (CORS) que impiden la carga desde tu ubicación actual, o a que el stream no está disponible o la URL ha cambiado. Por favor, intenta ejecutar la aplicación en un servidor web local para descartar problemas de CORS.`)}
-                        >
-                          Su navegador no soporta el elemento de video o el formato del stream.
-                        </video>
-                      </div>
-                    )}
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
-                      Esta sección reproduce streams de video directos (`.m3u8`, `.mp4`, etc.) de la lista M3U precargada. Para incrustar páginas web completas o contenido interactivo, usa la sección "Sección Personalizada".
-                    </p>
-                  </section>
-
-                  {/* Sección de YouTube */}
-                  <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">YouTube</h2>
-                    <input
-                      type="text"
-                      placeholder="URL de video o lista de reproducción de YouTube"
-                      value={youtubeUrl}
-                      onChange={(e) => setYoutubeUrl(e.target.value)}
-                      className="w-full p-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-                      aria-label="URL de YouTube"
-                    />
-                    {getYouTubeEmbedUrl(youtubeUrl) ? (
-                      <div className="relative pt-[56.25%] overflow-hidden rounded-md bg-black"> {/* 16:9 Aspect Ratio */}
-                        <iframe
-                          className="absolute top-0 left-0 w-full h-full"
-                          src={getYouTubeEmbedUrl(youtubeUrl)}
-                          title="YouTube video player"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
-                      </div>
-                    ) : youtubeUrl && (
-                        <p className="text-sm text-red-500 dark:text-red-400 mt-2">
-                            URL de YouTube inválida. Por favor, introduce un enlace de video o lista de reproducción válido.
-                        </p>
-                    )}
-                  </section>
-
-                  {/* Sección para añadir/editar contenido personalizado */}
-                  <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 md:col-span-2 lg:col-span-1">
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Añadir/Editar Sección Personalizada</h2>
-                    <input
-                      type="text"
-                      placeholder="Título de la sección (ej. Mi WhatsApp, Spotify Playlist)"
-                      value={newSectionTitle}
-                      onChange={(e) => setNewSectionTitle(e.target.value)}
-                      className="w-full p-3 mb-3 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-                      aria-label="Título de la sección"
-                    />
-                    <textarea
-                      placeholder="Pegar enlace o código de incrustación (ej. iframe de Spotify, URL de chat de WhatsApp, etc.)"
-                      value={newSectionEmbedCode}
-                      onChange={(e) => setNewSectionEmbedCode(e.target.value)}
-                      rows="6"
-                      className="w-full p-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 resize-y"
-                      aria-label="Código de incrustación"
-                    ></textarea>
-                    {editingSectionId ? (
-                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <button
-                          onClick={updateSection}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
-                        >
-                          Actualizar Sección
-                        </button>
-                        <button
-                          onClick={cancelEdit}
-                          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={addSection}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-                      >
-                        Añadir Sección
-                      </button>
-                    )}
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
-                      Puedes incrustar contenido usando etiquetas `{`<iframe/>`}`, `{`<div>`}`, `{`<a>`}`, o simplemente pegar una URL directa. Ejemplos:
-                      <br/>
-                      <code>{`<iframe src="URL_EMBED" width="100%" height="300"></iframe>`}</code>
-                      <br/>
-                      <code>https://wa.me/TUNUMERO</code> (para WhatsApp)
-                      <br/>
-                      Para incrustar una página web completa (como un sitio de TV online), usa un `{`<iframe/>`}` con su URL. Ejemplo: <code>{`<iframe src="https://www.viendotele.cl/" width="100%" height="500"></iframe>`}</code>
-                    </p>
-                  </section>
-
-                  {/* Renderizado de las secciones personalizadas existentes */}
-                  {customSections.map((section) => (
-                    <section key={section.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">{section.title}</h2>
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => startEditSection(section)}
-                            className="p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75 transition duration-200"
-                            title="Editar sección"
-                            aria-label={`Editar sección ${section.title}`}
-                          >
-                            {/* Icono de Lápiz (Editar) */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>
-                          </button>
-                          <button
-                            onClick={() => confirmDeleteSection(section.id)}
-                            className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-200"
-                            title="Eliminar sección"
-                            aria-label={`Eliminar sección ${section.title}`}
-                          >
-                            {/* Icono de Papelera (Eliminar) */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
-                          </button>
-                        </div>
-                      </div>
-                      {/* Contenedor para el contenido incrustado, con relación de aspecto 16:9 si es iframe/video */}
-                      {(section.embedCode.includes('<iframe') || section.embedCode.includes('<video')) ? (
-                        <div
-                          className="relative pt-[56.25%] overflow-hidden rounded-md bg-black"
-                          dangerouslySetInnerHTML={{ __html: section.embedCode }}
-                        ></div>
-                      ) : (
-                        // Si no es un iframe o video, asumir que es una URL directa y crear un enlace
-                        <div className="relative overflow-hidden rounded-md bg-gray-50 dark:bg-gray-700 flex items-center justify-center p-4 min-h-[150px] text-center">
-                          <a
-                            href={section.embedCode}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-500 dark:text-blue-400 hover:underline break-all"
-                          >
-                            Abrir Contenido: {section.embedCode}
-                          </a>
-                        </div>
-                      )}
-                    </section>
-                  ))}
-
-                </main>
-
-                {/* Pie de página */}
-                <footer className="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
-                  <p>&copy; {new Date().getFullYear()} Media Hub Personalizable. Todos los derechos reservados.</p>
-                  <p className="mt-2 text-sm">
-                    Diseñado con <a href="https://react.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">React</a> y <a href="https://tailwindcss.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Tailwind CSS</a>.
-                  </p>
-                </footer>
-              </div>
-              {/* Mensaje Modal */}
-              <MessageModal
-                message={modalMessage}
-                onClose={() => setModalMessage('')}
-                onConfirm={modalConfirmAction}
-                onCancel={modalCancelAction}
-              />
-            </div>
-          );
+            widgets.push(widget);
+            renderWidget(widget);
+            saveWidgets();
+            showToast(`Widget ${widget.title} agregado correctamente`, 'success');
         }
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        // New utility functions for widget management
+        function refreshWidget(widgetId) {
+            const widgetElement = document.getElementById(widgetId);
+            const iframe = widgetElement.querySelector('.widget-iframe');
+            if (iframe) {
+                iframe.src = iframe.src;
+                showToast('Widget actualizado', 'success');
+            }
+        }
+
+        function openInNewTab(url) {
+            window.open(url, '_blank');
+        }
+
+        function renderWidget(widget) {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            const emptyState = dashboardGrid.querySelector('.dashboard-empty');
+            
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const widgetElement = document.createElement('div');
+            widgetElement.className = 'widget';
+            widgetElement.id = widget.id;
+            
+            let widgetContent = '';
+            const config = widgetConfigs[widget.type];
+            
+            // Generate content based on widget type
+            switch (config?.type) {
+                case 'youtube':
+                    widgetContent = createYouTubeWidget(widget);
+                    break;
+                case 'crypto':
+                    widgetContent = createCryptoWidget(widget);
+                    break;
+                case 'rss':
+                    widgetContent = createRSSWidget(widget);
+                    break;
+                case 'external':
+                    widgetContent = createExternalWidget(widget);
+                    break;
+                case 'iframe':
+                default:
+                    widgetContent = createIframeWidget(widget);
+                    break;
+            }
+
+            widgetElement.innerHTML = `
+                <div class="widget-header">
+                    <div class="widget-title">
+                        <span class="icon ${widget.icon}"></span>
+                        ${widget.title}
+                    </div>
+                    <div class="widget-controls">
+                        <button class="btn-icon" onclick="refreshWidget('${widget.id}')" title="Actualizar">
+                            <span class="icon">🔄</span>
+                        </button>
+                        <button class="btn-icon" onclick="openInNewTab('${widget.url}')" title="Abrir en nueva pestaña">
+                            <span class="icon">🔗</span>
+                        </button>
+                        <button class="btn-icon" onclick="removeWidget('${widget.id}')" title="Eliminar">
+                            <span class="icon icon-x"></span>
+                        </button>
+                    </div>
+                </div>
+                ${widgetContent}
+            `;
+
+            dashboardGrid.appendChild(widgetElement);
+            
+            // Initialize widget-specific functionality
+            initializeWidgetContent(widget);
+        }
+
+        function createYouTubeWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="youtube-widget" id="youtube-widget-${widget.id}">
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}">
+                            <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                                <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                                <h3>YouTube Player</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Pega cualquier enlace de YouTube</p>
+                            </div>
+                            
+                            <div class="youtube-url-input" style="margin-bottom: var(--spacing-md);">
+                                <div class="form-group">
+                                    <input 
+                                        type="text" 
+                                        class="form-input" 
+                                        id="youtube-url-${widget.id}"
+                                        placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..."
+                                        style="margin-bottom: var(--spacing-sm);"
+                                    >
+                                    <div style="display: flex; gap: var(--spacing-sm);">
+                                        <button 
+                                            class="btn btn-primary flex-1" 
+                                            onclick="loadYouTubeVideo('${widget.id}')"
+                                            style="flex: 1;"
+                                        >
+                                            <span class="icon">▶️</span>
+                                            Reproducir Video
+                                        </button>
+                                        <button 
+                                            class="btn btn-secondary" 
+                                            onclick="loadDefaultPlaylist('${widget.id}')"
+                                        >
+                                            <span class="icon">📃</span>
+                                            Playlist por defecto
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="youtube-examples" style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--border-radius); font-size: 0.875rem;">
+                                <p style="font-weight: 600; margin-bottom: var(--spacing-sm); color: var(--text-primary);">💡 Formatos soportados:</p>
+                                <ul style="color: var(--text-secondary); margin: 0; padding-left: var(--spacing-lg);">
+                                    <li>Videos: youtube.com/watch?v=ID</li>
+                                    <li>Enlaces cortos: youtu.be/ID</li>
+                                    <li>Playlists: youtube.com/playlist?list=ID</li>
+                                    <li>Videos con playlist: youtube.com/watch?v=ID&list=ID</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: none;">
+                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); padding: var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                                <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                                    <span class="icon icon-youtube"></span>
+                                    <span style="font-size: 0.875rem; font-weight: 600;">YouTube Player</span>
+                                </div>
+                                <button 
+                                    class="btn-icon" 
+                                    onclick="showYouTubeInput('${widget.id}')" 
+                                    title="Cambiar video"
+                                    style="font-size: 0.75rem;"
+                                >
+                                    🔄
+                                </button>
+                            </div>
+                            <div class="youtube-iframe-container" id="youtube-iframe-${widget.id}">
+                                <!-- El iframe se insertará aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createCryptoWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="crypto-widget" id="crypto-${widget.id}">
+                        <div class="crypto-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                            <div class="icon icon-crypto" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                            <h3>Crypto Prices</h3>
+                        </div>
+                        <div class="crypto-loading" style="text-align: center; color: var(--text-secondary);">
+                            <p>Cargando precios...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createRSSWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="rss-widget" id="rss-${widget.id}">
+                        <div class="rss-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                            <div class="icon icon-news" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                            <h3>Últimas Noticias</h3>
+                        </div>
+                        <div class="rss-content">
+                            <div class="rss-item" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); margin-bottom: var(--spacing-sm);">
+                                <h4 style="font-size: 0.875rem; margin-bottom: var(--spacing-xs);">📰 Noticias disponibles</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-secondary);">Las noticias más recientes se mostrarán aquí</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createExternalWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="external-widget" style="text-align: center; height: 250px; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="icon ${widget.icon}" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.7;"></div>
+                        <h3 style="margin-bottom: var(--spacing-sm);">${widget.title}</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg); font-size: 0.875rem;">
+                            Este servicio se abre en nueva pestaña por seguridad
+                        </p>
+                        <button class="btn btn-primary" onclick="openInNewTab('${widget.url}')">
+                            <span class="icon">🔗</span>
+                            Abrir ${widget.title}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createIframeWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: 0; position: relative;">
+                    <iframe 
+                        src="${widget.url}" 
+                        class="widget-iframe"
+                        frameborder="0"
+                        allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        loading="lazy">
+                    </iframe>
+                </div>
+            `;
+        }
+
+        function initializeWidgetContent(widget) {
+            const config = widgetConfigs[widget.type];
+            
+            if (config?.type === 'crypto') {
+                loadCryptoPrices(widget.id);
+            }
+        }
+
+        // YouTube widget functions
+        function loadYouTubeVideo(widgetId) {
+            const urlInput = document.getElementById(`youtube-url-${widgetId}`);
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showToast('Por favor ingresa una URL de YouTube', 'error');
+                return;
+            }
+
+            const embedUrl = convertToEmbedUrl(url);
+            if (!embedUrl) {
+                showToast('URL de YouTube no válida', 'error');
+                return;
+            }
+
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${embedUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Video cargado correctamente', 'success');
+        }
+
+        function loadDefaultPlaylist(widgetId) {
+            const defaultUrl = 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
+            
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${defaultUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Playlist por defecto cargada', 'success');
+        }
+
+        function showYouTubeInput(widgetId) {
+            // Show input section and hide player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
+            
+            // Clear the input
+            document.getElementById(`youtube-url-${widgetId}`).value = '';
+        }
+
+        function convertToEmbedUrl(url) {
+            try {
+                // Remove any whitespace
+                url = url.trim();
+                
+                // Regular expressions for different YouTube URL formats
+                const patterns = {
+                    // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+                    watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
+                    // Short URL: https://youtu.be/VIDEO_ID
+                    short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
+                    // Playlist URL: https://www.youtube.com/playlist?list=PLAYLIST_ID
+                    playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
+                    // Watch with playlist: https://www.youtube.com/watch?v=VIDEO_ID&list=PLAYLIST_ID
+                    watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
+                };
+
+                // Check for watch with playlist
+                let match = url.match(patterns.watchPlaylist);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
+                }
+
+                // Check for standard watch URL
+                match = url.match(patterns.watch);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for short URL
+                match = url.match(patterns.short);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for playlist URL
+                match = url.match(patterns.playlist);
+                if (match) {
+                    return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
+                }
+
+                // If already an embed URL, return as is
+                if (url.includes('youtube.com/embed/')) {
+                    return url;
+                }
+
+                return null;
+            } catch (error) {
+                console.error('Error converting YouTube URL:', error);
+                return null;
+            }
+        }
+
+        async function loadCryptoPrices(widgetId) {
+        function loadYouTubeVideo(widgetId) {
+            const urlInput = document.getElementById(`youtube-url-${widgetId}`);
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showToast('Por favor ingresa una URL de YouTube', 'error');
+                return;
+            }
+
+            const embedUrl = convertToEmbedUrl(url);
+            if (!embedUrl) {
+                showToast('URL de YouTube no válida', 'error');
+                return;
+            }
+
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${embedUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Video cargado correctamente', 'success');
+        }
+
+        function loadDefaultPlaylist(widgetId) {
+            const defaultUrl = 'https://www.youtube.com/embed/videoseries?si=tIjt1mAZZKaiWqYW&list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
+            
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${defaultUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast('Playlist por defecto cargada', 'success');
+        }
+
+        function showYouTubeInput(widgetId) {
+            // Show input section and hide player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
+            
+            // Clear the input
+            document.getElementById(`youtube-url-${widgetId}`).value = '';
+        }
+
+        function convertToEmbedUrl(url) {
+            try {
+                // Remove any whitespace
+                url = url.trim();
+                
+                // Regular expressions for different YouTube URL formats
+                const patterns = {
+                    // Standard watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+                    watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
+                    // Short URL: https://youtu.be/VIDEO_ID
+                    short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
+                    // Playlist URL: https://www.youtube.com/playlist?list=PLAYLIST_ID
+                    playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
+                    // Watch with playlist: https://www.youtube.com/watch?v=VIDEO_ID&list=PLAYLIST_ID
+                    watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
+                };
+
+                // Check for watch with playlist
+                let match = url.match(patterns.watchPlaylist);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
+                }
+
+                // Check for standard watch URL
+                match = url.match(patterns.watch);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for short URL
+                match = url.match(patterns.short);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                // Check for playlist URL
+                match = url.match(patterns.playlist);
+                if (match) {
+                    return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
+                }
+
+                // If already an embed URL, return as is
+                if (url.includes('youtube.com/embed/')) {
+                    return url;
+                }
+
+                return null;
+            } catch (error) {
+                console.error('Error converting YouTube URL:', error);
+                return null;
+            }
+        }
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true');
+                const data = await response.json();
+                
+                const cryptoContainer = document.getElementById(`crypto-${widgetId}`);
+                const loadingDiv = cryptoContainer.querySelector('.crypto-loading');
+                
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = `
+                        <div class="crypto-prices">
+                            ${Object.entries(data).map(([coin, info]) => `
+                                <div class="crypto-item" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm); border-bottom: 1px solid var(--border);">
+                                    <span style="font-weight: 600; text-transform: capitalize;">${coin.replace('-', ' ')}</span>
+                                    <div style="text-align: right;">
+                                        <div style="font-weight: 600;">${info.usd.toLocaleString()}</div>
+                                        <div style="font-size: 0.75rem; color: ${info.usd_24h_change > 0 ? 'var(--success)' : 'var(--danger)'};">
+                                            ${info.usd_24h_change > 0 ? '↗' : '↘'} ${Math.abs(info.usd_24h_change).toFixed(2)}%
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading crypto prices:', error);
+                const cryptoContainer = document.getElementById(`crypto-${widgetId}`);
+                const loadingDiv = cryptoContainer.querySelector('.crypto-loading');
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = '<p style="color: var(--danger);">Error al cargar precios</p>';
+                }
+            }
+        }
+
+        function removeWidget(widgetId) {
+            const widgetElement = document.getElementById(widgetId);
+            if (widgetElement) {
+                widgetElement.remove();
+            }
+            
+            widgets = widgets.filter(w => w.id !== widgetId);
+            saveWidgets();
+            showToast('Widget eliminado', 'success');
+            
+            // Show empty state if no widgets left
+            if (widgets.length === 0) {
+                showEmptyState();
+            }
+        }
+
+        function showEmptyState() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = `
+                <div class="dashboard-empty">
+                    <div class="icon">📊</div>
+                    <h3>Bienvenido a tu Dashboard</h3>
+                    <p>Agrega widgets desde la barra lateral para comenzar</p>
+                </div>
+            `;
+        }
+
+        // Storage functions
+        function saveWidgets() {
+            localStorage.setItem('dashboard-widgets', JSON.stringify(widgets));
+        }
+
+        function loadWidgets() {
+            const savedWidgets = localStorage.getItem('dashboard-widgets');
+            if (savedWidgets) {
+                widgets = JSON.parse(savedWidgets);
+                widgets.forEach(widget => renderWidget(widget));
+            }
+        }
+
+        // Layout functions
+        function loadLayout(layoutType) {
+            const layouts = {
+                productivity: [
+                    { type: 'gmail', title: 'Gmail' },
+                    { type: 'calendar', title: 'Calendar' },
+                    { type: 'drive', title: 'Drive' },
+                    { type: 'news', title: 'Noticias' }
+                ],
+                entertainment: [
+                    { type: 'youtube', title: 'YouTube' },
+                    { type: 'spotify', title: 'Spotify' },
+                    { type: 'netflix', title: 'Netflix' },
+                    { type: 'twitch', title: 'Twitch' }
+                ],
+                social: [
+                    { type: 'whatsapp', title: 'WhatsApp' },
+                    { type: 'youtube', title: 'YouTube' },
+                    { type: 'news', title: 'Noticias' },
+                    { type: 'weather', title: 'Clima' }
+                ]
+            };
+
+            if (layouts[layoutType]) {
+                clearDashboard();
+                layouts[layoutType].forEach(widgetData => {
+                    createWidget(widgetData.type, widgetData.title);
+                });
+                showToast(`Layout ${layoutType} cargado`, 'success');
+            }
+        }
+
+        function saveCurrentLayout() {
+            const layoutName = prompt('Nombre del layout:');
+            if (layoutName && layoutName.trim()) {
+                const layouts = JSON.parse(localStorage.getItem('dashboard-layouts') || '{}');
+                layouts[layoutName] = widgets.map(w => ({ type: w.type, title: w.title, url: w.url }));
+                localStorage.setItem('dashboard-layouts', JSON.stringify(layouts));
+                showToast('Layout guardado exitosamente', 'success');
+            }
+        }
+
+        function clearDashboard() {
+            widgets = [];
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = '';
+            saveWidgets();
+        }
+
+        // Search function
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const widgetItems = document.querySelectorAll('#widgetList .widget-item');
+                
+                widgetItems.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        // Toast function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Event listeners
+        function initEventListeners() {
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            
+            // Sidebar toggle
+            document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
+            
+            // Add widget button
+            document.getElementById('addWidgetBtn').addEventListener('click', openModal);
+            
+            // Widget list items
+            document.getElementById('widgetList').addEventListener('click', (e) => {
+                const widgetItem = e.target.closest('.widget-item');
+                if (widgetItem) {
+                    const widgetType = widgetItem.getAttribute('data-widget');
+                    if (widgetType) {
+                        createWidget(widgetType);
+                        // Close sidebar on mobile
+                        if (window.innerWidth <= 768) {
+                            document.getElementById('sidebar').classList.remove('active');
+                        }
+                    }
+                }
+            });
+            
+            // Add widget form
+            document.getElementById('addWidgetForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const type = document.getElementById('widgetType').value;
+                const title = document.getElementById('widgetTitle').value;
+                const url = document.getElementById('widgetUrl').value;
+                
+                if (type) {
+                    createWidget(type, title || null, url || null);
+                    closeModal();
+                }
+            });
+            
+            // Widget type change
+            document.getElementById('widgetType').addEventListener('change', (e) => {
+                const urlGroup = document.getElementById('urlGroup');
+                const widgetTitle = document.getElementById('widgetTitle');
+                
+                if (e.target.value) {
+                    const config = widgetConfigs[e.target.value];
+                    widgetTitle.value = config.title;
+                    
+                    // Show URL field for custom widgets
+                    if (e.target.value === 'custom') {
+                        urlGroup.style.display = 'block';
+                    } else {
+                        urlGroup.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Close modal when clicking outside
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal();
+                }
+            });
+            
+            // Responsive sidebar
+            window.addEventListener('resize', () => {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                }
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + K to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                
+                // Escape to close modal
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        }
+
+        // Initialize app
+        function initApp() {
+            console.log('Initializing Dashboard...');
+            
+            try {
+                initTheme();
+                initEventListeners();
+                initSearch();
+                loadWidgets();
+                
+                // Show welcome message if no widgets
+                if (widgets.length === 0) {
+                    setTimeout(() => {
+                        showToast('¡Bienvenido! Agrega widgets para comenzar.', 'info');
+                    }, 1000);
+                }
+                
+                console.log('Dashboard initialized successfully');
+                
+            } catch (error) {
+                console.error('Failed to initialize dashboard:', error);
+                showToast('Error al inicializar el dashboard', 'error');
+            }
+        }
+
+        // Drag and drop functionality
+        function initDragAndDrop() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            let draggedElement = null;
+
+            dashboardGrid.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('widget')) {
+                    draggedElement = e.target;
+                    e.target.style.opacity = '0.5';
+                }
+            });
+
+            dashboardGrid.addEventListener('dragend', (e) => {
+                if (e.target.classList.contains('widget')) {
+                    e.target.style.opacity = '1';
+                    draggedElement = null;
+                }
+            });
+
+            dashboardGrid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            dashboardGrid.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (draggedElement && e.target.classList.contains('widget') && e.target !== draggedElement) {
+                    const rect = e.target.getBoundingClientRect();
+                    const midpoint = rect.left + rect.width / 2;
+                    
+                    if (e.clientX < midpoint) {
+                        dashboardGrid.insertBefore(draggedElement, e.target);
+                    } else {
+                        dashboardGrid.insertBefore(draggedElement, e.target.nextSibling);
+                    }
+                    
+                    // Update widgets array order
+                    const draggedId = draggedElement.id;
+                    const targetId = e.target.id;
+                    
+                    const draggedIndex = widgets.findIndex(w => w.id === draggedId);
+                    const targetIndex = widgets.findIndex(w => w.id === targetId);
+                    
+                    if (draggedIndex !== -1 && targetIndex !== -1) {
+                        const draggedWidget = widgets.splice(draggedIndex, 1)[0];
+                        widgets.splice(targetIndex, 0, draggedWidget);
+                        saveWidgets();
+                    }
+                }
+            });
+
+            // Make widgets draggable when created
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.classList && node.classList.contains('widget')) {
+                            node.draggable = true;
+                        }
+                    });
+                });
+            });
+
+            observer.observe(dashboardGrid, { childList: true });
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            initDragAndDrop();
+        });
+
+        // Fallback for browsers that don't support DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initApp();
+                initDragAndDrop();
+            });
+        } else {
+            initApp();
+            initDragAndDrop();
+        }
     </script>
 </body>
 </html>
