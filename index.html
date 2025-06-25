@@ -271,31 +271,32 @@
         /* Sidebar Handle */
         .sidebar-handle {
             position: fixed;
-            left: -50px; /* Hidden by default */
+            left: -30px; /* Hidden by default, adjusted from -50px */
             top: 50%;
             transform: translateY(-50%);
             background: var(--bg-secondary);
             color: var(--text-primary); /* Color de la flecha: blanco/negro según el tema */
-            padding: var(--spacing-xs) var(--spacing-xxs); /* Reducir padding */
+            padding: var(--spacing-sm) var(--spacing-xs); /* Aumentado el padding para visibilidad */
             border-top-right-radius: var(--border-radius);
             border-bottom-right-radius: var(--border-radius);
             cursor: pointer;
-            z-index: 999; 
+            z-index: 1001; /* Z-index más alto */
             box-shadow: 2px 0 8px var(--shadow);
             transition: left 0.3s ease, opacity 0.3s ease;
             display: flex; 
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem; /* Tamaño del ícono */
+            font-size: 1.8rem; /* Tamaño de fuente más grande para el SVG */
             opacity: 0; 
             pointer-events: none; 
             border: 1px solid var(--border); /* Borde sutil */
         }
 
         .sidebar-handle svg {
-            width: 1.2em; /* Controla el tamaño del SVG */
-            height: 1.2em;
+            width: 1em; /* Controla el tamaño del SVG, 1em = 1.8rem */
+            height: 1em;
             vertical-align: middle; /* Alineación del ícono */
+            transition: transform 0.3s ease; /* Transición para la rotación */
         }
 
 
@@ -308,15 +309,20 @@
 
         /* When sidebar is open, ensure handle is hidden and unclickable */
         .sidebar:not(.collapsed) + .sidebar-handle {
-            left: -50px; /* Hidden position */
+            left: -30px; /* Hidden position, adjusted from -50px */
             opacity: 0;
             pointer-events: none;
+        }
+
+        /* MODIFICACIÓN: Rotar la flecha cuando la barra lateral está abierta */
+        .sidebar:not(.collapsed) + .sidebar-handle svg {
+            transform: rotate(180deg);
         }
 
         @media (max-width: 768px) {
             .sidebar-handle {
                 display: none !important; /* Always hidden on mobile */
-                left: -50px !important;
+                left: -30px !important; /* Ensure it stays hidden even with !important */
                 opacity: 0 !important;
                 pointer-events: none !important;
             }
@@ -365,7 +371,6 @@
             box-shadow: 0 4px 12px var(--shadow);
             transition: all 0.3s ease;
             position: relative;
-            /* MODIFICACIÓN: Altura mínima del widget ajustada para contenido */
             min-height: 280px; /* Un poco más alto para asegurar espacio para controles y video */
             display: flex;
             flex-direction: column;
@@ -442,7 +447,6 @@
             width: 100%;
             height: 100%; /* Ocupa el 100% del contenedor responsivo */
             border: none;
-            /* min-height ya no es necesario aquí, lo maneja el padding-bottom */
             border-radius: var(--border-radius); 
         }
 
