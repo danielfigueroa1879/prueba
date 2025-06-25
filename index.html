@@ -963,17 +963,40 @@
         }
 
         function createYouTubePresetWidget(widget) {
-            const embedUrl = convertToEmbedUrl(widget.url);
+            // Handle different URL formats for the first video (playlist)
+            let embedUrl;
+            if (widget.url.includes('videoseries')) {
+                embedUrl = widget.url; // Already in embed format
+            } else {
+                embedUrl = convertToEmbedUrl(widget.url);
+            }
+            
+            if (!embedUrl) {
+                console.error('Failed to convert URL:', widget.url);
+                return `
+                    <div class="widget-content" style="padding: var(--spacing-md); text-align: center;">
+                        <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm); opacity: 0.5;"></div>
+                        <p style="color: var(--text-secondary);">Error al cargar el video</p>
+                        <button class="btn btn-secondary" onclick="window.open('${widget.url}', '_blank')" style="margin-top: var(--spacing-sm);">
+                            Abrir en YouTube
+                        </button>
+                    </div>
+                `;
+            }
+            
+            console.log('Loading YouTube widget:', widget.title, 'URL:', embedUrl);
+            
             return `
                 <div class="widget-content" style="padding: 0; position: relative;">
                     <iframe 
                         src="${embedUrl}"
                         class="widget-iframe"
-                        style="width: 100%; height: 350px; border: none;"
+                        style="width: 100%; height: 350px; border: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);"
                         frameborder="0"
                         allowfullscreen
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="strict-origin-when-cross-origin">
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        loading="lazy">
                     </iframe>
                 </div>
             `;
@@ -1156,11 +1179,17 @@
             `;
         }
 
+        // Initialize widget-specific functionality
         function initializeWidgetContent(widget) {
             const config = widgetConfigs[widget.type];
             
-            if (config?.type === 'crypto') {
+            if (config?.type === 'crypto' || widget.type === 'crypto') {
                 loadCryptoPrices(widget.id);
+            }
+            
+            // Debug log for YouTube widgets
+            if (widget.type === 'youtube-preset') {
+                console.log('Initialized YouTube preset widget:', widget.title, widget.url);
             }
         }
 
@@ -1509,24 +1538,27 @@
 
         // Load predefined videos on startup
         function loadPredefinedVideos() {
-            // Only load if no widgets exist (first time)
-            if (widgets.length === 0) {
-                predefinedVideos.forEach(video => {
-                    const widget = {
-                        id: generateWidgetId(),
-                        type: video.type,
-                        title: video.title,
-                        url: video.url,
-                        icon: 'icon-youtube'
-                    };
-                    
-                    widgets.push(widget);
-                    renderWidget(widget);
-                });
+            // Clear any existing widgets first
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            dashboardGrid.innerHTML = '';
+            widgets = [];
+            
+            // Load all predefined videos
+            predefinedVideos.forEach(video => {
+                const widget = {
+                    id: generateWidgetId(),
+                    type: video.type,
+                    title: video.title,
+                    url: video.url,
+                    icon: 'icon-youtube'
+                };
                 
-                saveWidgets();
-                showToast('Videos de YouTube cargados automáticamente', 'success');
-            }
+                widgets.push(widget);
+                renderWidget(widget);
+            });
+            
+            saveWidgets();
+            showToast(`${predefinedVideos.length} videos de YouTube cargados`, 'success');
         }
             localStorage.setItem('dashboard-widgets', JSON.stringify(widgets));
         }
@@ -1713,21 +1745,11 @@
                 initTheme();
                 initEventListeners();
                 initSearch();
-                loadWidgets();
                 
-                // Load predefined videos if no widgets exist
-                setTimeout(() => {
-                    loadPredefinedVideos();
-                }, 500);
+                // Always load predefined videos on startup
+                loadPredefinedVideos();
                 
-                // Show welcome message if no widgets
-                if (widgets.length === 0) {
-                    setTimeout(() => {
-                        showToast('¡Bienvenido! Agrega widgets para comenzar.', 'info');
-                    }, 1000);
-                }
-                
-                console.log('Dashboard initialized successfully');
+                console.log('Dashboard initialized successfully with predefined videos');
                 
             } catch (error) {
                 console.error('Failed to initialize dashboard:', error);
