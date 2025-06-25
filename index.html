@@ -360,7 +360,7 @@ https://signal.suyaitv.cl/live/radio/playlist.m3u8?username=ZZDemoM3uCL&password
                           controls
                           autoPlay // Reproducir automáticamente el canal seleccionado
                           className="absolute top-0 left-0 w-full h-full object-cover"
-                          onError={() => setModalMessage(`Error al cargar el stream. Asegúrate de que la URL del canal es válida y accesible: ${selectedM3uChannelUrl}`)}
+                          onError={() => setModalMessage(`Error al cargar el stream. Esto puede deberse a políticas de seguridad (CORS) que impiden la carga desde tu ubicación actual, o a que el stream no está disponible o la URL ha cambiado. Por favor, intenta ejecutar la aplicación en un servidor web local para descartar problemas de CORS.`)}
                         >
                           Su navegador no soporta el elemento de video o el formato del stream.
                         </video>
@@ -416,44 +416,7 @@ https://signal.suyaitv.cl/live/radio/playlist.m3u8?username=ZZDemoM3uCL&password
                       value={newSectionEmbedCode}
                       onChange={(e) => setNewSectionEmbedCode(e.target.value)}
                       rows="6"
-                      className="w-full p-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 resize-y"
-                      aria-label="Código de incrustación"
-                    ></textarea>
-                    {editingSectionId ? (
-                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                        <button
-                          onClick={updateSection}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
-                        >
-                          Actualizar Sección
-                        </button>
-                        <button
-                          onClick={cancelEdit}
-                          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={addSection}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
-                      >
-                        Añadir Sección
-                      </button>
-                    )}
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
-                      Puedes incrustar contenido usando etiquetas `&amp;lt;iframe&amp;gt;`, `&amp;lt;div&amp;gt;`, `&amp;lt;a&amp;gt;`, o simplemente pegar una URL directa. Ejemplos:
-                      <br/>
-                      <code>&amp;lt;iframe src="URL_EMBED" width="100%" height="300"&amp;gt;&amp;lt;/iframe&amp;gt;</code>
-                      <br/>
-                      <code>https://wa.me/TUNUMERO</code> (para WhatsApp)
-                      <br/>
-                      Para incrustar una página web completa (como un sitio de TV online), usa un &amp;lt;iframe&amp;gt; con su URL. Ejemplo: <code>&amp;lt;iframe src="https://www.viendotele.cl/" width="100%" height="500"&amp;gt;&amp;lt;/iframe&amp;gt;</code>
-                    </p>
-                  </section>
-
-                  {/* Renderizado de las secciones personalizadas existentes */}
+                      className="w-full p-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus{/* Renderizado de las secciones personalizadas existentes */}
                   {customSections.map((section) => (
                     <section key={section.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
                       <div className="flex justify-between items-center mb-4">
