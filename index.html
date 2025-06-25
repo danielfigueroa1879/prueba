@@ -355,8 +355,9 @@
             height: 1em;
             vertical-align: middle;
             stroke-width: 4; 
-            /* MODIFICACIÓN: Eliminar rotación aquí para que el SVG apunte directamente a la izquierda */
-            transform: rotate(0deg); 
+            /* MODIFICACIÓN: Agrandar la flecha de cierre */
+            font-size: 1.5rem; /* Revertido a 1.5rem, igual que la flecha de apertura */
+            transform: rotate(0deg); /* No rotation, as SVG is already left-pointing */
         }
 
         /* Show sidebarCloseBtn when sidebar is NOT collapsed */
@@ -1384,14 +1385,14 @@
 
         function showYouTubeInput(widgetId) {
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widget.id}`).style.display = 'none';
             
             const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
             if (widgetContentElement) {
                 widgetContentElement.classList.remove('youtube-no-padding');
             }
 
-            document.getElementById(`youtube-url-${widgetId}`).value = '';
+            document.getElementById(`youtube-url-${widget.id}`).value = '';
         }
 
         function convertToEmbedUrl(url) {
@@ -1813,3 +1814,4 @@
     </script>
 </body>
 </html>
+
