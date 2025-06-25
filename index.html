@@ -916,7 +916,44 @@
                             <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                                 <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
                                 <h3>YouTube Player</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Pega cualquier enlace de YouTube</p>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Selecciona un video o pega tu enlace</p>
+                            </div>
+                            
+                            <!-- Lista de videos predefinidos -->
+                            <div class="youtube-presets" style="margin-bottom: var(--spacing-lg);">
+                                <h4 style="margin-bottom: var(--spacing-sm); font-size: 0.9rem; color: var(--text-primary);">📺 Videos Disponibles:</h4>
+                                <div class="youtube-list" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--border-radius); background: var(--bg-secondary);">
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://youtu.be/HgOYT2_oiJg', '🔴 EN VIVO - Canal Principal')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🔴 EN VIVO - Canal Principal</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión en directo</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=5IugcHLsC0E', '📺 Noticias 24/7')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">📺 Noticias 24/7</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Canal de noticias continuas</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=8lZ_NEYGAnw', '🎵 Música Relajante')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🎵 Música Relajante</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Música para relajarse</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=XZAfU-X9Euk', '🌊 Sonidos de Naturaleza')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🌊 Sonidos de Naturaleza</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Relajación con sonidos naturales</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=CSXA3ICbX-8', '🎬 Contenido Especial')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">🎬 Contenido Especial</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Video destacado</div>
+                                    </div>
+                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=bpo70sR9Kps', '📻 Radio Online')" style="padding: var(--spacing-sm); cursor: pointer; transition: background 0.2s;">
+                                        <div style="font-weight: 600; font-size: 0.875rem;">📻 Radio Online</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión de radio</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Separador -->
+                            <div style="text-align: center; margin: var(--spacing-md) 0; color: var(--text-secondary); font-size: 0.875rem;">
+                                <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: var(--spacing-sm);">
+                                O pega tu propio enlace:
                             </div>
                             
                             <div class="youtube-url-input" style="margin-bottom: var(--spacing-md);">
@@ -935,27 +972,25 @@
                                             style="flex: 1;"
                                         >
                                             <span class="icon">▶️</span>
-                                            Reproducir Video
+                                            Reproducir URL
                                         </button>
                                         <button 
                                             class="btn btn-secondary" 
                                             onclick="loadDefaultPlaylist('${widget.id}')"
                                         >
                                             <span class="icon">📃</span>
-                                            Playlist por defecto
+                                            Playlist
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="youtube-examples" style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--border-radius); font-size: 0.875rem;">
-                                <p style="font-weight: 600; margin-bottom: var(--spacing-sm); color: var(--text-primary);">💡 Formatos soportados:</p>
-                                <ul style="color: var(--text-secondary); margin: 0; padding-left: var(--spacing-lg);">
-                                    <li>Videos: youtube.com/watch?v=ID</li>
-                                    <li>Enlaces cortos: youtu.be/ID</li>
-                                    <li>Playlists: youtube.com/playlist?list=ID</li>
-                                    <li>Videos con playlist: youtube.com/watch?v=ID&list=ID</li>
-                                </ul>
+                            <!-- Enlace adicional -->
+                            <div style="text-align: center; margin-top: var(--spacing-md);">
+                                <a href="https://www.miradiotv.cl/" target="_blank" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+                                    <span class="icon">📻</span>
+                                    Mi Radio TV
+                                </a>
                             </div>
                         </div>
 
@@ -963,7 +998,7 @@
                             <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm); padding: var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
                                 <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
                                     <span class="icon icon-youtube"></span>
-                                    <span style="font-size: 0.875rem; font-weight: 600;">YouTube Player</span>
+                                    <span id="youtube-title-${widget.id}" style="font-size: 0.875rem; font-weight: 600;">YouTube Player</span>
                                 </div>
                                 <button 
                                     class="btn-icon" 
@@ -1061,6 +1096,37 @@
         }
 
         // YouTube widget functions
+        function loadPresetVideo(widgetId, url, title) {
+            const embedUrl = convertToEmbedUrl(url);
+            if (!embedUrl) {
+                showToast('Error al cargar el video', 'error');
+                return;
+            }
+
+            // Hide input section and show player
+            document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Update title
+            document.getElementById(`youtube-title-${widgetId}`).textContent = title;
+
+            // Create and insert iframe
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            iframeContainer.innerHTML = `
+                <iframe 
+                    src="${embedUrl}"
+                    class="widget-iframe"
+                    style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                    frameborder="0"
+                    allowfullscreen
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin">
+                </iframe>
+            `;
+
+            showToast(`Reproduciendo: ${title}`, 'success');
+        }
+
         function loadYouTubeVideo(widgetId) {
             const urlInput = document.getElementById(`youtube-url-${widgetId}`);
             const url = urlInput.value.trim();
@@ -1079,6 +1145,9 @@
             // Hide input section and show player
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
             document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Update title
+            document.getElementById(`youtube-title-${widgetId}`).textContent = 'Video Personalizado';
 
             // Create and insert iframe
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
@@ -1103,6 +1172,9 @@
             // Hide input section and show player
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'none';
             document.getElementById(`youtube-player-${widgetId}`).style.display = 'block';
+
+            // Update title
+            document.getElementById(`youtube-title-${widgetId}`).textContent = 'Playlist por Defecto';
 
             // Create and insert iframe
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
