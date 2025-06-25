@@ -321,8 +321,7 @@
         }
 
         .widget-header {
-            /* MODIFICACIÓN: Reducir el padding para un "banner" más delgado */
-            padding: var(--spacing-xxs) var(--spacing-sm); /* Usando el nuevo espaciado extra pequeño */
+            padding: var(--spacing-xxs) var(--spacing-sm); 
             background: var(--bg-tertiary);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -335,8 +334,8 @@
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: var(--spacing-xs); /* Reducido a espaciado xs */
-            font-size: 0.85rem; /* Reducir ligeramente el tamaño de fuente */
+            gap: var(--spacing-xs); 
+            font-size: 0.85rem; 
         }
 
         .widget-controls {
@@ -348,7 +347,7 @@
             flex: 1;
             overflow: hidden;
             position: relative;
-            padding: var(--spacing-md); /* Se mantiene como fallback para otros widgets */
+            padding: var(--spacing-md); 
         }
         
         /* Nuevo estilo para el contenido de YouTube sin padding */
@@ -359,9 +358,9 @@
 
         .widget-iframe {
             width: 100%;
-            height: 100%; /* Ajustar la altura para que el video ocupe el espacio */
+            height: 100%; 
             border: none;
-            min-height: 200px; /* Reducir la altura mínima para permitir más espacio si es necesario */
+            min-height: 200px; 
         }
 
         .widget-placeholder {
@@ -944,13 +943,12 @@
 
         function createYouTubeWidget(widget) {
             const initialLoadUrl = widget.url;
-            // Determine if we should show the player immediately (if a valid embeddable URL is provided)
-            const displayInput = !initialLoadUrl || !convertToEmbedUrl(initialLoadUrl);
+            const hasInitialEmbeddableUrl = initialLoadUrl && convertToEmbedUrl(initialLoadUrl);
             
             return `
-                <div class="widget-content ${!displayInput ? 'youtube-no-padding' : ''}">
+                <div class="widget-content ${hasInitialEmbeddableUrl ? 'youtube-no-padding' : ''}">
                     <div class="youtube-widget" id="youtube-widget-${widget.id}">
-                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${displayInput ? 'block' : 'none'}; padding: var(--spacing-md);">
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'none' : 'block'}; padding: var(--spacing-md);">
                             <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                                 <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
                                 <h3>YouTube Player</h3>
@@ -1032,7 +1030,7 @@
                             </div>
                         </div>
 
-                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${displayInput ? 'none' : 'block'};">
+                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'block' : 'none'};">
                             <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xxs); padding: var(--spacing-xxs) var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
                                 <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
                                     <span class="icon icon-youtube" style="font-size: 0.75rem;"></span>
@@ -1048,18 +1046,7 @@
                                 </button>
                             </div>
                             <div class="youtube-iframe-container" id="youtube-iframe-${widget.id}">
-                                <!-- El iframe se insertará aquí -->
-                                ${!displayInput ? `
-                                    <iframe 
-                                        src="${convertToEmbedUrl(initialLoadUrl)}"
-                                        class="widget-iframe"
-                                        style="width: 100%; height: 100%; border: none; border-radius: var(--border-radius);"
-                                        frameborder="0"
-                                        allowfullscreen
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                        referrerpolicy="strict-origin-when-cross-origin">
-                                    </iframe>
-                                ` : ''}
+                                <!-- El iframe se insertará aquí dinámicamente por loadYouTubeVideoInitial -->
                             </div>
                         </div>
                     </div>
@@ -1142,8 +1129,8 @@
             if (config?.type === 'youtube') {
                 const initialLoadUrl = widget.url;
                 if (initialLoadUrl && convertToEmbedUrl(initialLoadUrl)) {
-                    // Load the video directly if a URL is present
-                    // Use setTimeout to ensure DOM elements are fully rendered before attempting to manipulate them
+                    // Cargar el video directamente si hay una URL inicial y válida
+                    // Usar setTimeout para asegurar que los elementos del DOM estén completamente renderizados
                     setTimeout(() => {
                         loadYouTubeVideoInitial(widget.id, initialLoadUrl, widget.title);
                     }, 0); 
@@ -1629,17 +1616,6 @@
             initApp();
             initDragAndDrop();
         });
-
-        // Fallback for browsers that don't support DOMContentLoaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                initApp();
-                initDragAndDrop();
-            });
-        } else {
-            initApp();
-            initDragAndDrop();
-        }
     </script>
 </body>
 </html>
