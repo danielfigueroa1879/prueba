@@ -277,7 +277,7 @@
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: var(--spacing-lg);
+            gap: var(--spacing-md); 
             min-height: 600px;
         }
 
@@ -319,7 +319,8 @@
         }
 
         .widget-header {
-            padding: var(--spacing-md);
+            /* MODIFICACIÓN: Reducir el padding para un "banner" más delgado */
+            padding: var(--spacing-sm) var(--spacing-md); 
             background: var(--bg-tertiary);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -344,13 +345,20 @@
             flex: 1;
             overflow: hidden;
             position: relative;
+            padding: var(--spacing-md); /* Se mantiene como fallback para otros widgets */
         }
+        
+        /* Nuevo estilo para el contenido de YouTube sin padding */
+        .widget-content.youtube-no-padding {
+            padding: 0;
+        }
+
 
         .widget-iframe {
             width: 100%;
-            height: 100%;
+            height: 100%; /* Ajustar la altura para que el video ocupe el espacio */
             border: none;
-            min-height: 300px;
+            min-height: 250px; /* Reducir la altura mínima para permitir más espacio si es necesario */
         }
 
         .widget-placeholder {
@@ -777,7 +785,7 @@
         // Videos de YouTube para cargar al inicio si no hay widgets guardados
         // Se han eliminado los duplicados
         const initialYouTubeVideos = [
-            { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHsP0' },
+            { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHs0' },
             { title: '🔴 EN VIVO - Canal Principal', url: 'https://youtu.be/HgOYT2_oiJg' },
             { title: '📺 Noticias 24/7', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
             { title: '🎵 Música Relajante', url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw' },
@@ -926,9 +934,9 @@
             const displayInput = !initialLoadUrl || !convertToEmbedUrl(initialLoadUrl);
             
             return `
-                <div class="widget-content" style="padding: var(--spacing-md);">
+                <div class="widget-content ${!displayInput ? 'youtube-no-padding' : ''}">
                     <div class="youtube-widget" id="youtube-widget-${widget.id}">
-                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${displayInput ? 'block' : 'none'};">
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${displayInput ? 'block' : 'none'}; padding: var(--spacing-md);">
                             <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                                 <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
                                 <h3>YouTube Player</h3>
@@ -1031,7 +1039,7 @@
                                     <iframe 
                                         src="${convertToEmbedUrl(initialLoadUrl)}"
                                         class="widget-iframe"
-                                        style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                                        style="width: 100%; height: 100%; border: none; border-radius: var(--border-radius);"
                                         frameborder="0"
                                         allowfullscreen
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -1174,8 +1182,9 @@
             const playerSection = document.getElementById(`youtube-player-${widgetId}`);
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
             const youtubeTitleElement = document.getElementById(`youtube-title-${widgetId}`);
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); // Get the parent widget-content
 
-            if (inputSection && playerSection && iframeContainer && youtubeTitleElement) {
+            if (inputSection && playerSection && iframeContainer && youtubeTitleElement && widgetContentElement) {
                 inputSection.style.display = 'none';
                 playerSection.style.display = 'block';
                 youtubeTitleElement.textContent = title;
@@ -1183,13 +1192,15 @@
                     <iframe 
                         src="${embedUrl}"
                         class="widget-iframe"
-                        style="width: 100%; height: 280px; border: none; border-radius: var(--border-radius);"
+                        style="width: 100%; height: 100%; border: none; border-radius: var(--border-radius);"
                         frameborder="0"
                         allowfullscreen
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerpolicy="strict-origin-when-cross-origin">
                     </iframe>
                 `;
+                // Add the class to remove padding from widget-content
+                widgetContentElement.classList.add('youtube-no-padding');
             }
         }
 
@@ -1198,6 +1209,12 @@
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
             document.getElementById(`youtube-player-${widgetId}`).style.display = 'none';
             
+            // Remove the no-padding class from widget-content
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
+            if (widgetContentElement) {
+                widgetContentElement.classList.remove('youtube-no-padding');
+            }
+
             // Clear the input
             document.getElementById(`youtube-url-${widgetId}`).value = '';
         }
