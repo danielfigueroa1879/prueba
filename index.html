@@ -1,1 +1,529 @@
-<h1>m3u</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Hub Personalizable</title>
+    <!-- Carga de Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de la fuente Poppins desde Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      /* Configuración global para usar Poppins */
+      body {
+        font-family: 'Poppins', sans-serif;
+      }
+      /* Asegura que el iframe y el video se ajusten correctamente */
+      iframe, video {
+        max-width: 100%;
+        height: auto;
+      }
+      /* Estilo para el modo oscuro si se necesita una configuración inicial */
+      html.dark {
+        color-scheme: dark;
+      }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- Carga de React y ReactDOM desde CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Carga de Babel para transformar JSX en JS de navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        // Componente para el mensaje modal (reemplaza alert/confirm)
+        function MessageModal({ message, onClose, onConfirm, onCancel }) {
+          if (!message) return null; // No renderizar si no hay mensaje
+
+          return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 font-poppins">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full text-center border border-gray-200 dark:border-gray-700">
+                <p className="text-gray-900 dark:text-gray-100 mb-6 text-lg">{message}</p>
+                <div className="flex justify-center space-x-4">
+                  {onConfirm && (
+                    <button
+                      onClick={() => { onConfirm(); onClose(); }}
+                      className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
+                    >
+                      Sí
+                    </button>
+                  )}
+                  {onCancel && (
+                    <button
+                      onClick={() => { onCancel(); onClose(); }}
+                      className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+                    >
+                      No
+                    </button>
+                  )}
+                  {(!onConfirm && !onCancel) && ( // Si no es una confirmación, mostrar solo el botón "Entendido"
+                    <button
+                      onClick={onClose}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+                    >
+                      Entendido
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // Componente para alternar el modo oscuro
+        function DarkModeToggle({ darkMode, toggleDarkMode }) {
+          return (
+            <button
+              onClick={toggleDarkMode}
+              className={`p-3 rounded-full shadow-md focus:outline-none transition-all duration-300 ease-in-out
+                ${darkMode ? 'bg-gray-700 text-yellow-300 hover:bg-gray-600' : 'bg-yellow-400 text-gray-900 hover:bg-yellow-500'}`
+              }
+              title={darkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
+              aria-label={darkMode ? 'Activar Modo Claro' : 'Activar Modo Oscuro'}
+            >
+              {darkMode ? (
+                // Icono de Sol (Modo Claro)
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sun">
+                  <circle cx="12" cy="12" r="8"></circle>
+                  <line x1="12" x2="12" y1="1" y2="3"></line>
+                  <line x1="12" x2="12" y1="21" y2="23"></line>
+                  <line x1="4.22" x2="5.64" y1="4.22" y2="5.64"></line>
+                  <line x1="18.36" x2="19.78" y1="18.36" y2="19.78"></line>
+                  <line x1="1" x2="3" y1="12" y2="12"></line>
+                  <line x1="21" x2="23" y1="12" y2="12"></line>
+                  <line x1="4.22" x2="5.64" y1="19.78" y2="18.36"></line>
+                  <line x1="18.36" x2="19.78" y1="5.64" y2="4.22"></line>
+                </svg>
+              ) : (
+                // Icono de Luna (Modo Oscuro)
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-moon">
+                  <path d="M12 3a6.364 6.364 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                </svg>
+              )}
+            </button>
+          );
+        }
+
+        // Componente principal de la aplicación
+        function App() {
+          // Estado para el modo oscuro
+          const [darkMode, setDarkMode] = React.useState(false);
+          // Estado para los canales de la lista M3U
+          const [m3uChannels, setM3uChannels] = React.useState([]);
+          // Estado para la URL del canal M3U seleccionado
+          const [selectedM3uChannelUrl, setSelectedM3uChannelUrl] = React.useState('');
+          // Estado para la URL del video de YouTube
+          const [youtubeUrl, setYoutubeUrl] = React.useState('');
+          // Estado para las secciones personalizadas (array de objetos)
+          const [customSections, setCustomSections] = React.useState([]); // { id, title, embedCode }
+          // Estados para el formulario de añadir/editar secciones
+          const [newSectionTitle, setNewSectionTitle] = React.useState('');
+          const [newSectionEmbedCode, setNewSectionEmbedCode] = React.useState('');
+          // Estado para saber si se está editando una sección (guarda el ID de la sección)
+          const [editingSectionId, setEditingSectionId] = React.useState(null);
+          // Estado para el mensaje del modal
+          const [modalMessage, setModalMessage] = React.useState('');
+          // Estado para la acción de confirmación del modal
+          const [modalConfirmAction, setModalConfirmAction] = React.useState(null);
+          // Estado para la acción de cancelación del modal
+          const [modalCancelAction, setModalCancelAction] = React.useState(null);
+          // Estado para el ID del elemento a eliminar (usado en la confirmación)
+          const [itemToDeleteId, setItemToDeleteId] = React.useState(null);
+
+
+          // Efecto para cargar la preferencia de modo oscuro desde localStorage al iniciar
+          React.useEffect(() => {
+            const savedMode = localStorage.getItem('darkMode');
+            if (savedMode) {
+              setDarkMode(JSON.parse(savedMode));
+            }
+
+            // Parsear y cargar los canales M3U directamente al inicio
+            const m3uContent = `
+#EXTINF:-1 tvg-id="156" tvg-name="+ Listas en M3U.CL" tvg-logo="https://cdn.m3u.cl/logo/156___Listas_en_M3U_CL.png", + Listas en M3U.CL ✪ | CL
+https://scl.edge.grupoz.cl/transmision/live/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="4" tvg-name="Retro Plus TV" tvg-logo="https://cdn.m3u.cl/logo/4_Retro_Plus_TV.png", Retro Plus TV ✪ | CL
+https://tls-cl.cdnz.cl/retroplustvuno/live/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="5" tvg-name="Retro Plus TV Señal 2" tvg-logo="https://cdn.m3u.cl/logo/5_Retro_Plus_TV_Senal_2.png", Retro Plus TV Señal 2 ✪ | CL
+https://tls-cl.cdnz.cl/retroplustvdos/live/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="465" tvg-name="Retro Plus TV Señal 3" tvg-logo="https://cdn.m3u.cl/logo/465_Retro_Plus_TV_Senal_3.png", Retro Plus TV Señal 3 ✪ | CL
+https://tls-cl.cdnz.cl/retroplustvtres/live/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1160" tvg-name="VClassicTV" tvg-logo="https://cdn.m3u.cl/logo/1160_VClassicTV.png", VClassicTV ✪ | CL
+https://5eaccbab48461.streamlock.net:1936/8112/8112/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1255" tvg-name="VClassicTV Tropical" tvg-logo="https://cdn.m3u.cl/logo/1255_VClassicTV_Tropical.png", VClassicTV Tropical ✪ | CL
+https://5eaccbab48461.streamlock.net:1936/8076/8076/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="521" tvg-name="Recuerdos Retro Radio TV" tvg-logo="https://cdn.m3u.cl/logo/521_Recuerdos_Retro_Radio_TV.png", Recuerdos Retro Radio TV ✪ | CL
+https://panel.tvstream.cl:1936/8034/8034/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1605" tvg-name="Radio Fin Del Mundo TV" tvg-logo="https://cdn.m3u.cl/logo/1605_Radio_Fin_Del_Mundo_TV.png", Radio Fin Del Mundo TV ✪ | CL
+https://live20.bozztv.com/akamaissh101/ssh101/rfdmtv/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1654" tvg-name="Radio Puangue Curacavi" tvg-logo="https://cdn.m3u.cl/logo/1654_Radio_Puangue_Curacavi.png", Radio Puangue Curacavi ✪ | CL
+https://micanal.ovh/livestreams/242.7KDFJNBISVRZ.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1435" tvg-name="+Cine" tvg-logo="https://cdn.m3u.cl/logo/1435__Cine.png", +Cine ✪ | CL
+https://tv.arkeo.cl:19360/8128/8128.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1692" tvg-name="PRIDEtv Latam" tvg-logo="https://cdn.m3u.cl/logo/1692_PRIDEtv_Latam.png", PRIDEtv Latam ✪ | CL
+https://xui-backend.energeek.cl/live/dem0pRideTVweb/x7Yu50WeVn/16.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1300" tvg-name="Moni TV" tvg-logo="https://cdn.m3u.cl/logo/1300_Moni_TV.png", Moni TV ✪ | CL
+https://tv.arkeo.cl:19360/8134/8134.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1466" tvg-name="Kanade TV" tvg-logo="https://cdn.m3u.cl/logo/1466_Kanade_TV.png", Kanade TV ✪ | CL
+https://xui-backend.energeek.cl/live/13/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
+#EXTINF:-1 tvg-id="1112" tvg-name="EnerGeek FAN" tvg-logo="https://cdn.m3u.cl/logo/1112_EnerGeek_FAN.png", EnerGeek FAN ✪ | CL
+https://xui-backend.energeek.cl/live/10/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
+#EXTINF:-1 tvg-id="947" tvg-name="EnerGeek Retro" tvg-logo="https://cdn.m3u.cl/logo/947_EnerGeek_Retro.png", EnerGeek Retro ✪ | CL
+https://xui-backend.energeek.cl/live/9/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
+#EXTINF:-1 tvg-id="1266" tvg-name="EnerGeek Radio" tvg-logo="https://cdn.m3u.cl/logo/1266_EnerGeek_Radio.png", EnerGeek Radio ✪ | CL
+https://xui-backend.energeek.cl/live/11/playlist.m3u8?username=D3m0M3UCLWeb&password=xN4sFVjMK7&PlaylistM3UCL
+#EXTINF:-1 tvg-id="1585" tvg-name="AniRetro" tvg-logo="https://cdn.m3u.cl/logo/1585_AniRetro.png", AniRetro ✪ | CL
+https://tv.arkeo.cl:19360/8000/8000.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1604" tvg-name="ZTV Anime" tvg-logo="https://cdn.m3u.cl/logo/1604_ZTV_Anime.png", ZTV Anime ✪ | CL
+https://mitv.zplay.cl/Ztv/index.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="31" tvg-name="Portal FoxMix" tvg-logo="https://cdn.m3u.cl/logo/31_Portal_FoxMix.png", Portal FoxMix ✪ | CL
+https://panel.tvstream.cl:1936/8040/8040/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="13" tvg-name="Ruidos TV" tvg-logo="https://cdn.m3u.cl/logo/13_Ruidos_TV.png", Ruidos TV ✪ | CL
+https://stream.skarnetchile.com:19360/ruidostv/ruidostv.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1312" tvg-name="Eternal Metal" tvg-logo="https://cdn.m3u.cl/logo/1312_Eternal_Metal.png", Eternal Metal ✪ | CL
+https://vdo1.panelstreaming.live:3350/hybrid/play.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="996" tvg-name="Latinos TV" tvg-logo="https://cdn.m3u.cl/logo/996_Latinos_TV.png", Latinos TV ✪ | CL
+https://cloudpro.servidoresdestream.com:8081/8012/index.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1014" tvg-name="PlanetaTV" tvg-logo="https://cdn.m3u.cl/logo/1014_PlanetaTV.png", PlanetaTV ✪ | CL
+https://tls-cl.cdnz.cl/planetatv/live/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1424" tvg-name="Parentesis TV" tvg-logo="https://cdn.m3u.cl/logo/1424_Parentesis_TV.png", Parentesis TV ✪ | CL
+https://freya.mivideo.pro/parentesistv/index.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="771" tvg-name="Mundo de la Musica TV" tvg-logo="https://cdn.m3u.cl/logo/771_Mundo_de_la_Musica_TV.png", Mundo de la Musica TV ✪ | CL
+https://tv.arkeo.cl:1936/mundodelamusica/mundodelamusica/playlist.m3u8?PlaylistM3UCL
+#EXTINF:-1 tvg-id="1288" tvg-name="Suyai TV" tvg-logo="https://cdn.m3u.cl/logo/1288_Suyai_TV.png", Suyai TV ✪ | CL
+https://signal.suyaitv.cl/live/35/playlist.m3u8?username=ZZDemoM3uCL&password=JpunQr45z7&PlaylistM3UCL
+#EXTINF:-1 tvg-id="1611" tvg-name="Suyai Radio" tvg-logo="https://cdn.m3u.cl/logo/1611_Suyai_Radio.png", Suyai Radio ✪ | CL
+https://signal.suyaitv.cl/live/radio/playlist.m3u8?username=ZZDemoM3uCL&password=JpunQr45z7&PlaylistM3UCL
+            `;
+
+            const parseM3u = (m3uString) => {
+              const lines = m3uString.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+              const channels = [];
+              for (let i = 0; i < lines.length; i++) {
+                if (lines[i].startsWith('#EXTINF:')) {
+                  const nameMatch = lines[i].match(/tvg-name="([^"]+)"/);
+                  const name = nameMatch ? nameMatch[1] : 'Canal Desconocido';
+                  const url = lines[i + 1];
+                  if (url && url.startsWith('http')) { // Asegurarse de que la siguiente línea sea una URL
+                    channels.push({ name, url });
+                  }
+                }
+              }
+              return channels;
+            };
+
+            const parsedChannels = parseM3u(m3uContent);
+            setM3uChannels(parsedChannels);
+            // Establecer el primer canal como el seleccionado por defecto
+            if (parsedChannels.length > 0) {
+              setSelectedM3uChannelUrl(parsedChannels[0].url);
+            }
+          }, []);
+
+          // Efecto para guardar la preferencia de modo oscuro en localStorage y aplicar las clases de Tailwind
+          React.useEffect(() => {
+            localStorage.setItem('darkMode', JSON.stringify(darkMode));
+            if (darkMode) {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
+          }, [darkMode]);
+
+          // Función para alternar el modo oscuro
+          const toggleDarkMode = () => {
+            setDarkMode(!darkMode);
+          };
+
+          // Función para añadir una nueva sección personalizada
+          const addSection = () => {
+            if (newSectionTitle.trim() === '' || newSectionEmbedCode.trim() === '') {
+              setModalMessage("Por favor, introduce un título y un código de incrustación válidos para la sección.");
+              // Limpia las acciones de confirmación si no es un modal de confirmación
+              setModalConfirmAction(null);
+              setModalCancelAction(null);
+              return;
+            }
+            // Generar un ID único simple basado en la marca de tiempo
+            const newId = Date.now();
+            setCustomSections([...customSections, { id: newId, title: newSectionTitle, embedCode: newSectionEmbedCode }]);
+            // Limpiar los campos del formulario
+            setNewSectionTitle('');
+            setNewSectionEmbedCode('');
+          };
+
+          // Función para iniciar la edición de una sección existente
+          const startEditSection = (section) => {
+            setEditingSectionId(section.id);
+            setNewSectionTitle(section.title);
+            setNewSectionEmbedCode(section.embedCode);
+          };
+
+          // Función para actualizar una sección existente
+          const updateSection = () => {
+            if (newSectionTitle.trim() === '' || newSectionEmbedCode.trim() === '') {
+              setModalMessage("Por favor, introduce un título y un código de incrustación válidos para actualizar la sección.");
+              // Limpia las acciones de confirmación si no es un modal de confirmación
+              setModalConfirmAction(null);
+              setModalCancelAction(null);
+              return;
+            }
+            setCustomSections(customSections.map(sec =>
+              sec.id === editingSectionId ? { ...sec, title: newSectionTitle, embedCode: newSectionEmbedCode } : sec
+            ));
+            // Resetear el estado de edición
+            setEditingSectionId(null);
+            setNewSectionTitle('');
+            setNewSectionEmbedCode('');
+          };
+
+          // Función para cancelar la edición de una sección
+          const cancelEdit = () => {
+            setEditingSectionId(null);
+            setNewSectionTitle('');
+            setNewSectionEmbedCode('');
+          };
+
+          // Función para mostrar el modal de confirmación antes de eliminar
+          const confirmDeleteSection = (id) => {
+            setModalMessage("¿Estás seguro de que quieres eliminar esta sección?");
+            setModalConfirmAction(() => () => performDeleteSection(id)); // Acción a ejecutar si se confirma
+            setModalCancelAction(() => () => setItemToDeleteId(null)); // Acción a ejecutar si se cancela
+            setItemToDeleteId(id); // Guarda el ID para la eliminación
+          };
+
+          // Función que realmente elimina la sección después de la confirmación
+          const performDeleteSection = (id) => {
+            setCustomSections(customSections.filter(section => section.id !== id));
+            setItemToDeleteId(null); // Limpiar el ID después de la eliminación
+          };
+
+          // Función para extraer la URL de incrustación de YouTube desde una URL de video o lista de reproducción
+          const getYouTubeEmbedUrl = (url) => {
+            const videoIdMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/);
+            if (videoIdMatch && videoIdMatch[1]) {
+              // Retorna la URL de incrustación para el video con el parámetro autoplay deshabilitado
+              return `https://www.youtube.com/embed/${videoIdMatch[1]}?autoplay=0`;
+            }
+            return ''; // Retorna una cadena vacía si no se encuentra un ID de video válido
+          };
+
+          return (
+            // Contenedor principal que aplica el modo oscuro a todo el documento
+            <div className={`${darkMode ? 'dark' : ''} min-h-screen font-poppins`}>
+              <div className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+                {/* Cabecera de la página */}
+                <header className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <h1 className="text-4xl font-extrabold text-blue-600 dark:text-blue-400 text-center sm:text-left">
+                    Media Hub
+                  </h1>
+                  {/* Componente para alternar el modo oscuro */}
+                  <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+                </header>
+
+                {/* Contenido principal de la aplicación */}
+                <main className="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {/* Sección de TV en Streaming (Lista M3U) */}
+                  <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">TV en Streaming (Canales M3U)</h2>
+
+                    <div className="mb-4">
+                      <label htmlFor="m3u-channel-select" className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+                        Selecciona un canal:
+                      </label>
+                      <select
+                        id="m3u-channel-select"
+                        value={selectedM3uChannelUrl}
+                        onChange={(e) => setSelectedM3uChannelUrl(e.target.value)}
+                        className="block w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+                        aria-label="Selector de canal M3U"
+                      >
+                        {m3uChannels.length === 0 && (
+                            <option value="">Cargando canales...</option>
+                        )}
+                        {m3uChannels.map((channel, index) => (
+                          <option key={index} value={channel.url}>
+                            {channel.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedM3uChannelUrl && (
+                      <div className="relative pt-[56.25%] overflow-hidden rounded-md bg-black"> {/* 16:9 Aspect Ratio */}
+                        <video
+                          key={selectedM3uChannelUrl} // La clave fuerza la re-renderización del componente video cuando la URL cambia
+                          src={selectedM3uChannelUrl}
+                          controls
+                          autoPlay // Reproducir automáticamente el canal seleccionado
+                          className="absolute top-0 left-0 w-full h-full object-cover"
+                          onError={() => setModalMessage(`Error al cargar el stream. Asegúrate de que la URL del canal es válida y accesible: ${selectedM3uChannelUrl}`)}
+                        >
+                          Su navegador no soporta el elemento de video o el formato del stream.
+                        </video>
+                      </div>
+                    )}
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                      Esta sección reproduce streams de video directos (`.m3u8`, `.mp4`, etc.) de la lista M3U precargada. Para incrustar páginas web completas o contenido interactivo, usa la sección "Sección Personalizada".
+                    </p>
+                  </section>
+
+                  {/* Sección de YouTube */}
+                  <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">YouTube</h2>
+                    <input
+                      type="text"
+                      placeholder="URL de video o lista de reproducción de YouTube"
+                      value={youtubeUrl}
+                      onChange={(e) => setYoutubeUrl(e.target.value)}
+                      className="w-full p-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+                      aria-label="URL de YouTube"
+                    />
+                    {getYouTubeEmbedUrl(youtubeUrl) ? (
+                      <div className="relative pt-[56.25%] overflow-hidden rounded-md bg-black"> {/* 16:9 Aspect Ratio */}
+                        <iframe
+                          className="absolute top-0 left-0 w-full h-full"
+                          src={getYouTubeEmbedUrl(youtubeUrl)}
+                          title="YouTube video player"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    ) : youtubeUrl && (
+                        <p className="text-sm text-red-500 dark:text-red-400 mt-2">
+                            URL de YouTube inválida. Por favor, introduce un enlace de video o lista de reproducción válido.
+                        </p>
+                    )}
+                  </section>
+
+                  {/* Sección para añadir/editar contenido personalizado */}
+                  <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 md:col-span-2 lg:col-span-1">
+                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Añadir/Editar Sección Personalizada</h2>
+                    <input
+                      type="text"
+                      placeholder="Título de la sección (ej. Mi WhatsApp, Spotify Playlist)"
+                      value={newSectionTitle}
+                      onChange={(e) => setNewSectionTitle(e.target.value)}
+                      className="w-full p-3 mb-3 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+                      aria-label="Título de la sección"
+                    />
+                    <textarea
+                      placeholder="Pegar enlace o código de incrustación (ej. iframe de Spotify, URL de chat de WhatsApp, etc.)"
+                      value={newSectionEmbedCode}
+                      onChange={(e) => setNewSectionEmbedCode(e.target.value)}
+                      rows="6"
+                      className="w-full p-3 mb-4 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 resize-y"
+                      aria-label="Código de incrustación"
+                    ></textarea>
+                    {editingSectionId ? (
+                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                        <button
+                          onClick={updateSection}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75"
+                        >
+                          Actualizar Sección
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={addSection}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+                      >
+                        Añadir Sección
+                      </button>
+                    )}
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                      Puedes incrustar contenido usando etiquetas `&amp;lt;iframe&amp;gt;`, `&amp;lt;div&amp;gt;`, `&amp;lt;a&amp;gt;`, o simplemente pegar una URL directa. Ejemplos:
+                      <br/>
+                      <code>&amp;lt;iframe src="URL_EMBED" width="100%" height="300"&amp;gt;&amp;lt;/iframe&amp;gt;</code>
+                      <br/>
+                      <code>https://wa.me/TUNUMERO</code> (para WhatsApp)
+                      <br/>
+                      Para incrustar una página web completa (como un sitio de TV online), usa un &amp;lt;iframe&amp;gt; con su URL. Ejemplo: <code>&amp;lt;iframe src="https://www.viendotele.cl/" width="100%" height="500"&amp;gt;&amp;lt;/iframe&amp;gt;</code>
+                    </p>
+                  </section>
+
+                  {/* Renderizado de las secciones personalizadas existentes */}
+                  {customSections.map((section) => (
+                    <section key={section.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">{section.title}</h2>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => startEditSection(section)}
+                            className="p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75 transition duration-200"
+                            title="Editar sección"
+                            aria-label={`Editar sección ${section.title}`}
+                          >
+                            {/* Icono de Lápiz (Editar) */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+                          </button>
+                          <button
+                            onClick={() => confirmDeleteSection(section.id)}
+                            className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-200"
+                            title="Eliminar sección"
+                            aria-label={`Eliminar sección ${section.title}`}
+                          >
+                            {/* Icono de Papelera (Eliminar) */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trash-2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
+                          </button>
+                        </div>
+                      </div>
+                      {/* Contenedor para el contenido incrustado, con relación de aspecto 16:9 si es iframe/video */}
+                      {(section.embedCode.includes('<iframe') || section.embedCode.includes('<video')) ? (
+                        <div
+                          className="relative pt-[56.25%] overflow-hidden rounded-md bg-black"
+                          dangerouslySetInnerHTML={{ __html: section.embedCode }}
+                        ></div>
+                      ) : (
+                        // Si no es un iframe o video, asumir que es una URL directa y crear un enlace
+                        <div className="relative overflow-hidden rounded-md bg-gray-50 dark:bg-gray-700 flex items-center justify-center p-4 min-h-[150px] text-center">
+                          <a
+                            href={section.embedCode}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 dark:text-blue-400 hover:underline break-all"
+                          >
+                            Abrir Contenido: {section.embedCode}
+                          </a>
+                        </div>
+                      )}
+                    </section>
+                  ))}
+
+                </main>
+
+                {/* Pie de página */}
+                <footer className="container mx-auto px-4 py-6 text-center text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                  <p>&copy; {new Date().getFullYear()} Media Hub Personalizable. Todos los derechos reservados.</p>
+                  <p className="mt-2 text-sm">
+                    Diseñado con <a href="https://react.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">React</a> y <a href="https://tailwindcss.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Tailwind CSS</a>.
+                  </p>
+                </footer>
+              </div>
+              {/* Mensaje Modal */}
+              <MessageModal
+                message={modalMessage}
+                onClose={() => setModalMessage('')}
+                onConfirm={modalConfirmAction}
+                onCancel={modalCancelAction}
+              />
+            </div>
+          );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
+
