@@ -528,8 +528,10 @@
             padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9 / 16 = 0.5625) */
             height: 0;
             overflow: hidden;
-            background-color: black; 
-            border-radius: var(--border-radius); 
+            background-color: #000; 
+            border-radius: var(--border-radius);
+            /* Asegurar que el contenedor sea visible */
+            min-height: 200px;
         }
 
         .widget-iframe {
@@ -541,6 +543,35 @@
             border: none;
             border-radius: var(--border-radius); 
             z-index: 10; /* Ensures iframe is on top */
+            /* Mejorar la visibilidad del iframe en móviles */
+            background: #000;
+            opacity: 1;
+        }
+
+        /* Estilos específicos para móviles para mejorar la visualización */
+        @media (max-width: 768px) {
+            .youtube-responsive-container {
+                /* En móviles, asegurar altura mínima adecuada */
+                min-height: 180px;
+                padding-bottom: 56.25%;
+                background: #000;
+            }
+            
+            .widget-iframe {
+                /* Asegurar que el iframe sea completamente visible en móviles */
+                background: #000;
+                min-height: 180px;
+            }
+            
+            /* Asegurar que los controles del reproductor sean visibles */
+            .youtube-widget {
+                background: #000;
+            }
+            
+            .youtube-player-section {
+                background: #000;
+                border-radius: var(--border-radius);
+            }
         }
 
         .widget-placeholder {
@@ -1642,17 +1673,20 @@
                 }
 
                 if (embedUrl) {
-                    // Add mobile-specific parameters to prevent app redirection
+                    // Parameters optimized for mobile play button visibility
                     const mobileParams = [
                         'playsinline=1',           // Forces inline playback on iOS
-                        'rel=0',                   // Don't show related videos
-                        'modestbranding=1',        // Removes YouTube logo
-                        'showinfo=0',              // Hide video info
+                        'controls=1',              // Show player controls (IMPORTANTE para botón de play)
+                        'showinfo=1',              // Show video info (ayuda con la interfaz)
+                        'rel=0',                   // Don't show related videos at end
                         'fs=1',                    // Allow fullscreen
+                        'cc_load_policy=0',        // Don't show captions by default
+                        'iv_load_policy=3',        // Don't show annotations
+                        'modestbranding=0',        // Keep YouTube branding for better compatibility
                         'enablejsapi=1',           // Enable JS API
-                        'origin=' + window.location.origin, // Set origin for security
-                        'widget_referrer=' + window.location.href, // Referrer info
-                        'autoplay=0'               // Don't autoplay to avoid issues
+                        'origin=' + encodeURIComponent(window.location.origin), // Set origin for security
+                        'autoplay=0',              // Don't autoplay - user must click play
+                        'mute=0'                   // Don't mute by default
                     ];
 
                     // Check if URL already has parameters
@@ -1682,20 +1716,37 @@
                 inputSection.style.display = 'none';
                 playerSection.style.display = 'block';
                 
-                // Create iframe with mobile-optimized attributes
+                // Create iframe with mobile-optimized attributes for play button visibility
                 iframeContainer.innerHTML = `
                     <iframe 
                         src="${embedUrl}"
                         class="widget-iframe"
                         frameborder="0"
                         allowfullscreen
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                         referrerpolicy="strict-origin-when-cross-origin"
-                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
-                        loading="lazy">
+                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups"
+                        loading="eager"
+                        title="YouTube video player"
+                        style="background: #000;">
                     </iframe>
                 `;
                 widgetContentElement.classList.add('youtube-no-padding');
+                
+                // Add a small delay to ensure proper loading on mobile
+                setTimeout(() => {
+                    const iframe = iframeContainer.querySelector('iframe');
+                    if (iframe) {
+                        // Force reload if needed on mobile
+                        if (window.innerWidth <= 768) {
+                            iframe.style.opacity = '0';
+                            setTimeout(() => {
+                                iframe.style.opacity = '1';
+                                iframe.style.transition = 'opacity 0.3s ease';
+                            }, 100);
+                        }
+                    }
+                }, 200);
             }
         }
 
