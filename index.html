@@ -543,39 +543,6 @@
             z-index: 10; /* Ensures iframe is on top */
         }
 
-        /* Overlay for video playback on mobile */
-        /* Removed this overlay as per user request */
-        /*
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 11;
-            transition: opacity 0.3s ease;
-            border-radius: var(--border-radius);
-        }
-
-        .video-overlay .play-icon {
-            font-size: 3em;
-            margin-bottom: 0.5em;
-        }
-
-        .video-overlay p {
-            font-size: 0.8em;
-            margin: 0;
-        }
-        */
-
         .widget-placeholder {
             display: flex;
             flex-direction: column;
@@ -880,7 +847,7 @@
         .icon-crypto::before { content: "💰"; }
         .icon-menu::before { content: "☰"; }
         .icon-plus::before { content: "➕"; }
-        .icon-x::before { content = "\00D7"; } /* Multiplies symbol, typically 'x' */
+        .icon-x::before { content: "✖️"; }
         .icon-briefcase::before { content: "💼"; }
         .icon-gamepad::before { content: "🎮"; }
         .icon-users::before { content: "👥"; }
@@ -1423,7 +1390,7 @@
             return `
                 <div class="widget-content ${hasInitialEmbeddableUrl ? 'youtube-no-padding' : ''}">
                     <div class="youtube-widget" id="youtube-widget-${widget.id}">
-                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: none; padding: var(--spacing-md);"> <!-- Initially hidden -->
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'none' : 'block'}; padding: var(--spacing-md);">
                             <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                                 <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
                                 <h3>YouTube Player</h3>
@@ -1482,12 +1449,11 @@
                             </div>
                         </div>
 
-                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: block;">
+                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'block' : 'none'};">
                             <!-- youtube-player-controls are now handled by the main widget-header. -->
                             <div class="youtube-iframe-container youtube-responsive-container" id="youtube-iframe-${widget.id}">
                                 <!-- El iframe se insertará aquí dinámicamente por loadYouTubeVideoInitial -->
                             </div>
-                            <!-- Removed the video-overlay HTML as requested -->
                         </div>
                     </div>
                 </div>
@@ -1568,9 +1534,12 @@
             
             if (config?.type === 'youtube') {
                 const initialLoadUrl = widget.url;
-                if (initialLoadUrl && getYouTubeEmbedUrl(initialLoadUrl)) {
-                    // Directly load video on initialization
-                    loadYouTubeVideoInitial(widget.id, initialLoadUrl);
+                if (initialLoadUrl && convertToEmbedUrl(initialLoadUrl)) {
+                    // Load the video directly if there is an initial valid URL
+                    // Use setTimeout to ensure DOM elements are fully rendered
+                    setTimeout(() => {
+                        loadYouTubeVideoInitial(widget.id, initialLoadUrl);
+                    }, 0); 
                 }
             } else if (config?.type === 'crypto') {
                 loadCryptoPrices(widget.id);
@@ -1586,7 +1555,7 @@
                 targetWidget.title = title; // Update title as well
                 saveWidgets();
             }
-            loadYouTubeVideoInitial(widgetId, url); // Load the video directly
+            loadYouTubeVideoInitial(widgetId, url);
             showToast(`Reproduciendo: ${title}`, 'success');
         }
 
@@ -1599,7 +1568,7 @@
                 return;
             }
 
-            const embedUrl = getYouTubeEmbedUrl(url);
+            const embedUrl = convertToEmbedUrl(url);
             if (!embedUrl) {
                 showToast('URL de YouTube no válida', 'error');
                 return;
@@ -1613,7 +1582,7 @@
                 saveWidgets();
             }
             
-            loadYouTubeVideoInitial(widgetId, url); // Load the video directly
+            loadYouTubeVideoInitial(widgetId, url);
             showToast('Video cargado correctamente', 'success');
         }
 
@@ -1629,12 +1598,12 @@
                 saveWidgets();
             }
             
-            loadYouTubeVideoInitial(widgetId, defaultUrl); // Load the video directly
+            loadYouTubeVideoInitial(widgetId, defaultUrl);
             showToast('Playlist por defecto cargada', 'success');
         }
 
         /**
-         * Converts a YouTube URL to an embed URL and ensures playsinline=1 and autoplay=1 are present.
+         * Converts a YouTube URL to an embed URL with mobile-specific parameters.
          * @param {string} url The input YouTube URL.
          * @returns {string|null} The embeddable URL or null if invalid.
          */
@@ -1673,12 +1642,22 @@
                 }
 
                 if (embedUrl) {
-                    // Ensure playsinline=1 and autoplay=1 are added
-                    const params = new URLSearchParams(embedUrl.split('?')[1] || '');
-                    params.set('playsinline', '1');
-                    params.set('autoplay', '1'); // Autoplay after user gesture or on page load if allowed
-                    const baseUrl = embedUrl.split('?')[0];
-                    return `${baseUrl}?${params.toString()}`;
+                    // Add mobile-specific parameters to prevent app redirection
+                    const mobileParams = [
+                        'playsinline=1',           // Forces inline playback on iOS
+                        'rel=0',                   // Don't show related videos
+                        'modestbranding=1',        // Removes YouTube logo
+                        'showinfo=0',              // Hide video info
+                        'fs=1',                    // Allow fullscreen
+                        'enablejsapi=1',           // Enable JS API
+                        'origin=' + window.location.origin, // Set origin for security
+                        'widget_referrer=' + window.location.href, // Referrer info
+                        'autoplay=0'               // Don't autoplay to avoid issues
+                    ];
+
+                    // Check if URL already has parameters
+                    const separator = embedUrl.includes('?') ? '&' : '?';
+                    return `${embedUrl}${separator}${mobileParams.join('&')}`;
                 }
                 return null;
             } catch (error) {
@@ -1687,10 +1666,9 @@
             }
         }
 
-
         // Helper function to load YouTube video/playlist into the iframe
-        function loadYouTubeVideoInitial(widgetId, url) { 
-            const embedUrl = getYouTubeEmbedUrl(url); 
+        function loadYouTubeVideoInitial(widgetId, url) {
+            const embedUrl = getYouTubeEmbedUrl(url);
             if (!embedUrl) {
                 return; 
             }
@@ -1703,18 +1681,21 @@
             if (inputSection && playerSection && iframeContainer && widgetContentElement) {
                 inputSection.style.display = 'none';
                 playerSection.style.display = 'block';
-                widgetContentElement.classList.add('youtube-no-padding');
                 
+                // Create iframe with mobile-optimized attributes
                 iframeContainer.innerHTML = `
                     <iframe 
                         src="${embedUrl}"
                         class="widget-iframe"
                         frameborder="0"
                         allowfullscreen
-                        allow="autoplay; encrypted-media; gyroscope; picture-in-picture;" /* Simplified allow attributes */
-                        referrerpolicy="strict-origin-when-cross-origin">
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
+                        loading="lazy">
                     </iframe>
                 `;
+                widgetContentElement.classList.add('youtube-no-padding');
             }
         }
 
@@ -1730,19 +1711,13 @@
                 playerSection.style.display = 'none';
                 widgetContentElement.classList.remove('youtube-no-padding');
                 document.getElementById(`youtube-url-${widgetId}`).value = ''; // Clear input on show
-                
-                const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-                if(iframeContainer) {
-                    iframeContainer.innerHTML = ''; // Clear iframe content when input is shown
-                }
-
             } else {
                 // Currently showing input, switch to player (if valid URL exists)
                 const widget = widgets.find(w => w.id === widgetId);
                 if (widget && getYouTubeEmbedUrl(widget.url)) {
-                    loadYouTubeVideoInitial(widget.id, widget.url); // Load the video when switching back to player
+                    loadYouTubeVideoInitial(widget.id, widget.url);
                 } else {
-                    // If no valid URL, just hide input and show player (might be empty but keeps state)
+                    // If no valid URL, just hide input and try to show player (might be empty)
                     inputSection.style.display = 'none';
                     playerSection.style.display = 'block';
                     widgetContentElement.classList.add('youtube-no-padding');
@@ -1750,12 +1725,11 @@
             }
         }
 
-
-        function showYouTubeInput(widgetId) { /* This function is no longer called directly from HTML, but kept for clarity */
+        function showYouTubeInput(widgetId) {
             toggleYouTubeInputSection(widgetId);
         }
 
-        function convertToEmbedUrl(url) { /* This function now only handles parsing, not adding playsinline/autoplay */
+        function convertToEmbedUrl(url) {
             try {
                 url = url.trim();
                 
@@ -1921,20 +1895,6 @@
             saveWidgets();
         }
 
-        // Search function
-        function initSearch() {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const widgetItems = document.querySelectorAll('#widgetList .widget-item');
-                
-                widgetItems.forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
-                });
-            });
-        }
-
         // Toast function
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
@@ -2062,12 +2022,6 @@
 
             // Keyboard shortcuts
             document.addEventListener('keydown', (e) => {
-                // Ctrl/Cmd + K to focus search
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                    e.preventDefault();
-                    document.getElementById('searchInput').focus();
-                }
-                
                 // Escape to close modal
                 if (e.key === 'Escape') {
                     closeModal();
@@ -2121,7 +2075,6 @@
             try {
                 initTheme();
                 initEventListeners();
-                /* Removed initSearch() as search input is removed */
                 loadWidgets(); 
 
                 // Load initial YouTube videos if no widgets are saved
