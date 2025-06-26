@@ -784,15 +784,15 @@
                 gap: var(--spacing-xxs); /* Keep small gap */
             }
 
-            /* Further reduce the size of the buttons inside youtube-player-controls */
+            /* Further reduce the size of the buttons in the widget header controls */
             .widget-header .widget-controls .btn-icon { /* Targeted directly to ensure override */
-                width: 12px; /* Reduced to 12px */
-                height: 12px; /* Reduced to 12px */
-                font-size: 0.4rem; /* Reduced to 0.4rem */
+                width: 10px; /* Reduced for very small size */
+                height: 10px; /* Reduced for very small size */
+                font-size: 0.3rem; /* Reduced for very small size */
                 padding: 0; /* No padding */
             }
             .widget-header .widget-controls {
-                gap: 2px; /* Reduced gap between these specific buttons */
+                gap: 1px; /* Minimal gap between these specific buttons */
             }
 
 
@@ -1123,9 +1123,9 @@
         // YouTube videos to load at startup if no widgets are saved
         const initialYouTubeVideos = [
             { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHs0' },
-            { title: 'EN VIVO - Canal Principal', url: 'https://youtu.be/HgOYT2_oiJg' },
+            { title: 'MEGANOTICIAS', url: 'https://www.youtube.com/watch?v=vzFvNIOawkM' }, /* Updated video */
             { title: 'Chilevisión 2', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
-            { title: 'Chilevision', url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw' },
+            { title: 'MEGA', url: 'https://www.youtube.com/watch?v=Kc7dB11N15E' }, /* Updated video */
             { title: '24 horas TVN', url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk' },
             { title: 'Contenido Especial', url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8' },
             { title: 'CNN', url: 'https://www.youtube.com/watch?v=bpo70sR9Kps' }
