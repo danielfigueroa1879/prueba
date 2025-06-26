@@ -724,7 +724,7 @@
             }
 
             .widget {
-                min-height: 150px; /* Further reduced minimum height */
+                min-height: 250px; /* Increased minimum height for videos to be visible */
             }
 
             /* Make widget titles and icons much smaller on mobile */
@@ -737,15 +737,9 @@
                 font-size: 0.35rem; /* Reduced to one-quarter of initial 1.2rem */
             }
 
-            /* Smaller font size for YouTube video titles in player controls and its icon */
-            /* Note: The youtube-title-text and icon-youtube are already removed from the player controls HTML. */
-            /* This rule is now primarily for general text within player controls if they were present. */
-            .youtube-player-controls .youtube-title-text {
-                font-size: 0.1375rem; /* Half of 0.275rem */
-                font-weight: 600; 
-            }
-            .youtube-player-controls .icon-youtube {
-                font-size: 0.1375rem; /* Half of 0.275rem */
+            /* Ocultar la barra de controles inferior del reproductor de YouTube en móvil */
+            .youtube-player-controls {
+                display: none; /* Hide the entire controls bar on mobile */
             }
             
             /* Reduce font size for subtitle within YouTube input section */
@@ -791,19 +785,14 @@
             }
 
             /* Further reduce the size of the buttons inside youtube-player-controls */
-            .youtube-player-controls .btn-icon {
-                width: 10px; /* Reduced from 12px for extreme smallness */
-                height: 10px; /* Reduced from 12px for extreme smallness */
-                font-size: 0.15rem; /* Reduced from 0.2rem for extreme smallness */
-                padding: 0; /* Ensure no padding */
-                margin-left: 1px; /* Minimal margin to separate them */
+            .widget-header .widget-controls .btn-icon { /* Targeted directly to ensure override */
+                width: 12px; /* Reduced to 12px */
+                height: 12px; /* Reduced to 12px */
+                font-size: 0.4rem; /* Reduced to 0.4rem */
+                padding: 0; /* No padding */
             }
-            .youtube-player-controls {
-                padding: calc(var(--spacing-xxs) / 4) var(--spacing-xxs); /* Even smaller padding for the controls bar */
-                margin-bottom: 0; /* Ensure no margin-bottom */
-            }
-            .youtube-player-controls .widget-controls { /* Target the widget-controls inside youtube-player-controls */
-                gap: 1px; /* Minimal gap between buttons in video controls */
+            .widget-header .widget-controls {
+                gap: 2px; /* Reduced gap between these specific buttons */
             }
 
 
@@ -818,8 +807,8 @@
 
             /* Adjust the header show button to be smaller */
             .header-show-btn {
-                padding: var(--spacing-xxs) var(--spacing-xs); /* Even smaller padding */
-                font-size: 0.5rem; /* Even smaller icon size for the show button */
+                padding: 2px 4px; /* Adjusted padding to be slightly larger for tap target */
+                font-size: 0.7rem; /* Adjusted icon size to be visible */
             }
 
             /* Sidebar elements reduction */
@@ -1457,8 +1446,8 @@
                         </div>
 
                         <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'block' : 'none'};">
-                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-xxs) var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
-                                <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
+                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                                <div style="display: flex; align-items: center;">
                                     <!-- Removed the icon icon-youtube here and the youtube-title-text span -->
                                 </div>
                                 <button 
@@ -1604,7 +1593,7 @@
         }
 
         // Helper function to load YouTube video/playlist into the iframe
-        function loadYouTubeVideoInitial(widgetId, url, title) {
+        function loadYouTubeVideoInitial(widgetId, url, title) { /* 'title' param is kept for consistency with preset calls, but not directly used here for inner widget title */
             const embedUrl = convertToEmbedUrl(url);
             if (!embedUrl) {
                 return; 
@@ -1613,9 +1602,7 @@
             const inputSection = document.getElementById(`youtube-input-${widgetId}`);
             const playerSection = document.getElementById(`youtube-player-${widgetId}`);
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            // The title element will be removed from the player controls HTML, no need to target it here.
-            // const youtubeTitleElement = document.getElementById(`youtube-title-${widgetId}`); 
-            const widgetContentElement = document.querySelector(`#${widget.id} .widget-content`); 
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); /* Use widgetId here */
 
             if (inputSection && playerSection && iframeContainer && widgetContentElement) {
                 inputSection.style.display = 'none';
@@ -1637,14 +1624,14 @@
 
         function showYouTubeInput(widgetId) {
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
-            document.getElementById(`youtube-player-${widget.id}`).style.display = 'none';
+            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none'; /* Use widgetId here */
             
-            const widgetContentElement = document.querySelector(`#${widget.id} .widget-content`);
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
             if (widgetContentElement) {
                 widgetContentElement.classList.remove('youtube-no-padding');
             }
 
-            document.getElementById(`youtube-url-${widget.id}`).value = '';
+            document.getElementById(`youtube-url-${widgetId}`).value = '';
         }
 
         function convertToEmbedUrl(url) {
