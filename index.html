@@ -1298,11 +1298,20 @@
         function refreshWidget(widgetId) {
             const widgetElement = document.getElementById(widgetId);
             const iframe = widgetElement.querySelector('.widget-iframe');
-            if (iframe) {
-                iframe.src = iframe.src;
-                showToast('Widget actualizado', 'success');
+            // Find the widget object to get the current URL
+            const widget = widgets.find(w => w.id === widgetId);
+
+            if (iframe && widget) {
+                const embedUrl = convertToEmbedUrl(widget.url);
+                if (embedUrl) {
+                    iframe.src = embedUrl; // Reload iframe with the stored URL
+                    showToast('Widget actualizado', 'success');
+                } else {
+                    showToast('No se pudo actualizar: URL no válida.', 'error');
+                }
             }
         }
+
 
         function openInNewTab(url) {
             window.open(url, '_blank');
@@ -1351,6 +1360,9 @@
                         ${widget.title}
                     </div>
                     <div class="widget-controls">
+                        <button class="btn-icon" onclick="toggleYouTubeInputSection('${widget.id}')" title="Cambiar video">
+                            <span class="icon">🔄</span>
+                        </button>
                         <button class="btn-icon" onclick="refreshWidget('${widget.id}')" title="Actualizar">
                             <span class="icon">🔄</span>
                         </button>
@@ -1446,18 +1458,7 @@
                         </div>
 
                         <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'block' : 'none'};">
-                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-tertiary); border-radius: var(--border-radius);">
-                                <div style="display: flex; align-items: center;">
-                                    <!-- Removed the icon icon-youtube here and the youtube-title-text span -->
-                                </div>
-                                <button 
-                                    class="btn-icon" 
-                                    onclick="showYouTubeInput('${widget.id}')" 
-                                    title="Cambiar video"
-                                >
-                                    🔄
-                                </button>
-                            </div>
+                            <!-- youtube-player-controls are now handled by the main widget-header. -->
                             <div class="youtube-iframe-container youtube-responsive-container" id="youtube-iframe-${widget.id}">
                                 <!-- El iframe se insertará aquí dinámicamente por loadYouTubeVideoInitial -->
                             </div>
@@ -1545,7 +1546,7 @@
                     // Load the video directly if there is an initial valid URL
                     // Use setTimeout to ensure DOM elements are fully rendered
                     setTimeout(() => {
-                        loadYouTubeVideoInitial(widget.id, initialLoadUrl, widget.title);
+                        loadYouTubeVideoInitial(widget.id, initialLoadUrl);
                     }, 0); 
                 }
             } else if (config?.type === 'crypto') {
@@ -1555,7 +1556,14 @@
 
         // YouTube widget functions
         function loadPresetVideo(widgetId, url, title) {
-            loadYouTubeVideoInitial(widgetId, url, title);
+            // Update the widget's URL in the global widgets array
+            const targetWidget = widgets.find(w => w.id === widgetId);
+            if (targetWidget) {
+                targetWidget.url = url;
+                targetWidget.title = title; // Update title as well
+                saveWidgets();
+            }
+            loadYouTubeVideoInitial(widgetId, url);
             showToast(`Reproduciendo: ${title}`, 'success');
         }
 
@@ -1574,26 +1582,36 @@
                 return;
             }
             
-            // Generate a default title if not provided, and then clean it
-            let newTitle = urlInput.placeholder || 'Video Personalizado';
+            // Update the widget's URL in the global widgets array
+            const targetWidget = widgets.find(w => w.id === widgetId);
+            if (targetWidget) {
+                targetWidget.url = url;
+                targetWidget.title = "Video Personalizado"; // Set a generic title for custom URLs
+                saveWidgets();
+            }
             
-            // For simplicity, we'll keep the custom title provided by the user unless it's the default placeholder,
-            // otherwise, it would be complex to fetch the actual video title from YouTube API within client-side HTML.
-            // Assuming "Video Personalizado" is a generic fallback, we don't apply deep cleaning here.
-            
-            loadYouTubeVideoInitial(widgetId, url, newTitle); // newTitle is 'Video Personalizado' or placeholder
+            loadYouTubeVideoInitial(widgetId, url);
             showToast('Video cargado correctamente', 'success');
         }
 
         function loadDefaultPlaylist(widgetId) {
             const defaultUrl = 'https://www.youtube.com/embed/videoseries?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
+            const defaultTitle = 'Playlist por Defecto';
+
+            // Update the widget's URL in the global widgets array
+            const targetWidget = widgets.find(w => w.id === widgetId);
+            if (targetWidget) {
+                targetWidget.url = defaultUrl;
+                targetWidget.title = defaultTitle; // Update title as well
+                saveWidgets();
+            }
             
-            loadYouTubeVideoInitial(widgetId, defaultUrl, 'Playlist por Defecto');
+            loadYouTubeVideoInitial(widgetId, defaultUrl);
             showToast('Playlist por defecto cargada', 'success');
         }
 
         // Helper function to load YouTube video/playlist into the iframe
-        function loadYouTubeVideoInitial(widgetId, url, title) { /* 'title' param is kept for consistency with preset calls, but not directly used here for inner widget title */
+        function loadYouTubeVideoInitial(widgetId, url) { /* Removed 'title' param as it's not directly used here to set the inner player title */
             const embedUrl = convertToEmbedUrl(url);
             if (!embedUrl) {
                 return; 
@@ -1602,12 +1620,11 @@
             const inputSection = document.getElementById(`youtube-input-${widgetId}`);
             const playerSection = document.getElementById(`youtube-player-${widgetId}`);
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); /* Use widgetId here */
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); 
 
             if (inputSection && playerSection && iframeContainer && widgetContentElement) {
                 inputSection.style.display = 'none';
                 playerSection.style.display = 'block';
-                // No need to set textContent for youtubeTitleElement as it's removed from player controls HTML
                 iframeContainer.innerHTML = `
                     <iframe 
                         src="${embedUrl}"
@@ -1622,16 +1639,35 @@
             }
         }
 
-        function showYouTubeInput(widgetId) {
-            document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
-            document.getElementById(`youtube-player-${widgetId}`).style.display = 'none'; /* Use widgetId here */
-            
+        // Function to toggle between YouTube input and player sections
+        function toggleYouTubeInputSection(widgetId) {
+            const inputSection = document.getElementById(`youtube-input-${widgetId}`);
+            const playerSection = document.getElementById(`youtube-player-${widgetId}`);
             const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
-            if (widgetContentElement) {
-                widgetContentElement.classList.remove('youtube-no-padding');
-            }
 
-            document.getElementById(`youtube-url-${widgetId}`).value = '';
+            if (inputSection.style.display === 'none') {
+                // Currently showing player, switch to input
+                inputSection.style.display = 'block';
+                playerSection.style.display = 'none';
+                widgetContentElement.classList.remove('youtube-no-padding');
+                document.getElementById(`youtube-url-${widgetId}`).value = ''; // Clear input on show
+            } else {
+                // Currently showing input, switch to player (if valid URL exists)
+                const widget = widgets.find(w => w.id === widgetId);
+                if (widget && convertToEmbedUrl(widget.url)) {
+                    loadYouTubeVideoInitial(widget.id, widget.url);
+                } else {
+                    // If no valid URL, just hide input and try to show player (might be empty)
+                    inputSection.style.display = 'none';
+                    playerSection.style.display = 'block';
+                    widgetContentElement.classList.add('youtube-no-padding');
+                }
+            }
+        }
+
+
+        function showYouTubeInput(widgetId) { /* This function is no longer called directly from HTML, but kept for clarity */
+            toggleYouTubeInputSection(widgetId);
         }
 
         function convertToEmbedUrl(url) {
