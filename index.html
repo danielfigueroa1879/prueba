@@ -543,6 +543,36 @@
             z-index: 10; /* Ensures iframe is on top */
         }
 
+        /* Overlay for video playback on mobile */
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 11; /* Above the iframe */
+            transition: opacity 0.3s ease;
+            border-radius: var(--border-radius);
+        }
+
+        .video-overlay .play-icon {
+            font-size: 3em; /* Larger play icon */
+            margin-bottom: 0.5em;
+        }
+
+        .video-overlay p {
+            font-size: 0.8em;
+            margin: 0;
+        }
+
         .widget-placeholder {
             display: flex;
             flex-direction: column;
@@ -1390,7 +1420,7 @@
             return `
                 <div class="widget-content ${hasInitialEmbeddableUrl ? 'youtube-no-padding' : ''}">
                     <div class="youtube-widget" id="youtube-widget-${widget.id}">
-                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'none' : 'block'}; padding: var(--spacing-md);">
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: none; padding: var(--spacing-md);"> <!-- Initially hidden -->
                             <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                                 <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
                                 <h3>YouTube Player</h3>
@@ -1449,10 +1479,14 @@
                             </div>
                         </div>
 
-                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'block' : 'none'};">
+                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: block;">
                             <!-- youtube-player-controls are now handled by the main widget-header. -->
                             <div class="youtube-iframe-container youtube-responsive-container" id="youtube-iframe-${widget.id}">
                                 <!-- El iframe se insertará aquí dinámicamente por loadYouTubeVideoInitial -->
+                            </div>
+                            <div class="video-overlay" id="video-overlay-${widget.id}" onclick="playVideoWithGesture('${widget.id}', '${initialLoadUrl}')">
+                                <div class="play-icon">▶️</div>
+                                <p>Toca para reproducir</p>
                             </div>
                         </div>
                     </div>
@@ -1534,12 +1568,16 @@
             
             if (config?.type === 'youtube') {
                 const initialLoadUrl = widget.url;
-                if (initialLoadUrl && convertToEmbedUrl(initialLoadUrl)) {
-                    // Load the video directly if there is an initial valid URL
-                    // Use setTimeout to ensure DOM elements are fully rendered
-                    setTimeout(() => {
-                        loadYouTubeVideoInitial(widget.id, initialLoadUrl);
-                    }, 0); 
+                if (initialLoadUrl && getYouTubeEmbedUrl(initialLoadUrl)) {
+                    // This will make the overlay visible, waiting for user interaction
+                    const overlay = document.getElementById(`video-overlay-${widget.id}`);
+                    if (overlay) {
+                        overlay.style.display = 'flex'; // Ensure overlay is visible
+                    }
+                    const iframeContainer = document.getElementById(`youtube-iframe-${widget.id}`);
+                    if (iframeContainer) {
+                        iframeContainer.innerHTML = ''; // Ensure iframe is initially empty
+                    }
                 }
             } else if (config?.type === 'crypto') {
                 loadCryptoPrices(widget.id);
@@ -1555,7 +1593,8 @@
                 targetWidget.title = title; // Update title as well
                 saveWidgets();
             }
-            loadYouTubeVideoInitial(widgetId, url);
+            // Trigger play with gesture to load the new video
+            playVideoWithGesture(widgetId, url);
             showToast(`Reproduciendo: ${title}`, 'success');
         }
 
@@ -1568,7 +1607,7 @@
                 return;
             }
 
-            const embedUrl = convertToEmbedUrl(url);
+            const embedUrl = getYouTubeEmbedUrl(url);
             if (!embedUrl) {
                 showToast('URL de YouTube no válida', 'error');
                 return;
@@ -1582,7 +1621,8 @@
                 saveWidgets();
             }
             
-            loadYouTubeVideoInitial(widgetId, url);
+            // Trigger play with gesture to load the new video
+            playVideoWithGesture(widgetId, url);
             showToast('Video cargado correctamente', 'success');
         }
 
@@ -1597,8 +1637,8 @@
                 targetWidget.title = defaultTitle; // Update title as well
                 saveWidgets();
             }
-            
-            loadYouTubeVideoInitial(widgetId, defaultUrl);
+            // Trigger play with gesture to load the new video
+            playVideoWithGesture(widgetId, defaultUrl);
             showToast('Playlist por defecto cargada', 'success');
         }
 
@@ -1642,12 +1682,12 @@
                 }
 
                 if (embedUrl) {
-                    // Ensure playsinline=1 is added
-                    if (embedUrl.includes('?')) {
-                        return `${embedUrl}&playsinline=1`;
-                    } else {
-                        return `${embedUrl}?playsinline=1`;
-                    }
+                    // Ensure playsinline=1 and autoplay=1 are added for gesture-based playback
+                    const params = new URLSearchParams(embedUrl.split('?')[1] || '');
+                    params.set('playsinline', '1');
+                    params.set('autoplay', '1'); // Autoplay after user gesture
+                    const baseUrl = embedUrl.split('?')[0];
+                    return `${baseUrl}?${params.toString()}`;
                 }
                 return null;
             } catch (error) {
@@ -1657,23 +1697,16 @@
         }
 
 
-        // Helper function to load YouTube video/playlist into the iframe
-        function loadYouTubeVideoInitial(widgetId, url) { /* 'title' param is kept for consistency with preset calls, but not directly used here for inner widget title */
-            const embedUrl = getYouTubeEmbedUrl(url); /* Use the updated function to get embed URL with playsinline */
-            if (!embedUrl) {
-                return; 
-            }
-
-            const inputSection = document.getElementById(`youtube-input-${widgetId}`);
-            const playerSection = document.getElementById(`youtube-player-${widgetId}`);
+        // New function to handle playing video with a user gesture
+        function playVideoWithGesture(widgetId, videoUrl) {
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); 
+            const overlay = document.getElementById(`video-overlay-${widgetId}`);
+            const embedUrl = getYouTubeEmbedUrl(videoUrl); // This now includes playsinline and autoplay
 
-            if (inputSection && playerSection && iframeContainer && widgetContentElement) {
-                inputSection.style.display = 'none';
-                playerSection.style.display = 'block';
+            if (embedUrl && iframeContainer && overlay) {
+                overlay.style.display = 'none'; // Hide the overlay
                 iframeContainer.innerHTML = `
-                    <iframe 
+                    <iframe
                         src="${embedUrl}"
                         class="widget-iframe"
                         frameborder="0"
@@ -1682,7 +1715,32 @@
                         referrerpolicy="strict-origin-when-cross-origin">
                     </iframe>
                 `;
+            } else {
+                showToast('URL de YouTube no válida para reproducir o elementos no encontrados.', 'error');
+            }
+        }
+
+        // Helper function to load YouTube video/playlist into the iframe (now primarily called by playVideoWithGesture)
+        function loadYouTubeVideoInitial(widgetId, url) { 
+            const embedUrl = getYouTubeEmbedUrl(url); 
+            if (!embedUrl) {
+                return; 
+            }
+
+            const inputSection = document.getElementById(`youtube-input-${widgetId}`);
+            const playerSection = document.getElementById(`youtube-player-${widgetId}`);
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); 
+            const overlay = document.getElementById(`video-overlay-${widgetId}`); /* Get the overlay */
+
+            if (inputSection && playerSection && iframeContainer && widgetContentElement && overlay) {
+                inputSection.style.display = 'none';
+                playerSection.style.display = 'block';
                 widgetContentElement.classList.add('youtube-no-padding');
+                
+                // Show the overlay again if the video is not yet playing
+                overlay.style.display = 'flex'; 
+                iframeContainer.innerHTML = ''; // Ensure iframe is empty until user gesture
             }
         }
 
@@ -1691,6 +1749,7 @@
             const inputSection = document.getElementById(`youtube-input-${widgetId}`);
             const playerSection = document.getElementById(`youtube-player-${widgetId}`);
             const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
+            const overlay = document.getElementById(`video-overlay-${widgetId}`); /* Get the overlay */
 
             if (inputSection.style.display === 'none') {
                 // Currently showing player, switch to input
@@ -1698,13 +1757,30 @@
                 playerSection.style.display = 'none';
                 widgetContentElement.classList.remove('youtube-no-padding');
                 document.getElementById(`youtube-url-${widgetId}`).value = ''; // Clear input on show
+                
+                // When switching to input, ensure overlay is visible for when user returns to player
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                }
+                const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+                if(iframeContainer) {
+                    iframeContainer.innerHTML = ''; // Clear iframe content
+                }
+
             } else {
                 // Currently showing input, switch to player (if valid URL exists)
                 const widget = widgets.find(w => w.id === widgetId);
-                if (widget && getYouTubeEmbedUrl(widget.url)) { /* Use updated function to check validity */
-                    loadYouTubeVideoInitial(widget.id, widget.url);
+                if (widget && getYouTubeEmbedUrl(widget.url)) {
+                    // This will now just switch visibility, playVideoWithGesture is for actual playback
+                    inputSection.style.display = 'none';
+                    playerSection.style.display = 'block';
+                    widgetContentElement.classList.add('youtube-no-padding');
+                    // The overlay should be visible, waiting for user's click to play
+                    if (overlay) {
+                        overlay.style.display = 'flex';
+                    }
                 } else {
-                    // If no valid URL, just hide input and try to show player (might be empty)
+                    // If no valid URL, just hide input and show player (might be empty but keeps state)
                     inputSection.style.display = 'none';
                     playerSection.style.display = 'block';
                     widgetContentElement.classList.add('youtube-no-padding');
@@ -1717,7 +1793,7 @@
             toggleYouTubeInputSection(widgetId);
         }
 
-        function convertToEmbedUrl(url) { /* This function now only handles parsing, not adding playsinline */
+        function convertToEmbedUrl(url) { /* This function now only handles parsing, not adding playsinline/autoplay */
             try {
                 url = url.trim();
                 
