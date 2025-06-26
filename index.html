@@ -24,6 +24,7 @@
             --font-family: 'Poppins', sans-serif;
             
             /* Espaciado */
+            --spacing-xxs: 0.125rem; /* Nuevo espaciado extra extra pequeño */
             --spacing-xs: 0.25rem; 
             --spacing-sm: 0.5rem;
             --spacing-md: 1rem;
@@ -34,8 +35,8 @@
             --border-radius: 0.5rem;
             --border-radius-lg: 1rem;
 
-            /* Altura de encabezado móvil */
-            --mobile-header-height: 50px;
+            /* Altura de encabezado móvil (ajustar si es necesario) */
+            --mobile-header-height: 50px; /* Reducido a 50px para hacerlo más pequeño */
         }
 
         [data-theme="dark"] {
@@ -71,14 +72,29 @@
             background: var(--bg-secondary);
             padding: var(--spacing-md);
             box-shadow: 0 2px 10px var(--shadow);
-            position: fixed;
+            position: fixed; /* Changed from sticky to fixed */
             top: 0;
             left: 0;
             width: 100%;
             z-index: 1000;
             border-bottom: 1px solid var(--border);
-            transition: top 0.3s ease-out;
+            transition: top 0.3s ease-out; /* Transition for top property */
         }
+
+        /* Class to hide header on scroll for mobile (now controls top) */
+        .header.header-hidden {
+            top: calc(-1 * var(--mobile-header-height)); /* Uses custom property for height */
+        }
+        
+        /* Hide content of header when header is hidden on mobile */
+        @media (max-width: 768px) {
+            .header.header-hidden .header-content > *:not(#headerShowBtn) { /* All direct children except the show button */
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+        }
+
 
         .header-content {
             display: flex;
@@ -104,6 +120,26 @@
             align-items: center;
             gap: var(--spacing-md);
             flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
         .btn {
@@ -191,7 +227,8 @@
         .main-container {
             display: flex;
             min-height: calc(100vh - 80px);
-            padding-top: 80px;
+            padding-top: 80px; /* Default space for header on desktop */
+            transition: padding-top 0.3s ease-out; /* Smooth transition for padding */
         }
 
         .sidebar {
@@ -214,6 +251,7 @@
             display: flex;
             justify-content: space-between; 
             align-items: center;
+            padding: var(--spacing-md);
             margin-bottom: var(--spacing-md);
         }
 
@@ -260,6 +298,127 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Sidebar Handle (for opening when collapsed - left side) */
+        .sidebar-handle {
+            position: fixed;
+            left: -30px; 
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: var(--spacing-xs) var(--spacing-xs); 
+            border-top-right-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            cursor: pointer;
+            z-index: 1001; 
+            box-shadow: 2px 0 8px var(--shadow);
+            transition: left 0.3s ease, opacity 0.3s ease;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem; 
+            opacity: 0; 
+            pointer-events: none; 
+            border: 1px solid var(--border); 
+        }
+
+        .sidebar-handle svg {
+            width: 1em; 
+            height: 1em;
+            vertical-align: middle; 
+            transition: transform 0.3s ease;
+            stroke-width: 4; 
+            transform: rotate(0deg); /* Always points right for opening */
+        }
+
+        /* Show handle when sidebar is collapsed on desktop */
+        .sidebar.collapsed ~ .sidebar-handle { 
+            left: 0; 
+            opacity: 1;
+            pointer-events: auto; 
+        }
+
+        /* Hide handle when sidebar is open */
+        .sidebar:not(.collapsed) ~ .sidebar-handle { 
+            left: -30px; 
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Styles for the close button inside the sidebar (right side of sidebar) */
+        #sidebarCloseBtn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: var(--spacing-xxs); 
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px; 
+            height: 38px;
+            box-shadow: var(--shadow); 
+            z-index: 100; 
+            margin-left: auto; 
+            margin-right: 0; 
+
+            opacity: 0; 
+            pointer-events: none;
+        }
+        
+        #sidebarCloseBtn:hover {
+            background: var(--border); 
+        }
+
+        #sidebarCloseBtn svg {
+            width: 1em; 
+            height: 1em;
+            vertical-align: middle;
+            stroke-width: 4; 
+            /* MODIFICACIÓN: Agrandar la flecha de cierre */
+            font-size: 1.5rem; /* Revertido a 1.5rem, igual que la flecha de apertura */
+            transform: rotate(0deg); /* No rotation, as SVG is already left-pointing */
+        }
+
+        /* Show sidebarCloseBtn when sidebar is NOT collapsed */
+        .sidebar:not(.collapsed) #sidebarCloseBtn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Hide sidebarCloseBtn when sidebar IS collapsed */
+        .sidebar.collapsed #sidebarCloseBtn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* New button to show header when hidden on mobile */
+        .header-show-btn {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999; /* Below header, above other content usually */
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none; /* Make it unclickable when hidden */
+            transition: opacity 0.3s ease, transform 0.3s ease-out;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+
+        .header-show-btn svg {
+            width: 1.5em;
+            height: 1.5em;
+            display: block;
         }
 
         /* Dashboard */
@@ -315,7 +474,7 @@
         }
 
         .widget-header {
-            padding: var(--spacing-sm);
+            padding: var(--spacing-xxs) var(--spacing-sm); 
             background: var(--bg-tertiary);
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -329,7 +488,7 @@
             display: flex;
             align-items: center;
             gap: var(--spacing-xs); 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
         }
 
         .widget-controls {
@@ -344,99 +503,193 @@
             padding: var(--spacing-md); 
         }
         
-        .widget-content.no-padding {
+        /* Nuevo estilo para el contenido de YouTube sin padding */
+        .widget-content.youtube-no-padding {
             padding: 0;
         }
 
-        /* Video container */
-        .video-container {
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 56.25%;
-            background: #000;
-            border-radius: var(--border-radius);
+        /* Contenedores de YouTube para maximizar espacio de video */
+        .youtube-widget {
+            display: flex;
+            flex-direction: column;
+            height: 100%; 
+        }
+
+        .youtube-player-section {
+            display: flex;
+            flex-direction: column;
+            flex: 1; 
             overflow: hidden;
         }
 
-        .video-iframe {
-            position: absolute;
+        /* Nueva clase para el contenedor responsivo del iframe */
+        .youtube-responsive-container {
+            position: relative; /* Added for positioning context */
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9 / 16 = 0.5625) */
+            height: 0;
+            overflow: hidden;
+            background-color: #000; 
+            border-radius: var(--border-radius);
+            /* Asegurar que el contenedor sea visible */
+            min-height: 200px;
+        }
+
+        .widget-iframe {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; 
+            border: none;
+            border-radius: var(--border-radius); 
+            z-index: 10; /* Ensures iframe is on top */
+            /* Mejorar la visibilidad del iframe en móviles */
+            background: #000;
+            opacity: 1;
+        }
+
+        /* Estilos específicos para PC - reducir espacio debajo del video */
+        @media (min-width: 769px) {
+            .widget {
+                min-height: auto; /* Permitir altura automática en PC */
+            }
+            
+            .youtube-responsive-container {
+                /* En PC, usar altura más compacta */
+                padding-bottom: 56.25%; /* Mantener ratio 16:9 pero más compacto */
+                min-height: 250px; /* Altura mínima mayor para PC */
+            }
+            
+            .youtube-widget {
+                height: auto; /* Altura automática para eliminar espacio extra */
+            }
+            
+            .youtube-player-section {
+                flex: none; /* No expandir más de lo necesario */
+                height: auto; /* Altura automática */
+            }
+            
+            .widget-content.youtube-no-padding {
+                /* En PC, eliminar padding pero mantener estructura compacta */
+                padding: 0;
+                height: auto;
+                min-height: auto;
+            }
+        }
+
+        /* Estilos específicos para móviles para mejorar la visualización */
+        @media (max-width: 768px) {
+            .youtube-responsive-container {
+                /* En móviles, asegurar altura mínima adecuada */
+                min-height: 180px;
+                padding-bottom: 56.25%;
+                background: #000;
+            }
+            
+            .widget-iframe {
+                /* Asegurar que el iframe sea completamente visible en móviles */
+                background: #000;
+                min-height: 180px;
+            }
+            
+            /* Asegurar que los controles del reproductor sean visibles */
+            .youtube-widget {
+                background: #000;
+                height: 100%; /* Mantener altura completa en móviles */
+            }
+            
+            .youtube-player-section {
+                background: #000;
+                border-radius: var(--border-radius);
+                flex: 1; /* Expandir en móviles */
+            }
+        }
+
+        .widget-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: var(--spacing-lg);
+        }
+
+        .widget-placeholder .icon {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            border: none;
-            border-radius: var(--border-radius);
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(4px);
         }
 
-        /* Channel grid for TV channels */
-        .channel-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--spacing-sm);
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
             margin-bottom: var(--spacing-md);
         }
 
-        .channel-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: var(--spacing-sm);
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.3s ease;
-            font-family: var(--font-family);
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 400;
+            color: var(--text-primary);
         }
 
-        .channel-btn:hover {
-            background: var(--accent-hover);
-            transform: scale(1.02);
-        }
-
-        /* URL Input */
-        .url-input {
+        .form-input, .form-select {
             width: 100%;
-            padding: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
             border: 1px solid var(--border);
             border-radius: var(--border-radius);
             background: var(--bg-secondary);
             color: var(--text-primary);
-            margin-bottom: var(--spacing-sm);
             font-family: var(--font-family);
         }
 
-        .url-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-        }
-
-        /* External widget styles */
-        .external-widget {
-            text-align: center;
-            padding: var(--spacing-xl);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            min-height: 200px;
-        }
-
-        .external-widget .icon {
-            font-size: 3rem;
-            margin-bottom: var(--spacing-md);
-            opacity: 0.7;
-        }
-
-        .external-widget h3 {
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .external-widget p {
-            color: var(--text-secondary);
-            margin-bottom: var(--spacing-lg);
         }
 
         /* Toast */
@@ -471,9 +724,14 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            /* Reduce header padding and height to make it much smaller on mobile */
             .header {
-                padding: 4px 8px;
-                height: var(--mobile-header-height);
+                padding: 1px 2px; /* Reducido a 1px vertical, 2px horizontal */
+                height: var(--mobile-header-height); /* Usa la variable ajustada */
+            }
+            /* Adjust the top value when hidden to match the new, smaller height */
+            .header.header-hidden {
+                top: calc(-1 * var(--mobile-header-height)); 
             }
 
             .header-content {
@@ -488,103 +746,148 @@
                 flex-grow: 1;
                 flex-shrink: 1;
                 justify-content: flex-end;
-                gap: 4px;
+                gap: 2px; /* Reducido el gap entre controles */
                 min-width: 0;
             }
 
+            /* Sidebar top position now based on new mobile header height */
             .sidebar {
-                position: fixed;
-                top: var(--mobile-header-height);
-                left: -300px;
+                top: var(--mobile-header-height); 
                 height: calc(100vh - var(--mobile-header-height));
                 z-index: 1500;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.active {
-                left: 0;
             }
 
             .dashboard {
                 padding: var(--spacing-md);
             }
 
+            /* Adjust main-container padding-top based on new, smaller mobile header height */
             .main-container {
-                padding-top: var(--mobile-header-height);
+                padding-top: var(--mobile-header-height); /* Espacio para el header visible */
             }
 
+            /* Adjust main-container padding when header is hidden */
+            body.header-hidden-layout .main-container {
+                padding-top: 0; /* No padding when header is hidden */
+            }
+
+
             .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(calc(50% - 2px), 1fr));
-                gap: 4px;
+                grid-template-columns: repeat(auto-fit, minmax(calc(50% - 2px), 1fr)); /* Pequeño gap entre videos */
+                gap: 4px; /* Gap entre videos */
             }
 
             .widget {
-                min-height: auto;
-                height: auto;
+                min-height: auto; /* Permite que la altura se ajuste al contenido real del video */
+                height: auto; /* Permite que la altura se ajuste al contenido real del video */
             }
 
+            /* Make widget titles and icons much smaller on mobile */
             .widget-title {
-                font-size: 0.7rem;
-                gap: 2px;
+                font-size: 0.2rem; /* Más pequeño */
+                gap: 1px; /* Gap más pequeño */
             }
 
-            .widget-header .widget-controls .btn-icon {
-                width: 20px;
-                height: 20px;
-                font-size: 0.7rem;
-                padding: 0;
+            .widget-title .icon {
+                font-size: 0.25rem; /* Más pequeño */
             }
 
-            .widget-header .widget-controls {
-                gap: 2px;
+            /* Ocultar la barra de controles inferior del reproductor de YouTube en móvil */
+            .youtube-player-controls {
+                display: none;
+            }
+            
+            /* Reduce font size for subtitle within YouTube input section (if it were there) */
+            .youtube-input-section p {
+                font-size: 0.3rem; 
             }
 
+            /* Adjust mobile header controls for reduced size */
             .header .btn-icon {
-                width: 20px;
-                height: 20px;
+                width: 15px;
+                height: 15px;
                 padding: 0;
-                font-size: 0.7rem;
+                font-size: 0.3rem;
             }
 
             .header .logo {
-                font-size: 0.8rem;
+                font-size: 0.5rem; /* Muy pequeño */
             }
 
             .header .theme-toggle {
-                width: 25px;
-                height: 12px;
-                border-radius: 6px;
+                width: 20px;
+                height: 10px;
+                border-radius: 5px;
             }
 
             .header .theme-toggle::before {
-                width: 10px;
-                height: 10px;
+                width: 8px;
+                height: 8px;
                 top: 1px;
                 left: 1px;
             }
 
             [data-theme="dark"] .header .theme-toggle::before {
-                transform: translateX(12px);
+                transform: translateX(9px);
             }
 
             .header .btn-primary {
-                font-size: 0.6rem;
-                padding: 2px 4px;
-                gap: 2px;
+                font-size: 0.3rem;
+                padding: 1px 2px; /* Más pequeño */
+                gap: 1px; /* Más pequeño */
             }
 
-            .channel-grid {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                gap: 4px;
+            /* Reduce the size of the buttons in the widget header controls (Actualizar, Enlace, Eliminar) */
+            .widget-header .widget-controls .btn-icon {
+                width: 10px; /* Reducido para ser muy pequeño */
+                height: 10px; /* Reducido para ser muy pequeño */
+                font-size: 0.3rem; /* Reducido para ser muy pequeño */
+                padding: 0; /* Sin padding adicional */
+            }
+            .widget-header .widget-controls {
+                gap: 1px; /* Minimal gap between these specific buttons */
             }
 
-            .channel-btn {
-                padding: 6px;
+
+            /* Hide all header content when header is hidden, except the show button */
+            .header-content > *:not(#headerShowBtn) {
+                transition: opacity 0.3s ease;
+            }
+            .header.header-hidden .header-content > *:not(#headerShowBtn) {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            /* Adjust the header show button to be smaller */
+            .header-show-btn {
+                padding: 2px 4px; /* Ajustado para ser más pequeño pero funcional */
+                font-size: 0.6rem; /* Ajustado el tamaño del ícono de la flecha */
+            }
+
+            /* Sidebar elements reduction */
+            .sidebar-header {
+                padding: var(--spacing-xs);
+                margin-bottom: var(--spacing-xs);
+            }
+            .sidebar-title {
                 font-size: 0.7rem;
+            }
+            .widget-item {
+                padding: var(--spacing-xs);
+                font-size: 0.6rem;
+                gap: var(--spacing-xs);
+            }
+            .widget-item .widget-icon {
+                font-size: 0.8rem;
+                width: 15px;
+                height: 15px;
+            }
+            .sidebar-section {
+                margin-bottom: var(--spacing-md);
             }
         }
 
-        /* Icons */
+        /* Icons (Simple CSS icons) */
         .icon {
             display: inline-block;
             width: 1em;
@@ -622,6 +925,7 @@
                 Dashboard Pro
             </div>
             <div class="header-controls">
+                <!-- Search box and input removed as requested -->
                 <button class="btn-icon" id="toggleSidebar">
                     <span class="icon icon-menu"></span>
                 </button>
@@ -634,21 +938,32 @@
         </div>
     </header>
 
+    <!-- Button to show header on mobile -->
+    <button class="header-show-btn" id="headerShowBtn" title="Mostrar encabezado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="7 13 12 18 17 13"></polyline>
+            <line x1="12" y1="18" x2="12" y2="6"></line>
+        </svg>
+    </button>
+
     <!-- Main Container -->
     <div class="main-container">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h3 class="sidebar-title">Widgets Disponibles</h3>
+                <!-- Moved sidebarCloseBtn inside sidebar-header -->
                 <button class="btn-icon" id="sidebarCloseBtn" title="Cerrar barra lateral">
-                    <span class="icon icon-x"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 6 9 12 15 18"></polyline> <!-- Adjusted points to point left -->
+                    </svg>
                 </button>
             </div>
             <div class="sidebar-section">
                 <div class="widget-list" id="widgetList">
                     <div class="widget-item" data-widget="youtube">
                         <span class="widget-icon icon icon-youtube"></span>
-                        <span>YouTube TV</span>
+                        <span>YouTube</span>
                     </div>
                     <div class="widget-item" data-widget="spotify">
                         <span class="widget-icon icon icon-music"></span>
@@ -716,6 +1031,13 @@
             </div>
         </aside>
 
+        <!-- Sidebar Handle (the tab to open sidebar when collapsed - left side of screen) -->
+        <div class="sidebar-handle" id="sidebarHandle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </div>
+
         <!-- Dashboard -->
         <main class="dashboard">
             <div class="dashboard-grid" id="dashboardGrid">
@@ -728,46 +1050,72 @@
         </main>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <!-- Add Widget Modal -->
+    <div class="modal" id="addWidgetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Agregar Widget</h2>
+                <button class="btn-icon" onclick="closeModal()">
+                    <span class="icon icon-x"></span>
+                </button>
+            </div>
+            <form id="addWidgetForm">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Widget</label>
+                    <select class="form-select" id="widgetType" required>
+                        <option value="">Seleccionar tipo</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="whatsapp">WhatsApp Web</option>
+                        <option value="gmail">Gmail</option>
+                        <option value="calendar">Google Calendar</option>
+                        <option value="drive">Google Drive</option>
+                        <option value="weather">Clima</option>
+                        <option value="news">Noticias</option>
+                        <option value="netflix">Netflix</option>
+                        <option value="twitch">Twitch</option>
+                        <option value="crypto">Crypto</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Título del Widget</label>
+                    <input type="text" class="form-input" id="widgetTitle" placeholder="Título personalizado">
+                </div>
+                <div class="form-group" id="urlGroup" style="display: none;">
+                    <label class="form-label">URL Personalizada</label>
+                    <input type="url" class="form-input" id="widgetUrl" placeholder="https://ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Agregar Widget</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         // Global variables
-        let widgets = JSON.parse(localStorage.getItem('dashboard-widgets') || '[]');
+        let widgets = [];
         let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
-        let widgetCounter = 0;
-        let mobileHeaderHideTimeout;
+        let mobileHeaderHideTimeout; // To control the mobile header auto-hide timer
+
+        // Global variables for sidebar auto-hide (desktop)
         let sidebarTimeout;
-        const AUTO_HIDE_DELAY = 10000;
-
-        // Canales de TV predefinidos (funcionales)
-        const tvChannels = [
-            { name: 'MEGANOTICIAS', url: 'https://www.youtube.com/watch?v=vzFvNIOawkM' },
-            { name: 'CHV', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
-            { name: 'MEGA', url: 'https://www.youtube.com/watch?v=Kc7dB11N15E' },
-            { name: '24 HORAS', url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk' },
-            { name: 'CNN CHILE', url: 'https://www.youtube.com/watch?v=bpo70sR9Kps' },
-            { name: 'T13', url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8' }
-        ];
-
-        // Playlists de Spotify
-        const spotifyPlaylists = [
-            { name: 'Top 50 Global', id: '37i9dQZF1DX0XUsuxWHRQd' },
-            { name: 'Rock Classics', id: '37i9dQZF1DWXRqgorJj26U' },
-            { name: 'Pop Hits', id: '37i9dQZF1DX4dyzvuaRJ0n' },
-            { name: 'Chill Hits', id: '37i9dQZF1DX4WYpdgoIcn6' }
-        ];
+        const AUTO_HIDE_DELAY = 10000; // 10 seconds
 
         // Widget configurations
         const widgetConfigs = {
             youtube: {
-                title: 'YouTube TV',
+                title: 'YouTube',
                 icon: 'icon-youtube',
+                embedUrl: 'https://www.youtube.com/embed/videoseries?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm',
                 type: 'youtube'
             },
             spotify: {
                 title: 'Spotify',
                 icon: 'icon-music',
-                type: 'spotify'
+                url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX0XUsuxWHRQd?utm_source=generator&theme=0',
+                type: 'iframe'
             },
             whatsapp: {
                 title: 'WhatsApp Web',
@@ -784,26 +1132,26 @@
             calendar: {
                 title: 'Google Calendar',
                 icon: 'icon-calendar',
-                url: 'https://calendar.google.com/',
-                type: 'external'
+                url: 'https://calendar.google.com/calendar/embed?src=primary&ctz=America%2FNew_York',
+                type: 'iframe'
             },
             drive: {
                 title: 'Google Drive',
                 icon: 'icon-drive',
-                url: 'https://drive.google.com/',
-                type: 'external'
+                url: 'https://drive.google.com/embeddedfolderview?id=root',
+                type: 'iframe'
             },
             weather: {
                 title: 'Clima',
                 icon: 'icon-weather',
-                url: 'https://weather.com/',
-                type: 'external'
+                url: 'https://embed.windy.com/?lat=40.749&lon=-73.980&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&detailLat=40.749&detailLon=-73.980&metricWind=default&metricTemp=default&radarRange=-1',
+                type: 'iframe'
             },
             news: {
                 title: 'Noticias',
                 icon: 'icon-news',
-                url: 'https://www.bbc.com/mundo',
-                type: 'external'
+                url: 'https://rss.cnn.com/rss/edition.rss',
+                type: 'rss'
             },
             netflix: {
                 title: 'Netflix',
@@ -814,15 +1162,27 @@
             twitch: {
                 title: 'Twitch',
                 icon: 'icon-twitch',
-                url: 'https://www.twitch.tv/',
-                type: 'external'
+                url: 'https://player.twitch.tv/?channel=directory&parent=localhost',
+                type: 'iframe'
             },
             crypto: {
                 title: 'Crypto Prices',
                 icon: 'icon-crypto',
+                url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true',
                 type: 'crypto'
             }
         };
+
+        // YouTube videos to load at startup if no widgets are saved
+        const initialYouTubeVideos = [
+            { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHs0' },
+            { title: 'MEGANOTICIAS', url: 'https://www.youtube.com/watch?v=vzFvNIOawkM' },
+            { title: 'Chilevisión 2', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
+            { title: 'MEGA', url: 'https://www.youtube.com/watch?v=Kc7dB11N15E' },
+            { title: '24 horas TVN', url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk' },
+            { title: 'Contenido Especial', url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8' },
+            { title: 'CNN', url: 'https://www.youtube.com/watch?v=bpo70sR9Kps' }
+        ];
 
         // Initialize theme
         function initTheme() {
@@ -836,63 +1196,135 @@
             localStorage.setItem('dashboard-theme', currentTheme);
         }
 
-        // Sidebar functions
+        // Function to start the sidebar auto-hide timer (desktop)
+        function startSidebarTimer() {
+            clearTimeout(sidebarTimeout); // Clear any existing timer
+            const sidebar = document.getElementById('sidebar');
+            // Only start timer if sidebar is NOT collapsed (i.e., open) and on desktop
+            if (!sidebar.classList.contains('collapsed') && window.innerWidth > 768) {
+                sidebarTimeout = setTimeout(() => {
+                    sidebar.classList.add('collapsed'); // Hide the sidebar by adding collapsed class
+                }, AUTO_HIDE_DELAY);
+            }
+        }
+
+        // Function to reset the sidebar auto-hide timer (desktop)
+        function resetSidebarTimer() {
+            clearTimeout(sidebarTimeout);
+            startSidebarTimer();
+        }
+
+        // Modified toggleSidebar to manage handle visibility (CSS handles it, just toggles class)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
                 sidebar.classList.toggle('active');
+                // When sidebar is active on mobile, prevent header from auto-hiding
                 clearTimeout(mobileHeaderHideTimeout);
+                document.querySelector('.header').classList.remove('header-hidden');
+                document.getElementById('headerShowBtn').style.opacity = '0';
+                document.getElementById('headerShowBtn').style.pointerEvents = 'none';
+                document.body.classList.remove('header-hidden-layout'); // Ensure content pushes down when sidebar is active
             } else {
                 sidebar.classList.toggle('collapsed');
-                if (!sidebar.classList.contains('collapsed')) {
+                if (!sidebar.classList.contains('collapsed')) { // If sidebar just opened on desktop
                     startSidebarTimer();
-                } else {
-                    clearTimeout(sidebarTimeout);
+                } else { // If sidebar just collapsed on desktop
+                    clearTimeout(sidebarTimeout); // Ensure no timer is running if collapsed manually
                 }
             }
         }
 
-        function startSidebarTimer() {
-            clearTimeout(sidebarTimeout);
-            const sidebar = document.getElementById('sidebar');
-            if (!sidebar.classList.contains('collapsed') && window.innerWidth > 768) {
-                sidebarTimeout = setTimeout(() => {
-                    sidebar.classList.add('collapsed');
-                }, AUTO_HIDE_DELAY);
+        // Modal functions
+        function openModal() {
+            document.getElementById('addWidgetModal').classList.add('active');
+            // When modal is open, prevent header from auto-hiding on mobile
+            if (window.innerWidth <= 768) {
+                clearTimeout(mobileHeaderHideTimeout);
+                document.querySelector('.header').classList.remove('header-hidden');
+                document.getElementById('headerShowBtn').style.opacity = '0';
+                document.getElementById('headerShowBtn').style.pointerEvents = 'none';
+                document.body.classList.remove('header-hidden-layout'); // Ensure content pushes down when modal is active
             }
         }
 
-        // Toast function
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            toast.style.opacity = '1';
-            toast.style.transform = 'translateX(0)';
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-            }, 3000);
+        function closeModal() {
+            document.getElementById('addWidgetModal').classList.remove('active');
+            document.getElementById('addWidgetForm').reset();
+            document.getElementById('urlGroup').style.display = 'none';
+            // Restart mobile header auto-hide timer after closing modal
+            if (window.innerWidth <= 768) {
+                startMobileHeaderAutoHideTimer();
+            }
         }
 
         // Widget functions
         function generateWidgetId() {
-            widgetCounter++;
-            return 'widget-' + Date.now() + '-' + widgetCounter;
+            return 'widget-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
+
+        /**
+         * Removes adjacent duplicate words from a string.
+         * E.g., "Chilevision Chilevision 2" becomes "Chilevision 2"
+         * @param {string} title The input title string.
+         * @returns {string} The title with adjacent duplicates removed.
+         */
+        function removeRepeatedWords(title) {
+            if (!title || typeof title !== 'string') {
+                return title;
+            }
+            const words = title.split(' ').map(word => word.trim()).filter(word => word.length > 0);
+            const cleanedWords = [];
+            
+            for (let i = 0; i < words.length; i++) {
+                // If it's the first word or not a duplicate of the previous word, add it
+                if (i === 0 || words[i].toLowerCase() !== words[i - 1].toLowerCase()) {
+                    cleanedWords.push(words[i]);
+                }
+            }
+            return cleanedWords.join(' ');
+        }
+
+        /**
+         * Cleans common YouTube title prefixes (emojis, etc.).
+         * @param {string} title The input title string.
+         * @returns {string} The cleaned title.
+         */
+        function cleanYouTubePrefixes(title) {
+            if (!title || typeof title !== 'string') {
+                return title;
+            }
+            // List of prefixes/emojis to remove. Add more as needed.
+            const prefixesToRemove = [
+                '🔴 ', '▶️ ', '🎬 ', '📺 '
+            ];
+            let cleanedTitle = title;
+            for (const prefix of prefixesToRemove) {
+                if (cleanedTitle.startsWith(prefix)) {
+                    cleanedTitle = cleanedTitle.substring(prefix.length);
+                }
+            }
+            return cleanedTitle.trim();
+        }
+
 
         function createWidget(type, customTitle = null, customUrl = null) {
             const config = widgetConfigs[type];
             if (!config) return;
 
+            let finalTitle = customTitle || config.title;
+            if (type === 'youtube') {
+                finalTitle = removeRepeatedWords(finalTitle);
+                finalTitle = cleanYouTubePrefixes(finalTitle);
+            }
+
             const widget = {
                 id: generateWidgetId(),
                 type: type,
-                title: customTitle || config.title,
-                url: customUrl || config.url,
+                title: finalTitle, // Use the cleaned title here
+                url: customUrl || config.embedUrl || config.url, // customUrl takes precedence
                 icon: config.icon
             };
 
@@ -901,14 +1333,41 @@
             saveWidgets();
             showToast(`Widget ${widget.title} agregado correctamente`, 'success');
 
-            // Close sidebar after adding
+            // Automatically hide sidebar after adding a widget if on desktop
             const sidebar = document.getElementById('sidebar');
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('active');
-            } else {
+            const isMobile = window.innerWidth <= 768;
+
+            if (!isMobile && !sidebar.classList.contains('collapsed')) {
                 sidebar.classList.add('collapsed');
-                clearTimeout(sidebarTimeout);
+                clearTimeout(sidebarTimeout); // Clear any running timer for auto-hide
+            } else if (isMobile && sidebar.classList.contains('active')) {
+                // For mobile, if active, close it
+                sidebar.classList.remove('active');
+                startMobileHeaderAutoHideTimer(); // Restart auto-hide timer after closing sidebar on mobile
             }
+        }
+
+        // New utility functions for widget management
+        function refreshWidget(widgetId) {
+            const widgetElement = document.getElementById(widgetId);
+            const iframe = widgetElement.querySelector('.widget-iframe');
+            // Find the widget object to get the current URL
+            const widget = widgets.find(w => w.id === widgetId);
+
+            if (iframe && widget) {
+                const embedUrl = getYouTubeEmbedUrl(widget.url); /* Use the new helper function */
+                if (embedUrl) {
+                    iframe.src = embedUrl; // Reload iframe with the stored URL
+                    showToast('Widget actualizado', 'success');
+                } else {
+                    showToast('No se pudo actualizar: URL no válida.', 'error');
+                }
+            }
+        }
+
+
+        function openInNewTab(url) {
+            window.open(url, '_blank');
         }
 
         function renderWidget(widget) {
@@ -929,41 +1388,42 @@
             // Generate content based on widget type
             switch (config?.type) {
                 case 'youtube':
+                    // Pass the already cleaned widget.title
                     widgetContent = createYouTubeWidget(widget);
-                    break;
-                case 'spotify':
-                    widgetContent = createSpotifyWidget(widget);
                     break;
                 case 'crypto':
                     widgetContent = createCryptoWidget(widget);
                     break;
+                case 'rss':
+                    widgetContent = createRSSWidget(widget);
+                    break;
                 case 'external':
-                default:
                     widgetContent = createExternalWidget(widget);
+                    break;
+                case 'iframe':
+                default:
+                    widgetContent = createIframeWidget(widget);
                     break;
             }
 
             widgetElement.innerHTML = `
                 <div class="widget-header">
                     <div class="widget-title">
+                        <!-- Removed the icon span here -->
                         ${widget.title}
                     </div>
                     <div class="widget-controls">
-                        ${widget.type === 'youtube' ? `
-                            <button class="btn-icon" onclick="showChannelSelection('${widget.id}')" title="Cambiar canal">
-                                <span style="font-size: 0.8rem;">🔄</span>
-                            </button>
-                        ` : ''}
-                        ${widget.type === 'spotify' ? `
-                            <button class="btn-icon" onclick="showSpotifySelection('${widget.id}')" title="Cambiar playlist">
-                                <span style="font-size: 0.8rem;">🔄</span>
-                            </button>
-                        ` : ''}
-                        <button class="btn-icon" onclick="openInNewTab('${widget.url || 'https://google.com'}')" title="Abrir en nueva pestaña">
-                            <span style="font-size: 0.8rem;">🔗</span>
+                        <button class="btn-icon" onclick="toggleYouTubeInputSection('${widget.id}')" title="Cambiar video">
+                            <span class="icon">🔄</span>
+                        </button>
+                        <button class="btn-icon" onclick="refreshWidget('${widget.id}')" title="Actualizar">
+                            <span class="icon">🔄</span>
+                        </button>
+                        <button class="btn-icon" onclick="openInNewTab('${widget.url}')" title="Abrir en nueva pestaña">
+                            <span class="icon">🔗</span>
                         </button>
                         <button class="btn-icon" onclick="removeWidget('${widget.id}')" title="Eliminar">
-                            <span class="icon icon-x" style="font-size: 0.8rem;"></span>
+                            <span class="icon icon-x"></span>
                         </button>
                     </div>
                 </div>
@@ -973,80 +1433,90 @@
             dashboardGrid.appendChild(widgetElement);
             
             // Initialize widget-specific functionality
-            if (config?.type === 'crypto') {
-                setTimeout(() => loadCryptoPrices(widget.id), 100);
-            }
+            initializeWidgetContent(widget);
         }
 
         function createYouTubeWidget(widget) {
-            const hasVideo = widget.url && convertToEmbedUrl(widget.url);
+            const initialLoadUrl = widget.url;
+            // The getYouTubeEmbedUrl function will now ensure playsinline=1 is present
+            const hasInitialEmbeddableUrl = initialLoadUrl && getYouTubeEmbedUrl(initialLoadUrl);
             
-            const channelButtons = tvChannels.map(channel => 
-                `<button class="channel-btn" onclick="loadChannel('${widget.id}', '${channel.url}', '${channel.name}')">${channel.name}</button>`
-            ).join('');
-            
-            return `
-                <div class="widget-content ${hasVideo ? 'no-padding' : ''}">
-                    <div id="youtube-input-${widget.id}" style="display: ${hasVideo ? 'none' : 'block'};">
-                        <h4 style="margin-bottom: var(--spacing-md); text-align: center;">📺 Canales de TV en Vivo</h4>
-                        <div class="channel-grid">
-                            ${channelButtons}
-                        </div>
-                        <div style="margin-top: var(--spacing-md);">
-                            <input type="text" class="url-input" id="url-${widget.id}" placeholder="O pega tu enlace de YouTube aquí...">
-                            <button class="btn btn-primary" onclick="loadCustomVideo('${widget.id}')" style="width: 100%;">
-                                ▶️ Reproducir
-                            </button>
-                        </div>
-                        <div style="text-align: center; margin-top: var(--spacing-md);">
-                            <a href="https://www.miradiotv.cl/" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
-                                📻 Mi Radio TV
-                            </a>
-                        </div>
-                    </div>
-                    <div id="youtube-player-${widget.id}" style="display: ${hasVideo ? 'block' : 'none'};">
-                        <div class="video-container" id="video-container-${widget.id}">
-                            ${hasVideo ? `
-                                <iframe class="video-iframe" 
-                                        src="${convertToEmbedUrl(widget.url)}" 
-                                        allowfullscreen 
-                                        allow="autoplay; encrypted-media; fullscreen; picture-in-picture; gyroscope; accelerometer"
-                                        referrerpolicy="strict-origin-when-cross-origin"
-                                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms">
-                                </iframe>
-                            ` : ''}
-                        </div>
-                    </div>
+            // Dynamically generate preset video list from initialYouTubeVideos
+            const presetVideosHtml = initialYouTubeVideos.map(video => `
+                <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', '${video.url}', '${video.title}')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                    <div style="font-weight: 600; font-size: 0.875rem;">${video.title}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión en directo</div>
                 </div>
-            `;
-        }
+            `).join('');
 
-        function createSpotifyWidget(widget) {
-            const playlistButtons = spotifyPlaylists.map(playlist => 
-                `<button class="channel-btn" onclick="loadSpotifyPlaylist('${widget.id}', '${playlist.id}', '${playlist.name}')">${playlist.name}</button>`
-            ).join('');
-            
             return `
-                <div class="widget-content">
-                    <div id="spotify-input-${widget.id}">
-                        <h4 style="margin-bottom: var(--spacing-md); text-align: center;">🎵 Playlists Populares</h4>
-                        <div class="channel-grid">
-                            ${playlistButtons}
+                <div class="widget-content ${hasInitialEmbeddableUrl ? 'youtube-no-padding' : ''}">
+                    <div class="youtube-widget" id="youtube-widget-${widget.id}">
+                        <div class="youtube-input-section" id="youtube-input-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'none' : 'block'}; padding: var(--spacing-md);">
+                            <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                                <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                                <h3>YouTube Player</h3>
+                                <!-- Removed the subtitle line from here -->
+                            </div>
+                            
+                            <!-- Lista de videos predefinidos -->
+                            <div class="youtube-presets" style="margin-bottom: var(--spacing-lg);">
+                                <h4 style="margin-bottom: var(--spacing-sm); font-size: 0.9rem; color: var(--text-primary);">Videos Disponibles:</h4>
+                                <div class="youtube-list" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--border-radius); background: var(--bg-secondary);">
+                                    ${presetVideosHtml}
+                                </div>
+                            </div>
+
+                            <!-- Separador -->
+                            <div style="text-align: center; margin: var(--spacing-md) 0; color: var(--text-secondary); font-size: 0.875rem;">
+                                <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: var(--spacing-sm);">
+                                O pega tu propio enlace:
+                            </div>
+                            
+                            <div class="youtube-url-input" style="margin-bottom: var(--spacing-md);">
+                                <div class="form-group">
+                                    <input 
+                                        type="text" 
+                                        class="form-input" 
+                                        id="youtube-url-${widget.id}"
+                                        placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..."
+                                        style="margin-bottom: var(--spacing-sm);"
+                                    >
+                                    <div style="display: flex; gap: var(--spacing-sm);">
+                                        <button 
+                                            class="btn btn-primary flex-1" 
+                                            onclick="loadYouTubeVideoFromInput('${widget.id}')"
+                                            style="flex: 1;"
+                                        >
+                                            <span class="icon">▶️</span>
+                                            Reproducir URL
+                                        </button>
+                                        <button 
+                                            class="btn btn-secondary" 
+                                            onclick="loadDefaultPlaylist('${widget.id}')"
+                                        >
+                                            <span class="icon">📃</span>
+                                            Playlist
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Enlace adicional -->
+                            <div style="text-align: center; margin-top: var(--spacing-md);">
+                                <a href="https://www.miradiotv.cl/" target="_blank" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
+                                    <span class="icon">📻</span>
+                                    Mi Radio TV
+                                </a>
+                            </div>
                         </div>
-                        <div style="margin-top: var(--spacing-md);">
-                            <input type="text" class="url-input" id="spotify-url-${widget.id}" placeholder="O pega tu enlace de Spotify aquí...">
-                            <button class="btn btn-primary" onclick="loadCustomSpotify('${widget.id}')" style="width: 100%;">
-                                🎶 Cargar
-                            </button>
+
+                        <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'block' : 'none'};">
+                            <!-- youtube-player-controls are now handled by the main widget-header. -->
+                            <div class="youtube-iframe-container youtube-responsive-container" id="youtube-iframe-${widget.id}">
+                                <!-- El iframe se insertará aquí dinámicamente por loadYouTubeVideoInitial -->
+                            </div>
                         </div>
-                        <div style="text-align: center; margin-top: var(--spacing-md);">
-                            <button class="btn btn-secondary" onclick="openInNewTab('https://open.spotify.com/')" style="text-decoration: none;">
-                                🔗 Abrir Spotify Web
-                            </button>
-                        </div>
-                    </div>
-                    <div id="spotify-player-${widget.id}" style="display: none;">
-                        <div class="video-container" id="spotify-container-${widget.id}"></div>
                     </div>
                 </div>
             `;
@@ -1054,11 +1524,11 @@
 
         function createCryptoWidget(widget) {
             return `
-                <div class="widget-content">
+                <div class="widget-content" style="padding: var(--spacing-md);">
                     <div class="crypto-widget" id="crypto-${widget.id}">
-                        <div style="text-align: center; margin-bottom: var(--spacing-md);">
+                        <div class="crypto-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                             <div class="icon icon-crypto" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
-                            <h3>Precios Crypto</h3>
+                            <h3>Crypto Prices</h3>
                         </div>
                         <div class="crypto-loading" style="text-align: center; color: var(--text-secondary);">
                             <p>Cargando precios...</p>
@@ -1068,203 +1538,321 @@
             `;
         }
 
+        function createRSSWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="rss-widget" id="rss-${widget.id}">
+                        <div class="rss-header" style="text-align: center; margin-bottom: var(--spacing-md);">
+                            <div class="icon icon-news" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
+                            <h3>Últimas Noticias</h3>
+                        </div>
+                        <div class="rss-content">
+                            <div class="rss-item" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); margin-bottom: var(--spacing-sm);">
+                                <h4 style="font-size: 0.875rem; margin-bottom: var(--spacing-xs);">📰 Noticias disponibles</h4>
+                                <p style="font-size: 0.75rem; color: var(--text-secondary);">Las noticias más recientes se mostrarán aquí</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function createExternalWidget(widget) {
             return `
-                <div class="widget-content">
-                    <div class="external-widget">
+                <div class="widget-content" style="padding: var(--spacing-md);">
+                    <div class="external-widget" style="text-align: center; height: 250px; display: flex; flex-direction: column; justify-content: center;">
                         <div class="icon ${widget.icon}" style="font-size: 3rem; margin-bottom: var(--spacing-md); opacity: 0.7;"></div>
                         <h3 style="margin-bottom: var(--spacing-sm);">${widget.title}</h3>
                         <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg); font-size: 0.875rem;">
-                            Haz clic para abrir en nueva pestaña
+                            Este servicio se abre en nueva pestaña por seguridad
                         </p>
                         <button class="btn btn-primary" onclick="openInNewTab('${widget.url}')">
-                            🔗 Abrir ${widget.title}
+                            <span class="icon">🔗</span>
+                            Abrir ${widget.title}
                         </button>
                     </div>
                 </div>
             `;
         }
 
-        // YouTube functions
-        function convertToEmbedUrl(url) {
-            if (!url) return null;
-            
-            try {
-                const isMobile = window.innerWidth <= 768;
-                let baseParams = 'controls=1&rel=0&enablejsapi=1&playsinline=1';
-                
-                // Different parameters for mobile vs desktop
-                if (isMobile) {
-                    // Mobile: don't mute, don't autoplay to allow user interaction
-                    baseParams += '&autoplay=0&mute=0&fs=1';
-                } else {
-                    // Desktop: can autoplay muted
-                    baseParams += '&autoplay=1&mute=1&fs=1';
-                }
-                
-                if (url.includes('youtube.com/watch')) {
-                    const videoId = url.split('v=')[1]?.split('&')[0];
-                    if (videoId) {
-                        return `https://www.youtube.com/embed/${videoId}?${baseParams}`;
-                    }
-                } else if (url.includes('youtu.be/')) {
-                    const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-                    if (videoId) {
-                        return `https://www.youtube.com/embed/${videoId}?${baseParams}`;
-                    }
-                } else if (url.includes('youtube.com/embed/')) {
-                    return url + (url.includes('?') ? '&' : '?') + baseParams;
-                }
-            } catch (error) {
-                console.error('Error converting URL:', error);
-            }
-            return null;
+        function createIframeWidget(widget) {
+            return `
+                <div class="widget-content" style="padding: 0; position: relative;">
+                    <iframe 
+                        src="${widget.url}" 
+                        class="widget-iframe"
+                        frameborder="0"
+                        allowfullscreen
+                        allow="autoplay; encrypted-media; gyroscope; picture-in-picture;" /* Simplified allow attributes */
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        loading="lazy">
+                    </iframe>
+                </div>
+            `;
         }
 
-        function loadChannel(widgetId, url, channelName) {
+        function initializeWidgetContent(widget) {
+            const config = widgetConfigs[widget.type];
+            
+            if (config?.type === 'youtube') {
+                const initialLoadUrl = widget.url;
+                if (initialLoadUrl && convertToEmbedUrl(initialLoadUrl)) {
+                    // Load the video directly if there is an initial valid URL
+                    // Use setTimeout to ensure DOM elements are fully rendered
+                    setTimeout(() => {
+                        loadYouTubeVideoInitial(widget.id, initialLoadUrl);
+                    }, 0); 
+                }
+            } else if (config?.type === 'crypto') {
+                loadCryptoPrices(widget.id);
+            }
+        }
+
+        // YouTube widget functions
+        function loadPresetVideo(widgetId, url, title) {
+            // Update the widget's URL in the global widgets array
+            const targetWidget = widgets.find(w => w.id === widgetId);
+            if (targetWidget) {
+                targetWidget.url = url;
+                targetWidget.title = title; // Update title as well
+                saveWidgets();
+            }
+            loadYouTubeVideoInitial(widgetId, url);
+            showToast(`Reproduciendo: ${title}`, 'success');
+        }
+
+        function loadYouTubeVideoFromInput(widgetId) {
+            const urlInput = document.getElementById(`youtube-url-${widgetId}`);
+            let url = urlInput.value.trim();
+            
+            if (!url) {
+                showToast('Por favor ingresa una URL de YouTube', 'error');
+                return;
+            }
+
             const embedUrl = convertToEmbedUrl(url);
             if (!embedUrl) {
-                showToast('Error: URL no válida', 'error');
+                showToast('URL de YouTube no válida', 'error');
                 return;
             }
             
-            // Update widget data
-            const widget = widgets.find(w => w.id === widgetId);
-            if (widget) {
-                widget.url = url;
-                widget.title = channelName;
+            // Update the widget's URL in the global widgets array
+            const targetWidget = widgets.find(w => w.id === widgetId);
+            if (targetWidget) {
+                targetWidget.url = url;
+                targetWidget.title = "Video Personalizado"; // Set a generic title for custom URLs
                 saveWidgets();
             }
             
-            const inputDiv = document.getElementById(`youtube-input-${widgetId}`);
-            const playerDiv = document.getElementById(`youtube-player-${widgetId}`);
-            const container = document.getElementById(`video-container-${widgetId}`);
-            const widgetContent = document.querySelector(`#${widgetId} .widget-content`);
+            loadYouTubeVideoInitial(widgetId, url);
+            showToast('Video cargado correctamente', 'success');
+        }
+
+        function loadDefaultPlaylist(widgetId) {
+            const defaultUrl = 'https://www.youtube.com/embed/videoseries?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm';
+            const defaultTitle = 'Playlist por Defecto';
+
+            // Update the widget's URL in the global widgets array
+            const targetWidget = widgets.find(w => w.id === widgetId);
+            if (targetWidget) {
+                targetWidget.url = defaultUrl;
+                targetWidget.title = defaultTitle; // Update title as well
+                saveWidgets();
+            }
             
-            inputDiv.style.display = 'none';
-            playerDiv.style.display = 'block';
-            widgetContent.classList.add('no-padding');
-            
-            const isMobile = window.innerWidth <= 768;
-            const allowAttributes = isMobile 
-                ? "autoplay; encrypted-media; fullscreen; picture-in-picture; gyroscope; accelerometer"
-                : "autoplay; encrypted-media; fullscreen; picture-in-picture";
-            
-            container.innerHTML = `
-                <iframe class="video-iframe" 
-                        src="${embedUrl}" 
+            loadYouTubeVideoInitial(widgetId, defaultUrl);
+            showToast('Playlist por defecto cargada', 'success');
+        }
+
+        /**
+         * Converts a YouTube URL to an embed URL with mobile-specific parameters.
+         * @param {string} url The input YouTube URL.
+         * @returns {string|null} The embeddable URL or null if invalid.
+         */
+        function getYouTubeEmbedUrl(url) {
+            try {
+                url = url.trim();
+                let embedUrl = null;
+                
+                const patterns = {
+                    watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
+                    short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
+                    playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
+                    watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
+                };
+
+                let match = url.match(patterns.watchPlaylist);
+                if (match) {
+                    embedUrl = `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
+                } else {
+                    match = url.match(patterns.watch);
+                    if (match) {
+                        embedUrl = `https://www.youtube.com/embed/${match[1]}`;
+                    } else {
+                        match = url.match(patterns.short);
+                        if (match) {
+                            embedUrl = `https://www.youtube.com/embed/${match[1]}`;
+                        } else {
+                            match = url.match(patterns.playlist);
+                            if (match) {
+                                embedUrl = `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
+                            } else if (url.includes('youtube.com/embed/')) {
+                                embedUrl = url; // Already an embed URL
+                            }
+                        }
+                    }
+                }
+
+                if (embedUrl) {
+                    // Parameters optimized for mobile play button visibility
+                    const mobileParams = [
+                        'playsinline=1',           // Forces inline playback on iOS
+                        'controls=1',              // Show player controls (IMPORTANTE para botón de play)
+                        'showinfo=1',              // Show video info (ayuda con la interfaz)
+                        'rel=0',                   // Don't show related videos at end
+                        'fs=1',                    // Allow fullscreen
+                        'cc_load_policy=0',        // Don't show captions by default
+                        'iv_load_policy=3',        // Don't show annotations
+                        'modestbranding=0',        // Keep YouTube branding for better compatibility
+                        'enablejsapi=1',           // Enable JS API
+                        'origin=' + encodeURIComponent(window.location.origin), // Set origin for security
+                        'autoplay=0',              // Don't autoplay - user must click play
+                        'mute=0'                   // Don't mute by default
+                    ];
+
+                    // Check if URL already has parameters
+                    const separator = embedUrl.includes('?') ? '&' : '?';
+                    return `${embedUrl}${separator}${mobileParams.join('&')}`;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error converting YouTube URL:', error);
+                return null;
+            }
+        }
+
+        // Helper function to load YouTube video/playlist into the iframe
+        function loadYouTubeVideoInitial(widgetId, url) {
+            const embedUrl = getYouTubeEmbedUrl(url);
+            if (!embedUrl) {
+                return; 
+            }
+
+            const inputSection = document.getElementById(`youtube-input-${widgetId}`);
+            const playerSection = document.getElementById(`youtube-player-${widgetId}`);
+            const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); 
+
+            if (inputSection && playerSection && iframeContainer && widgetContentElement) {
+                inputSection.style.display = 'none';
+                playerSection.style.display = 'block';
+                
+                // Create iframe with mobile-optimized attributes for play button visibility
+                iframeContainer.innerHTML = `
+                    <iframe 
+                        src="${embedUrl}"
+                        class="widget-iframe"
+                        frameborder="0"
                         allowfullscreen
-                        allow="${allowAttributes}"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                         referrerpolicy="strict-origin-when-cross-origin"
-                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms">
-                </iframe>
-            `;
-            
-            // Update widget title
-            const titleElement = document.querySelector(`#${widgetId} .widget-title`);
-            if (titleElement) {
-                titleElement.textContent = channelName;
+                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups"
+                        loading="eager"
+                        title="YouTube video player"
+                        style="background: #000;">
+                    </iframe>
+                `;
+                widgetContentElement.classList.add('youtube-no-padding');
+                
+                // Add a small delay to ensure proper loading on mobile
+                setTimeout(() => {
+                    const iframe = iframeContainer.querySelector('iframe');
+                    if (iframe) {
+                        // Force reload if needed on mobile
+                        if (window.innerWidth <= 768) {
+                            iframe.style.opacity = '0';
+                            setTimeout(() => {
+                                iframe.style.opacity = '1';
+                                iframe.style.transition = 'opacity 0.3s ease';
+                            }, 100);
+                        }
+                    }
+                }, 200);
             }
-            
-            const message = isMobile 
-                ? `📱 ${channelName} - Toca ▶️ para reproducir con audio`
-                : `🖥️ Reproduciendo: ${channelName}`;
-            
-            showToast(message);
         }
 
-        function loadCustomVideo(widgetId) {
-            const input = document.getElementById(`url-${widgetId}`);
-            const url = input.value.trim();
-            
-            if (!url) {
-                showToast('Por favor ingresa una URL', 'error');
-                return;
+        // Function to toggle between YouTube input and player sections
+        function toggleYouTubeInputSection(widgetId) {
+            const inputSection = document.getElementById(`youtube-input-${widgetId}`);
+            const playerSection = document.getElementById(`youtube-player-${widgetId}`);
+            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
+
+            if (inputSection.style.display === 'none') {
+                // Currently showing player, switch to input
+                inputSection.style.display = 'block';
+                playerSection.style.display = 'none';
+                widgetContentElement.classList.remove('youtube-no-padding');
+                document.getElementById(`youtube-url-${widgetId}`).value = ''; // Clear input on show
+            } else {
+                // Currently showing input, switch to player (if valid URL exists)
+                const widget = widgets.find(w => w.id === widgetId);
+                if (widget && getYouTubeEmbedUrl(widget.url)) {
+                    loadYouTubeVideoInitial(widget.id, widget.url);
+                } else {
+                    // If no valid URL, just hide input and try to show player (might be empty)
+                    inputSection.style.display = 'none';
+                    playerSection.style.display = 'block';
+                    widgetContentElement.classList.add('youtube-no-padding');
+                }
             }
-            
-            loadChannel(widgetId, url, 'Video Personalizado');
-            input.value = '';
         }
 
-        function showChannelSelection(widgetId) {
-            const inputDiv = document.getElementById(`youtube-input-${widgetId}`);
-            const playerDiv = document.getElementById(`youtube-player-${widgetId}`);
-            const widgetContent = document.querySelector(`#${widgetId} .widget-content`);
-            
-            inputDiv.style.display = 'block';
-            playerDiv.style.display = 'none';
-            widgetContent.classList.remove('no-padding');
+        function showYouTubeInput(widgetId) {
+            toggleYouTubeInputSection(widgetId);
         }
 
-        // Spotify functions
-        function loadSpotifyPlaylist(widgetId, playlistId, playlistName) {
-            const inputDiv = document.getElementById(`spotify-input-${widgetId}`);
-            const playerDiv = document.getElementById(`spotify-player-${widgetId}`);
-            const container = document.getElementById(`spotify-container-${widgetId}`);
-            
-            inputDiv.style.display = 'none';
-            playerDiv.style.display = 'block';
-            
-            container.innerHTML = `
-                <iframe class="video-iframe" 
-                        src="https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator" 
-                        allowfullscreen 
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                        style="border-radius: 12px;">
-                </iframe>
-            `;
-            
-            // Update widget title
-            const titleElement = document.querySelector(`#${widgetId} .widget-title`);
-            if (titleElement) {
-                titleElement.textContent = playlistName;
+        function convertToEmbedUrl(url) {
+            try {
+                url = url.trim();
+                
+                const patterns = {
+                    watch: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})(&.*)?/,
+                    short: /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})(\?.*)?/,
+                    playlist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)(&.*)?/,
+                    watchPlaylist: /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})&list=([a-zA-Z0-9_-]+)(&.*)?/
+                };
+
+                let match = url.match(patterns.watchPlaylist);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}?list=${match[2]}`;
+                }
+
+                match = url.match(patterns.watch);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                match = url.match(patterns.short);
+                if (match) {
+                    return `https://www.youtube.com/embed/${match[1]}`;
+                }
+
+                match = url.match(patterns.playlist);
+                if (match) {
+                    return `https://www.youtube.com/embed/videoseries?list=${match[1]}`;
+                }
+
+                if (url.includes('youtube.com/embed/')) {
+                    return url;
+                }
+
+                return null;
+            } catch (error) {
+                console.error('Error converting YouTube URL:', error);
+                return null;
             }
-            
-            showToast(`Cargando: ${playlistName}`);
         }
 
-        function loadCustomSpotify(widgetId) {
-            const input = document.getElementById(`spotify-url-${widgetId}`);
-            const url = input.value.trim();
-            
-            if (!url) {
-                showToast('Por favor ingresa una URL de Spotify', 'error');
-                return;
-            }
-            
-            const match = url.match(/spotify\.com\/(playlist|album|track)\/([a-zA-Z0-9]+)/);
-            if (!match) {
-                showToast('URL de Spotify no válida', 'error');
-                return;
-            }
-            
-            const [, type, id] = match;
-            const inputDiv = document.getElementById(`spotify-input-${widgetId}`);
-            const playerDiv = document.getElementById(`spotify-player-${widgetId}`);
-            const container = document.getElementById(`spotify-container-${widgetId}`);
-            
-            inputDiv.style.display = 'none';
-            playerDiv.style.display = 'block';
-            
-            container.innerHTML = `
-                <iframe class="video-iframe" 
-                        src="https://open.spotify.com/embed/${type}/${id}?utm_source=generator" 
-                        allowfullscreen 
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                        style="border-radius: 12px;">
-                </iframe>
-            `;
-            
-            showToast(`Contenido de Spotify cargado`);
-            input.value = '';
-        }
-
-        function showSpotifySelection(widgetId) {
-            document.getElementById(`spotify-input-${widgetId}`).style.display = 'block';
-            document.getElementById(`spotify-player-${widgetId}`).style.display = 'none';
-        }
-
-        // Crypto functions
         async function loadCryptoPrices(widgetId) {
             try {
                 const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true');
@@ -1277,12 +1865,12 @@
                     loadingDiv.innerHTML = `
                         <div class="crypto-prices">
                             ${Object.entries(data).map(([coin, info]) => `
-                                <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm); border-bottom: 1px solid var(--border);">
+                                <div class="crypto-item" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-sm); border-bottom: 1px solid var(--border);">
                                     <span style="font-weight: 600; text-transform: capitalize;">${coin.replace('-', ' ')}</span>
                                     <div style="text-align: right;">
                                         <div style="font-weight: 600;">${info.usd.toLocaleString()}</div>
                                         <div style="font-size: 0.75rem; color: ${info.usd_24h_change > 0 ? 'var(--success)' : 'var(--danger)'};">
-                                            ${info.usd_24h_change > 0 ? '+' : ''}${info.usd_24h_change.toFixed(2)}%
+                                            ${Math.abs(info.usd_24h_change).toFixed(2)}%
                                         </div>
                                     </div>
                                 </div>
@@ -1300,13 +1888,6 @@
             }
         }
 
-        // Utility functions
-        function openInNewTab(url) {
-            if (url) {
-                window.open(url, '_blank');
-            }
-        }
-
         function removeWidget(widgetId) {
             const widgetElement = document.getElementById(widgetId);
             if (widgetElement) {
@@ -1317,6 +1898,7 @@
             saveWidgets();
             showToast('Widget eliminado', 'success');
             
+            // Show empty state if no widgets left
             if (widgets.length === 0) {
                 showEmptyState();
             }
@@ -1339,7 +1921,9 @@
         }
 
         function loadWidgets() {
-            if (widgets.length > 0) {
+            const savedWidgets = localStorage.getItem('dashboard-widgets');
+            if (savedWidgets) {
+                widgets = JSON.parse(savedWidgets);
                 widgets.forEach(widget => renderWidget(widget));
             }
         }
@@ -1393,28 +1977,58 @@
             saveWidgets();
         }
 
+        // Toast function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Function to start mobile header auto-hide timer
+        function startMobileHeaderAutoHideTimer() {
+            const header = document.querySelector('.header');
+            const headerShowBtn = document.getElementById('headerShowBtn');
+            clearTimeout(mobileHeaderHideTimeout); // Clear any existing timer
+            if (window.innerWidth <= 768) {
+                mobileHeaderHideTimeout = setTimeout(() => {
+                    header.classList.add('header-hidden');
+                    document.body.classList.add('header-hidden-layout'); // Add class to body to adjust layout
+                    headerShowBtn.style.opacity = '1';
+                    headerShowBtn.style.pointerEvents = 'auto';
+                }, 3000); // 3 seconds
+            }
+        }
+
+        // Function to show header and clear auto-hide timer
+        function showHeaderAndClearTimer() {
+            const header = document.querySelector('.header');
+            const headerShowBtn = document.getElementById('headerShowBtn');
+            header.classList.remove('header-hidden');
+            document.body.classList.remove('header-hidden-layout'); // Remove class from body to revert layout
+            headerShowBtn.style.opacity = '0';
+            headerShowBtn.style.pointerEvents = 'none';
+            clearTimeout(mobileHeaderHideTimeout);
+        }
+
         // Event listeners
         function initEventListeners() {
             // Theme toggle
             document.getElementById('themeToggle').addEventListener('click', toggleTheme);
             
-            // Sidebar toggle
+            // Sidebar toggle (main button in header)
             document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
             
-            // Sidebar close button
-            document.getElementById('sidebarCloseBtn').addEventListener('click', () => {
-                const sidebar = document.getElementById('sidebar');
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
-                } else {
-                    sidebar.classList.add('collapsed');
-                }
-            });
-            
             // Add widget button
-            document.getElementById('addWidgetBtn').addEventListener('click', () => {
-                toggleSidebar();
-            });
+            document.getElementById('addWidgetBtn').addEventListener('click', openModal);
             
             // Widget list items
             document.getElementById('widgetList').addEventListener('click', (e) => {
@@ -1427,27 +2041,111 @@
                 }
             });
             
+            // Add widget form
+            document.getElementById('addWidgetForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const type = document.getElementById('widgetType').value;
+                const title = document.getElementById('widgetTitle').value;
+                const url = document.getElementById('widgetUrl').value;
+                
+                if (type) {
+                    createWidget(type, title || null, url || null);
+                    closeModal();
+                }
+            });
+            
+            // Widget type change
+            document.getElementById('widgetType').addEventListener('change', (e) => {
+                const urlGroup = document.getElementById('urlGroup');
+                const widgetTitle = document.getElementById('widgetTitle');
+                
+                if (e.target.value) {
+                    const config = widgetConfigs[e.target.value];
+                    widgetTitle.value = config.title;
+                    
+                    if (e.target.value === 'youtube') { 
+                        urlGroup.style.display = 'block';
+                    } else {
+                        urlGroup.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Close modal when clicking outside
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    closeModal();
+                }
+            });
+            
             // Responsive sidebar
             window.addEventListener('resize', () => {
                 const sidebar = document.getElementById('sidebar');
                 if (window.innerWidth > 768) {
-                    sidebar.classList.remove('active');
+                    sidebar.classList.remove('active'); 
                     if (!sidebar.classList.contains('collapsed')) {
-                        startSidebarTimer();
-                    }
+                        startSidebarTimer(); // Restart desktop sidebar timer
+                    } 
+                    // Ensure header is visible on desktop and layout is normal
+                    document.querySelector('.header').classList.remove('header-hidden');
+                    document.body.classList.remove('header-hidden-layout');
+                    document.getElementById('headerShowBtn').style.opacity = '0';
+                    document.getElementById('headerShowBtn').style.pointerEvents = 'none';
+                    clearTimeout(mobileHeaderHideTimeout); // Clear mobile header timer
                 } else {
                     sidebar.classList.add('collapsed');
-                    clearTimeout(sidebarTimeout);
+                    clearTimeout(sidebarTimeout); // Clear desktop sidebar timer
+                    // Start mobile header timer if on mobile and not currently in interaction
+                    if (!document.getElementById('addWidgetModal').classList.contains('active') && !sidebar.classList.contains('active')) {
+                        startMobileHeaderAutoHideTimer();
+                    }
                 }
             });
 
-            // Close sidebar when clicking outside (mobile)
-            document.addEventListener('click', (e) => {
-                const sidebar = document.getElementById('sidebar');
-                const isClickInside = sidebar.contains(e.target) || e.target.closest('.header-controls');
-                
-                if (!isClickInside && sidebar.classList.contains('active') && window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Escape to close modal
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Auto-hide and handle event listeners (desktop sidebar)
+            const sidebar = document.getElementById('sidebar');
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            const sidebarHandle = document.getElementById('sidebarHandle');
+            const sidebarCloseBtn = document.getElementById('sidebarCloseBtn'); 
+
+            sidebar.addEventListener('mouseenter', () => {
+                clearTimeout(sidebarTimeout);
+            });
+
+            sidebar.addEventListener('mouseleave', startSidebarTimer);
+
+            dashboardGrid.addEventListener('mousemove', resetSidebarTimer);
+            dashboardGrid.addEventListener('click', resetSidebarTimer);
+
+            sidebarHandle.addEventListener('click', () => {
+                // When opening sidebar with handle, remove 'collapsed' class
+                sidebar.classList.remove('collapsed');
+                startSidebarTimer(); 
+            });
+
+            // Event listener for the new close button inside the sidebar
+            sidebarCloseBtn.addEventListener('click', () => {
+                // When close button is clicked, add 'collapsed' class
+                sidebar.classList.add('collapsed');
+                clearTimeout(sidebarTimeout); // Stop any active auto-hide timer
+            });
+
+            // Event listener for the new header show button (mobile)
+            document.getElementById('headerShowBtn').addEventListener('click', showHeaderAndClearTimer);
+
+            // Add an event listener to the header itself to reset the timer on touch/click (mobile)
+            document.querySelector('.header').addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    showHeaderAndClearTimer();
+                    startMobileHeaderAutoHideTimer(); // Restart timer after interaction
                 }
             });
         }
@@ -1461,21 +2159,24 @@
                 initEventListeners();
                 loadWidgets(); 
 
-                // Load initial videos if no widgets are saved
+                // Load initial YouTube videos if no widgets are saved
                 if (widgets.length === 0) {
-                    tvChannels.slice(0, 2).forEach(channel => {
-                        createWidget('youtube', channel.name, channel.url);
+                    initialYouTubeVideos.forEach(video => {
+                        createWidget('youtube', video.title, video.url);
                     });
-                    createWidget('spotify');
-                    showToast('¡Bienvenido! Dashboard cargado correctamente.', 'success');
+                    showToast('¡Bienvenido! Se cargaron los videos predeterminados.', 'info');
                 } 
                 
-                // Start sidebar timer for desktop
+                const sidebar = document.getElementById('sidebar');
+                // Ensure sidebar starts collapsed on desktop for handle visibility
                 if (window.innerWidth > 768) {
-                    const sidebar = document.getElementById('sidebar');
-                    sidebar.classList.add('collapsed');
+                    sidebar.classList.add('collapsed'); // Start collapsed on desktop
+                    // No need to start timer here as it's collapsed
+                } else {
+                    sidebar.classList.add('collapsed'); // Always collapsed on mobile initially
+                    startMobileHeaderAutoHideTimer(); // Start mobile header auto-hide timer on load
                 }
-                
+
                 console.log('Dashboard initialized successfully');
                 
             } catch (error) {
@@ -1484,9 +2185,74 @@
             }
         }
 
+        // Drag and drop functionality
+        function initDragAndDrop() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            let draggedElement = null;
+
+            dashboardGrid.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('widget')) {
+                    draggedElement = e.target;
+                    e.target.style.opacity = '0.5';
+                }
+            });
+
+            dashboardGrid.addEventListener('dragend', (e) => {
+                if (e.target.classList.contains('widget')) {
+                    e.target.style.opacity = '1';
+                    draggedElement = null;
+                }
+            });
+
+            dashboardGrid.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            dashboardGrid.addEventListener('drop', (e) => {
+                e.preventDefault();
+                if (draggedElement && e.target.classList.contains('widget') && e.target !== draggedElement) {
+                    const rect = e.target.getBoundingClientRect();
+                    const midpoint = rect.left + rect.width / 2;
+                    
+                    if (e.clientX < midpoint) {
+                        dashboardGrid.insertBefore(draggedElement, e.target);
+                    } else {
+                        dashboardGrid.insertBefore(draggedElement, e.target.nextSibling);
+                    }
+                    
+                    // Update widgets array order
+                    const draggedId = draggedElement.id;
+                    const targetId = e.target.id;
+                    
+                    const draggedIndex = widgets.findIndex(w => w.id === draggedId);
+                    const targetIndex = widgets.findIndex(w => w.id === targetId);
+                    
+                    if (draggedIndex !== -1 && targetIndex !== -1) {
+                        const draggedWidget = widgets.splice(draggedIndex, 1)[0];
+                        widgets.splice(targetIndex, 0, draggedWidget);
+                        saveWidgets();
+                    }
+                }
+            });
+
+            // Make widgets draggable when created
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.classList && node.classList.contains('widget')) {
+                            node.draggable = true;
+                        }
+                    });
+                });
+            });
+
+            observer.observe(dashboardGrid, { childList: true });
+        }
+
         // Start the app
         document.addEventListener('DOMContentLoaded', () => {
             initApp();
+            initDragAndDrop();
         });
     </script>
 </body>
