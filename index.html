@@ -34,6 +34,9 @@
             /* Bordes */
             --border-radius: 0.5rem;
             --border-radius-lg: 1rem;
+
+            /* Altura de encabezado móvil (ajustar si es necesario) */
+            --mobile-header-height: 60px; /* Altura estimada del header en móvil */
         }
 
         [data-theme="dark"] {
@@ -69,17 +72,29 @@
             background: var(--bg-secondary);
             padding: var(--spacing-md);
             box-shadow: 0 2px 10px var(--shadow);
-            position: sticky;
+            position: fixed; /* Changed from sticky to fixed */
             top: 0;
+            left: 0;
+            width: 100%;
             z-index: 1000;
             border-bottom: 1px solid var(--border);
-            transition: transform 0.3s ease-out; /* Added for scroll hide animation */
+            transition: top 0.3s ease-out; /* Transition for top property */
         }
 
-        /* Class to hide header on scroll for mobile */
+        /* Class to hide header on scroll for mobile (now controls top) */
         .header.header-hidden {
-            transform: translateY(-100%);
+            top: calc(-1 * var(--mobile-header-height)); /* Uses custom property for height */
         }
+        
+        /* Hide content of header when header is hidden on mobile */
+        @media (max-width: 768px) {
+            .header.header-hidden .header-content > *:not(#headerShowBtn) { /* All direct children except the show button */
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+        }
+
 
         .header-content {
             display: flex;
@@ -212,6 +227,8 @@
         .main-container {
             display: flex;
             min-height: calc(100vh - 80px);
+            padding-top: 80px; /* Default space for header on desktop */
+            transition: padding-top 0.3s ease-out; /* Smooth transition for padding */
         }
 
         .sidebar {
@@ -644,25 +661,39 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            /* Reduce header padding and height to make it much smaller on mobile */
+            .header {
+                padding: calc(var(--spacing-xxs) / 2); /* Very small padding */
+                height: calc(var(--mobile-header-height) / 2); /* Half of original mobile height */
+            }
+            /* Adjust the top value when hidden to match the new, smaller height */
+            .header.header-hidden {
+                top: calc(-1 * var(--mobile-header-height) / 2); 
+            }
+
             .header-content {
-                flex-direction: column;
-                align-items: stretch;
+                flex-direction: row; /* Keep content in a row */
+                align-items: center;
+                justify-content: space-between; /* Space out items */
+                flex-wrap: nowrap; /* Prevent wrapping */
+                height: 100%; /* Occupy full height of the header */
             }
 
             .header-controls {
-                justify-content: space-between;
+                flex-grow: 1; /* Allow controls to take available space */
+                flex-shrink: 1; /* Allow controls to shrink if needed */
+                justify-content: flex-end; /* Align controls to the right */
+                gap: var(--spacing-xxs); /* Very small gap between controls */
+                min-width: 0; /* Prevent overflow issues with flex items */
             }
 
-            .search-input {
-                width: 100%;
-                min-width: 200px;
-            }
+            /* Search input is removed from HTML */
+            /* .search-input { display: none; } */
 
             .sidebar {
-                position: fixed;
-                top: 80px;
-                left: -300px;
-                height: calc(100vh - 80px);
+                /* Sidebar top position now based on new mobile header height */
+                top: calc(var(--mobile-header-height) / 2); 
+                height: calc(100vh - var(--mobile-header-height) / 2);
                 z-index: 1500;
                 transition: left 0.3s ease;
             }
@@ -675,27 +706,142 @@
                 padding: var(--spacing-md);
             }
 
+            /* Adjust main-container padding-top based on new, smaller mobile header height */
+            .main-container {
+                padding-top: calc(var(--mobile-header-height) / 2); /* Space for visible fixed header */
+            }
+
+            /* Adjust main-container padding when header is hidden */
+            body.header-hidden-layout .main-container {
+                padding-top: 0; /* No padding when header is hidden */
+            }
+
+
             .dashboard-grid {
                 /* Adjust to try and fit two columns, or one if too narrow */
-                grid-template-columns: repeat(auto-fit, minmax(calc(50% - var(--spacing-md) / 2), 1fr));
-                gap: var(--spacing-md);
+                grid-template-columns: repeat(auto-fit, minmax(calc(50% - var(--spacing-xxs) * 1.5), 1fr)); /* Use smallest gap */
+                gap: var(--spacing-xxs); /* Very small gap between videos */
             }
 
             .widget {
-                min-height: 200px; /* Reduced minimum height for smaller widgets */
+                min-height: 150px; /* Further reduced minimum height */
             }
 
-            /* Show header show button when header is hidden on mobile */
-            .header.header-hidden + .header-show-btn {
-                opacity: 1;
-                pointer-events: auto;
+            /* Make widget titles and icons much smaller on mobile */
+            .widget-title {
+                font-size: 0.25rem; /* Reduced to one-quarter of initial 0.85rem */
+                gap: var(--spacing-xxs); /* Keep small gap */
             }
 
-            /* Hide sidebar handle and close button on mobile */
-            .sidebar-handle, #sidebarCloseBtn {
-                display: none !important; 
-                opacity: 0 !important;
-                pointer-events: none !important;
+            .widget-title .icon {
+                font-size: 0.35rem; /* Reduced to one-quarter of initial 1.2rem */
+            }
+
+            /* Smaller font size for YouTube video titles in player controls and its icon */
+            /* Note: The youtube-title-text and icon-youtube are already removed from the player controls HTML. */
+            /* This rule is now primarily for general text within player controls if they were present. */
+            .youtube-player-controls .youtube-title-text {
+                font-size: 0.1375rem; /* Half of 0.275rem */
+                font-weight: 600; 
+            }
+            .youtube-player-controls .icon-youtube {
+                font-size: 0.1375rem; /* Half of 0.275rem */
+            }
+            
+            /* Reduce font size for subtitle within YouTube input section */
+            /* Note: The subtitle paragraph is removed from YouTube input section HTML */
+            /* If it were still there, this rule would apply: */
+            .youtube-input-section p {
+                font-size: 0.325rem; /* Half of 0.65rem */
+            }
+
+            /* Adjust mobile header controls for reduced size */
+            .header .btn-icon {
+                width: 15px; /* Further reduced width */
+                height: 15px; /* Further reduced height */
+                padding: 0; /* Remove padding */
+                font-size: 0.3rem; /* Further smaller icon size */
+            }
+
+            .header .logo {
+                font-size: 0.5rem; /* Further reduced logo font size */
+            }
+
+            .header .theme-toggle {
+                width: 20px; /* Further reduced width */
+                height: 10px; /* Further reduced height */
+                border-radius: 5px;
+            }
+
+            .header .theme-toggle::before {
+                width: 8px; /* Further reduced size */
+                height: 8px; /* Further reduced size */
+                top: 1px; /* Adjust position */
+                left: 1px; /* Adjust position */
+            }
+
+            [data-theme="dark"] .header .theme-toggle::before {
+                transform: translateX(9px); /* Adjust translation for smaller size */
+            }
+
+            .header .btn-primary {
+                font-size: 0.3rem; /* Further reduced font size for button text */
+                padding: var(--spacing-xxs) var(--spacing-xs); /* Keep small padding */
+                gap: var(--spacing-xxs); /* Keep small gap */
+            }
+
+            /* Further reduce the size of the buttons inside youtube-player-controls */
+            .youtube-player-controls .btn-icon {
+                width: 10px; /* Reduced from 12px for extreme smallness */
+                height: 10px; /* Reduced from 12px for extreme smallness */
+                font-size: 0.15rem; /* Reduced from 0.2rem for extreme smallness */
+                padding: 0; /* Ensure no padding */
+                margin-left: 1px; /* Minimal margin to separate them */
+            }
+            .youtube-player-controls {
+                padding: calc(var(--spacing-xxs) / 4) var(--spacing-xxs); /* Even smaller padding for the controls bar */
+                margin-bottom: 0; /* Ensure no margin-bottom */
+            }
+            .youtube-player-controls .widget-controls { /* Target the widget-controls inside youtube-player-controls */
+                gap: 1px; /* Minimal gap between buttons in video controls */
+            }
+
+
+            /* Hide all header content when header is hidden, except the show button */
+            .header-content > *:not(#headerShowBtn) {
+                transition: opacity 0.3s ease;
+            }
+            .header.header-hidden .header-content > *:not(#headerShowBtn) {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            /* Adjust the header show button to be smaller */
+            .header-show-btn {
+                padding: var(--spacing-xxs) var(--spacing-xs); /* Even smaller padding */
+                font-size: 0.5rem; /* Even smaller icon size for the show button */
+            }
+
+            /* Sidebar elements reduction */
+            .sidebar-header {
+                padding: var(--spacing-xs); /* Smaller padding */
+                margin-bottom: var(--spacing-xs); /* Smaller margin */
+            }
+            .sidebar-title {
+                font-size: 0.7rem; /* Smaller sidebar title */
+            }
+            .widget-item {
+                padding: var(--spacing-xs); /* Smaller padding for items */
+                font-size: 0.6rem; /* Smaller font for item text */
+                gap: var(--spacing-xs); /* Smaller gap */
+            }
+            .widget-item .widget-icon {
+                font-size: 0.8rem; /* Smaller icon size for items */
+                width: 15px; /* Adjust width */
+                height: 15px; /* Adjust height */
+            }
+            .sidebar-section {
+                margin-bottom: var(--spacing-md); /* Slightly reduced section margin */
             }
         }
 
@@ -737,9 +883,7 @@
                 Dashboard Pro
             </div>
             <div class="header-controls">
-                <div class="search-box">
-                    <input type="text" class="search-input" placeholder="Buscar widgets..." id="searchInput">
-                </div>
+                <!-- Search box and input removed as requested -->
                 <button class="btn-icon" id="toggleSidebar">
                     <span class="icon icon-menu"></span>
                 </button>
@@ -990,11 +1134,11 @@
         // YouTube videos to load at startup if no widgets are saved
         const initialYouTubeVideos = [
             { title: 'Playlist Predeterminada', url: 'https://youtube.com/playlist?list=PL-hLruB73IOblX2QcEyVSD-jkCQUJCRdm&si=dH5r05cYnG_hHs0' },
-            { title: '🔴 EN VIVO - Canal Principal', url: 'https://youtu.be/HgOYT2_oiJg' },
+            { title: 'EN VIVO - Canal Principal', url: 'https://youtu.be/HgOYT2_oiJg' },
             { title: 'Chilevisión 2', url: 'https://www.youtube.com/watch?v=5IugcHLsC0E' },
             { title: 'Chilevision', url: 'https://www.youtube.com/watch?v=8lZ_NEYGAnw' },
             { title: '24 horas TVN', url: 'https://www.youtube.com/watch?v=XZAfU-X9Euk' },
-            { title: '🎬 Contenido Especial', url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8' },
+            { title: 'Contenido Especial', url: 'https://www.youtube.com/watch?v=CSXA3ICbX-8' },
             { title: 'CNN', url: 'https://www.youtube.com/watch?v=bpo70sR9Kps' }
         ];
 
@@ -1040,6 +1184,7 @@
                 document.querySelector('.header').classList.remove('header-hidden');
                 document.getElementById('headerShowBtn').style.opacity = '0';
                 document.getElementById('headerShowBtn').style.pointerEvents = 'none';
+                document.body.classList.remove('header-hidden-layout'); // Ensure content pushes down when sidebar is active
             } else {
                 sidebar.classList.toggle('collapsed');
                 if (!sidebar.classList.contains('collapsed')) { // If sidebar just opened on desktop
@@ -1059,6 +1204,7 @@
                 document.querySelector('.header').classList.remove('header-hidden');
                 document.getElementById('headerShowBtn').style.opacity = '0';
                 document.getElementById('headerShowBtn').style.pointerEvents = 'none';
+                document.body.classList.remove('header-hidden-layout'); // Ensure content pushes down when modal is active
             }
         }
 
@@ -1077,14 +1223,65 @@
             return 'widget-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
 
+        /**
+         * Removes adjacent duplicate words from a string.
+         * E.g., "Chilevision Chilevision 2" becomes "Chilevision 2"
+         * @param {string} title The input title string.
+         * @returns {string} The title with adjacent duplicates removed.
+         */
+        function removeRepeatedWords(title) {
+            if (!title || typeof title !== 'string') {
+                return title;
+            }
+            const words = title.split(' ').map(word => word.trim()).filter(word => word.length > 0);
+            const cleanedWords = [];
+            
+            for (let i = 0; i < words.length; i++) {
+                // If it's the first word or not a duplicate of the previous word, add it
+                if (i === 0 || words[i].toLowerCase() !== words[i - 1].toLowerCase()) {
+                    cleanedWords.push(words[i]);
+                }
+            }
+            return cleanedWords.join(' ');
+        }
+
+        /**
+         * Cleans common YouTube title prefixes (emojis, etc.).
+         * @param {string} title The input title string.
+         * @returns {string} The cleaned title.
+         */
+        function cleanYouTubePrefixes(title) {
+            if (!title || typeof title !== 'string') {
+                return title;
+            }
+            // List of prefixes/emojis to remove. Add more as needed.
+            const prefixesToRemove = [
+                '🔴 ', '▶️ ', '🎬 ', '📺 '
+            ];
+            let cleanedTitle = title;
+            for (const prefix of prefixesToRemove) {
+                if (cleanedTitle.startsWith(prefix)) {
+                    cleanedTitle = cleanedTitle.substring(prefix.length);
+                }
+            }
+            return cleanedTitle.trim();
+        }
+
+
         function createWidget(type, customTitle = null, customUrl = null) {
             const config = widgetConfigs[type];
             if (!config) return;
 
+            let finalTitle = customTitle || config.title;
+            if (type === 'youtube') {
+                finalTitle = removeRepeatedWords(finalTitle);
+                finalTitle = cleanYouTubePrefixes(finalTitle);
+            }
+
             const widget = {
                 id: generateWidgetId(),
                 type: type,
-                title: customTitle || config.title,
+                title: finalTitle, // Use the cleaned title here
                 url: customUrl || config.embedUrl || config.url, // customUrl takes precedence
                 icon: config.icon
             };
@@ -1140,6 +1337,7 @@
             // Generate content based on widget type
             switch (config?.type) {
                 case 'youtube':
+                    // Pass the already cleaned widget.title
                     widgetContent = createYouTubeWidget(widget);
                     break;
                 case 'crypto':
@@ -1160,7 +1358,7 @@
             widgetElement.innerHTML = `
                 <div class="widget-header">
                     <div class="widget-title">
-                        <span class="icon ${widget.icon}"></span>
+                        <!-- Removed the icon span here -->
                         ${widget.title}
                     </div>
                     <div class="widget-controls">
@@ -1188,6 +1386,14 @@
             const initialLoadUrl = widget.url;
             const hasInitialEmbeddableUrl = initialLoadUrl && convertToEmbedUrl(initialLoadUrl);
             
+            // Dynamically generate preset video list from initialYouTubeVideos
+            const presetVideosHtml = initialYouTubeVideos.map(video => `
+                <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', '${video.url}', '${video.title}')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
+                    <div style="font-weight: 600; font-size: 0.875rem;">${video.title}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión en directo</div>
+                </div>
+            `).join('');
+
             return `
                 <div class="widget-content ${hasInitialEmbeddableUrl ? 'youtube-no-padding' : ''}">
                     <div class="youtube-widget" id="youtube-widget-${widget.id}">
@@ -1195,37 +1401,14 @@
                             <div class="youtube-header" style="text-align: center; margin-bottom: var(--spacing-md);">
                                 <div class="icon icon-youtube" style="font-size: 2rem; margin-bottom: var(--spacing-sm);"></div>
                                 <h3>YouTube Player</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Selecciona un video o pega tu enlace</p>
+                                <!-- Removed the subtitle line from here -->
                             </div>
                             
                             <!-- Lista de videos predefinidos -->
                             <div class="youtube-presets" style="margin-bottom: var(--spacing-lg);">
-                                <h4 style="margin-bottom: var(--spacing-sm); font-size: 0.9rem; color: var(--text-primary);">📺 Videos Disponibles:</h4>
+                                <h4 style="margin-bottom: var(--spacing-sm); font-size: 0.9rem; color: var(--text-primary);">Videos Disponibles:</h4>
                                 <div class="youtube-list" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--border-radius); background: var(--bg-secondary);">
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://youtu.be/HgOYT2_oiJg', '🔴 EN VIVO - Canal Principal')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">🔴 EN VIVO - Canal Principal</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión en directo</div>
-                                    </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=5IugcHLsC0E', 'Chilevisión 2')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">Chilevisión 2</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Canal de noticias continuas</div>
-                                    </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=8lZ_NEYGAnw', 'Chilevision')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">Chilevision</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Música para relajarse</div>
-                                    </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=XZAfU-X9Euk', '24 horas TVN')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">24 horas TVN</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Relajación con sonidos naturales</div>
-                                    </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=CSXA3ICbX-8', '🎬 Contenido Especial')" style="padding: var(--spacing-sm); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">🎬 Contenido Especial</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Video destacado</div>
-                                    </div>
-                                    <div class="youtube-item" onclick="loadPresetVideo('${widget.id}', 'https://www.youtube.com/watch?v=bpo70sR9Kps', 'CNN')" style="padding: var(--spacing-sm); cursor: pointer; transition: background 0.2s;">
-                                        <div style="font-weight: 600; font-size: 0.875rem;">CNN</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Transmisión de radio</div>
-                                    </div>
+                                    ${presetVideosHtml}
                                 </div>
                             </div>
 
@@ -1274,16 +1457,14 @@
                         </div>
 
                         <div class="youtube-player-section" id="youtube-player-${widget.id}" style="display: ${hasInitialEmbeddableUrl ? 'block' : 'none'};">
-                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xxs); padding: var(--spacing-xxs) var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
+                            <div class="youtube-player-controls" style="display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-xxs) var(--spacing-sm); background: var(--bg-tertiary); border-radius: var(--border-radius);">
                                 <div style="display: flex; align-items: center; gap: var(--spacing-xs);">
-                                    <span class="icon icon-youtube" style="font-size: 0.75rem;"></span>
-                                    <span id="youtube-title-${widget.id}" style="font-size: 0.75rem; font-weight: 600;">${widget.title}</span>
+                                    <!-- Removed the icon icon-youtube here and the youtube-title-text span -->
                                 </div>
                                 <button 
                                     class="btn-icon" 
                                     onclick="showYouTubeInput('${widget.id}')" 
                                     title="Cambiar video"
-                                    style="width: 24px; height: 24px; font-size: 0.65rem;"
                                 >
                                     🔄
                                 </button>
@@ -1391,7 +1572,7 @@
 
         function loadYouTubeVideoFromInput(widgetId) {
             const urlInput = document.getElementById(`youtube-url-${widgetId}`);
-            const url = urlInput.value.trim();
+            let url = urlInput.value.trim();
             
             if (!url) {
                 showToast('Por favor ingresa una URL de YouTube', 'error');
@@ -1403,8 +1584,15 @@
                 showToast('URL de YouTube no válida', 'error');
                 return;
             }
-
-            loadYouTubeVideoInitial(widgetId, url, 'Video Personalizado');
+            
+            // Generate a default title if not provided, and then clean it
+            let newTitle = urlInput.placeholder || 'Video Personalizado';
+            
+            // For simplicity, we'll keep the custom title provided by the user unless it's the default placeholder,
+            // otherwise, it would be complex to fetch the actual video title from YouTube API within client-side HTML.
+            // Assuming "Video Personalizado" is a generic fallback, we don't apply deep cleaning here.
+            
+            loadYouTubeVideoInitial(widgetId, url, newTitle); // newTitle is 'Video Personalizado' or placeholder
             showToast('Video cargado correctamente', 'success');
         }
 
@@ -1425,13 +1613,14 @@
             const inputSection = document.getElementById(`youtube-input-${widgetId}`);
             const playerSection = document.getElementById(`youtube-player-${widgetId}`);
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
-            const youtubeTitleElement = document.getElementById(`youtube-title-${widgetId}`);
-            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); 
+            // The title element will be removed from the player controls HTML, no need to target it here.
+            // const youtubeTitleElement = document.getElementById(`youtube-title-${widgetId}`); 
+            const widgetContentElement = document.querySelector(`#${widget.id} .widget-content`); 
 
-            if (inputSection && playerSection && iframeContainer && youtubeTitleElement && widgetContentElement) {
+            if (inputSection && playerSection && iframeContainer && widgetContentElement) {
                 inputSection.style.display = 'none';
                 playerSection.style.display = 'block';
-                youtubeTitleElement.textContent = title;
+                // No need to set textContent for youtubeTitleElement as it's removed from player controls HTML
                 iframeContainer.innerHTML = `
                     <iframe 
                         src="${embedUrl}"
@@ -1450,7 +1639,7 @@
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
             document.getElementById(`youtube-player-${widget.id}`).style.display = 'none';
             
-            const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
+            const widgetContentElement = document.querySelector(`#${widget.id} .widget-content`);
             if (widgetContentElement) {
                 widgetContentElement.classList.remove('youtube-no-padding');
             }
@@ -1517,7 +1706,7 @@
                                     <div style="text-align: right;">
                                         <div style="font-weight: 600;">${info.usd.toLocaleString()}</div>
                                         <div style="font-size: 0.75rem; color: ${info.usd_24h_change > 0 ? 'var(--success)' : 'var(--danger)'};">
-                                            ${info.usd_24h_change > 0 ? '↗' : '↘'} ${Math.abs(info.usd_24h_change).toFixed(2)}%
+                                            ${Math.abs(info.usd_24h_change).toFixed(2)}%
                                         </div>
                                     </div>
                                 </div>
@@ -1662,6 +1851,7 @@
             if (window.innerWidth <= 768) {
                 mobileHeaderHideTimeout = setTimeout(() => {
                     header.classList.add('header-hidden');
+                    document.body.classList.add('header-hidden-layout'); // Add class to body to adjust layout
                     headerShowBtn.style.opacity = '1';
                     headerShowBtn.style.pointerEvents = 'auto';
                 }, 3000); // 3 seconds
@@ -1673,6 +1863,7 @@
             const header = document.querySelector('.header');
             const headerShowBtn = document.getElementById('headerShowBtn');
             header.classList.remove('header-hidden');
+            document.body.classList.remove('header-hidden-layout'); // Remove class from body to revert layout
             headerShowBtn.style.opacity = '0';
             headerShowBtn.style.pointerEvents = 'none';
             clearTimeout(mobileHeaderHideTimeout);
@@ -1745,8 +1936,9 @@
                     if (!sidebar.classList.contains('collapsed')) {
                         startSidebarTimer(); // Restart desktop sidebar timer
                     } 
-                    // Ensure header is visible on desktop
+                    // Ensure header is visible on desktop and layout is normal
                     document.querySelector('.header').classList.remove('header-hidden');
+                    document.body.classList.remove('header-hidden-layout');
                     document.getElementById('headerShowBtn').style.opacity = '0';
                     document.getElementById('headerShowBtn').style.pointerEvents = 'none';
                     clearTimeout(mobileHeaderHideTimeout); // Clear mobile header timer
@@ -1821,7 +2013,7 @@
             try {
                 initTheme();
                 initEventListeners();
-                initSearch();
+                /* Removed initSearch() as search input is removed */
                 loadWidgets(); 
 
                 // Load initial YouTube videos if no widgets are saved
