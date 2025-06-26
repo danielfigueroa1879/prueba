@@ -73,6 +73,11 @@
             top: 0;
             z-index: 1000;
             border-bottom: 1px solid var(--border);
+            transition: top 0.3s ease; /* Smooth transition for auto-hide */
+        }
+        /* Header auto-hide */
+        .header.header-hidden {
+            top: -80px; /* Assuming header height is around 80px */
         }
 
         .header-content {
@@ -355,8 +360,7 @@
             height: 1em;
             vertical-align: middle;
             stroke-width: 4; 
-            /* MODIFICACIÓN: Agrandar la flecha de cierre */
-            font-size: 1.5rem; /* Revertido a 1.5rem, igual que la flecha de apertura */
+            font-size: 1.5rem; /* Set to 1.5rem, same as open arrow */
             transform: rotate(0deg); /* No rotation, as SVG is already left-pointing */
         }
 
@@ -372,254 +376,13 @@
             pointer-events: none;
         }
 
-        @media (max-width: 768px) {
-            .sidebar-handle, #sidebarCloseBtn {
-                display: none !important; 
-                opacity: 0 !important;
-                pointer-events: none !important;
+        /* Responsive adjustments */
+        @media (min-width: 769px) { 
+            /* Ensure header is always visible on desktop, no auto-hide */
+            .header.header-hidden {
+                top: 0 !important; 
             }
         }
-
-
-        /* Dashboard */
-        .dashboard {
-            flex: 1;
-            padding: var(--spacing-lg);
-            background: var(--bg-primary);
-            overflow-y: auto;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: var(--spacing-md); 
-            min-height: 600px;
-        }
-
-        .dashboard-empty {
-            grid-column: 1 / -1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            min-height: 400px;
-        }
-
-        .dashboard-empty .icon {
-            font-size: 3rem;
-            margin-bottom: var(--spacing-md);
-            opacity: 0.5;
-        }
-
-        /* Widget Container */
-        .widget {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--border-radius-lg);
-            overflow: hidden;
-            box-shadow: 0 4px 12px var(--shadow);
-            transition: all 0.3s ease;
-            position: relative;
-            min-height: 280px; 
-            display: flex;
-            flex-direction: column;
-        }
-
-        .widget:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px var(--shadow);
-        }
-
-        .widget-header {
-            padding: var(--spacing-xxs) var(--spacing-sm); 
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .widget-title {
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs); 
-            font-size: 0.85rem; 
-        }
-
-        .widget-controls {
-            display: flex;
-            gap: var(--spacing-sm);
-        }
-
-        .widget-content {
-            flex: 1;
-            overflow: hidden;
-            position: relative;
-            padding: var(--spacing-md); 
-        }
-        
-        /* Nuevo estilo para el contenido de YouTube sin padding */
-        .widget-content.youtube-no-padding {
-            padding: 0;
-        }
-
-        /* Contenedores de YouTube para maximizar espacio de video */
-        .youtube-widget {
-            display: flex;
-            flex-direction: column;
-            height: 100%; 
-        }
-
-        .youtube-player-section {
-            display: flex;
-            flex-direction: column;
-            flex: 1; 
-            overflow: hidden;
-        }
-
-        /* Nueva clase para el contenedor responsivo del iframe */
-        .youtube-responsive-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9 / 16 = 0.5625) */
-            height: 0;
-            overflow: hidden;
-            background-color: black; 
-            border-radius: var(--border-radius); 
-        }
-
-        .widget-iframe {
-            position: absolute; 
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%; 
-            border: none;
-            border-radius: var(--border-radius); 
-        }
-
-        .widget-placeholder {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            min-height: 300px;
-            color: var(--text-secondary);
-            text-align: center;
-            padding: var(--spacing-lg);
-        }
-
-        .widget-placeholder .icon {
-            font-size: 2rem;
-            margin-bottom: var(--spacing-md);
-            opacity: 0.5;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--bg-primary);
-            border-radius: var(--border-radius-lg);
-            padding: var(--spacing-xl);
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .form-group {
-            margin-bottom: var(--spacing-md);
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: var(--spacing-sm);
-            font-weight: 400;
-            color: var(--text-primary);
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: 1px solid var(--border);
-            border-radius: var(--border-radius);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            font-family: var(--font-family);
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--accent);
-            color: white;
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: var(--border-radius);
-            z-index: 3000;
-            box-shadow: 0 4px 12px var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            animation: slideIn 0.3s ease;
-        }
-
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--danger); }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
@@ -660,7 +423,53 @@
             .widget {
                 min-height: 300px;
             }
+
+            /* Header auto-hide on mobile */
+            .header.header-hidden {
+                top: -80px;
+            }
+
+            /* Sidebar Handle on Mobile: Show when sidebar is NOT active (closed) */
+            .sidebar-handle {
+                display: flex; /* Overrides display:none from desktop rules if necessary */
+                left: 0; /* Visible initially on mobile if sidebar is closed */
+                opacity: 1;
+                pointer-events: auto;
+                font-size: 1.2rem; /* Smaller size for mobile handle */
+                padding: var(--spacing-xs);
+                top: 20%; /* Adjusted vertical position for mobile */
+                z-index: 1500; /* Ensure it's above other content but below modal */
+            }
+            /* Hide on mobile when sidebar is active */
+            .sidebar.active ~ .sidebar-handle {
+                left: -30px; /* Slide off-screen */
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            /* Ensure close button is hidden on mobile and handle remains responsive */
+            #sidebarCloseBtn {
+                display: none !important; /* Always hidden on mobile */
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+
+            /* Mobile video expansion */
+            .youtube-widget.expanded-mobile-view {
+                height: 50vh; /* Make the widget take half viewport height */
+                min-height: 50vh; /* Override widget min-height */
+                z-index: 500; /* Bring to front slightly if needed */
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Add shadow */
+            }
+            .youtube-widget.expanded-mobile-view .youtube-responsive-container {
+                padding-bottom: 0; /* Remove aspect ratio padding */
+                height: 100%; /* Fill parent height */
+            }
+            .youtube-widget.expanded-mobile-view .youtube-player-controls {
+                display: none; /* Hide controls when expanded to maximize video space */
+            }
         }
+
 
         /* Icons (Simple CSS icons) */
         .icon {
@@ -692,7 +501,6 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="logo">
@@ -710,21 +518,19 @@
                 <button class="btn btn-primary" id="addWidgetBtn">
                     <span class="icon icon-plus"></span>
                     Agregar Widget
+
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h3 class="sidebar-title">Widgets Disponibles</h3>
-                <!-- Moved sidebarCloseBtn inside sidebar-header -->
                 <button class="btn-icon" id="sidebarCloseBtn" title="Cerrar barra lateral">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 6 9 12 15 18"></polyline> <!-- Adjusted points to point left -->
+                        <polyline points="15 6 9 12 15 18"></polyline> 
                     </svg>
                 </button>
             </div>
@@ -800,14 +606,12 @@
             </div>
         </aside>
 
-        <!-- Sidebar Handle (the tab to open sidebar when collapsed - left side of screen) -->
         <div class="sidebar-handle" id="sidebarHandle">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </div>
 
-        <!-- Dashboard -->
         <main class="dashboard">
             <div class="dashboard-grid" id="dashboardGrid">
                 <div class="dashboard-empty">
@@ -819,7 +623,6 @@
         </main>
     </div>
 
-    <!-- Add Widget Modal -->
     <div class="modal" id="addWidgetModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1135,7 +938,6 @@
                                 <p style="color: var(--text-secondary); font-size: 0.875rem;">Selecciona un video o pega tu enlace</p>
                             </div>
                             
-                            <!-- Lista de videos predefinidos -->
                             <div class="youtube-presets" style="margin-bottom: var(--spacing-lg);">
                                 <h4 style="margin-bottom: var(--spacing-sm); font-size: 0.9rem; color: var(--text-primary);">📺 Videos Disponibles:</h4>
                                 <div class="youtube-list" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--border-radius); background: var(--bg-secondary);">
@@ -1166,7 +968,6 @@
                                 </div>
                             </div>
 
-                            <!-- Separador -->
                             <div style="text-align: center; margin: var(--spacing-md) 0; color: var(--text-secondary); font-size: 0.875rem;">
                                 <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: var(--spacing-sm);">
                                 O pega tu propio enlace:
@@ -1201,7 +1002,6 @@
                                 </div>
                             </div>
 
-                            <!-- Enlace adicional -->
                             <div style="text-align: center; margin-top: var(--spacing-md);">
                                 <a href="https://www.miradiotv.cl/" target="_blank" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: var(--spacing-xs);">
                                     <span class="icon">📻</span>
@@ -1226,8 +1026,7 @@
                                 </button>
                             </div>
                             <div class="youtube-iframe-container youtube-responsive-container" id="youtube-iframe-${widget.id}">
-                                <!-- El iframe se insertará aquí dinámicamente por loadYouTubeVideoInitial -->
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -1360,7 +1159,7 @@
             }
 
             const inputSection = document.getElementById(`youtube-input-${widgetId}`);
-            const playerSection = document.getElementById(`youtube-player-${widgetId}`);
+            const playerSection = document.getElementById(`Youtubeer-${widgetId}`);
             const iframeContainer = document.getElementById(`youtube-iframe-${widgetId}`);
             const youtubeTitleElement = document.getElementById(`youtube-title-${widgetId}`);
             const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`); 
@@ -1385,7 +1184,7 @@
 
         function showYouTubeInput(widgetId) {
             document.getElementById(`youtube-input-${widgetId}`).style.display = 'block';
-            document.getElementById(`youtube-player-${widget.id}`).style.display = 'none';
+            document.getElementById(`Youtubeer-${widget.id}`).style.display = 'none';
             
             const widgetContentElement = document.querySelector(`#${widgetId} .widget-content`);
             if (widgetContentElement) {
@@ -1814,4 +1613,5 @@
     </script>
 </body>
 </html>
+
 
