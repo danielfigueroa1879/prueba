@@ -548,6 +548,35 @@
             opacity: 1;
         }
 
+        /* Estilos específicos para PC - reducir espacio debajo del video */
+        @media (min-width: 769px) {
+            .widget {
+                min-height: auto; /* Permitir altura automática en PC */
+            }
+            
+            .youtube-responsive-container {
+                /* En PC, usar altura más compacta */
+                padding-bottom: 56.25%; /* Mantener ratio 16:9 pero más compacto */
+                min-height: 250px; /* Altura mínima mayor para PC */
+            }
+            
+            .youtube-widget {
+                height: auto; /* Altura automática para eliminar espacio extra */
+            }
+            
+            .youtube-player-section {
+                flex: none; /* No expandir más de lo necesario */
+                height: auto; /* Altura automática */
+            }
+            
+            .widget-content.youtube-no-padding {
+                /* En PC, eliminar padding pero mantener estructura compacta */
+                padding: 0;
+                height: auto;
+                min-height: auto;
+            }
+        }
+
         /* Estilos específicos para móviles para mejorar la visualización */
         @media (max-width: 768px) {
             .youtube-responsive-container {
@@ -566,11 +595,13 @@
             /* Asegurar que los controles del reproductor sean visibles */
             .youtube-widget {
                 background: #000;
+                height: 100%; /* Mantener altura completa en móviles */
             }
             
             .youtube-player-section {
                 background: #000;
                 border-radius: var(--border-radius);
+                flex: 1; /* Expandir en móviles */
             }
         }
 
