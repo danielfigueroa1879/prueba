@@ -378,53 +378,30 @@
             pointer-events: none;
         }
 
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        /* New button to show header when hidden on mobile */
+        .header-show-btn {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999; /* Below header, above other content usually */
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            padding: var(--spacing-sm);
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none; /* Make it unclickable when hidden */
+            transition: opacity 0.3s ease, transform 0.3s ease-out;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
 
-            .header-controls {
-                justify-content: space-between;
-            }
-
-            .search-input {
-                width: 100%;
-                min-width: 200px;
-            }
-
-            .sidebar {
-                position: fixed;
-                top: 80px;
-                left: -300px;
-                height: calc(100vh - 80px);
-                z-index: 1500;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.active {
-                left: 0;
-            }
-
-            .dashboard {
-                padding: var(--spacing-md);
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: var(--spacing-md);
-            }
-
-            .widget {
-                min-height: 300px;
-            }
-
-            /* Hide sidebar handle and close button on mobile */
-            .sidebar-handle, #sidebarCloseBtn {
-                display: none !important; 
-                opacity: 0 !important;
-                pointer-events: none !important;
-            }
+        .header-show-btn svg {
+            width: 1.5em;
+            height: 1.5em;
+            display: block;
         }
 
         /* Dashboard */
@@ -665,6 +642,63 @@
             to { transform: translateX(100%); opacity: 0; }
         }
 
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-controls {
+                justify-content: space-between;
+            }
+
+            .search-input {
+                width: 100%;
+                min-width: 200px;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 80px;
+                left: -300px;
+                height: calc(100vh - 80px);
+                z-index: 1500;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .dashboard {
+                padding: var(--spacing-md);
+            }
+
+            .dashboard-grid {
+                /* Adjust to try and fit two columns, or one if too narrow */
+                grid-template-columns: repeat(auto-fit, minmax(calc(50% - var(--spacing-md) / 2), 1fr));
+                gap: var(--spacing-md);
+            }
+
+            .widget {
+                min-height: 200px; /* Reduced minimum height for smaller widgets */
+            }
+
+            /* Show header show button when header is hidden on mobile */
+            .header.header-hidden + .header-show-btn {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            /* Hide sidebar handle and close button on mobile */
+            .sidebar-handle, #sidebarCloseBtn {
+                display: none !important; 
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        }
+
         /* Icons (Simple CSS icons) */
         .icon {
             display: inline-block;
@@ -717,6 +751,14 @@
             </div>
         </div>
     </header>
+
+    <!-- Button to show header on mobile -->
+    <button class="header-show-btn" id="headerShowBtn" title="Mostrar encabezado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="7 13 12 18 17 13"></polyline>
+            <line x1="12" y1="18" x2="12" y2="6"></line>
+        </svg>
+    </button>
 
     <!-- Main Container -->
     <div class="main-container">
@@ -869,9 +911,9 @@
         // Global variables
         let widgets = [];
         let currentTheme = localStorage.getItem('dashboard-theme') || 'light';
-        let lastScrollY = 0; // For tracking scroll direction on mobile
+        let mobileHeaderHideTimeout; // To control the mobile header auto-hide timer
 
-        // Global variables for sidebar auto-hide
+        // Global variables for sidebar auto-hide (desktop)
         let sidebarTimeout;
         const AUTO_HIDE_DELAY = 10000; // 10 seconds
 
@@ -968,7 +1010,7 @@
             localStorage.setItem('dashboard-theme', currentTheme);
         }
 
-        // Function to start the auto-hide timer
+        // Function to start the sidebar auto-hide timer (desktop)
         function startSidebarTimer() {
             clearTimeout(sidebarTimeout); // Clear any existing timer
             const sidebar = document.getElementById('sidebar');
@@ -980,7 +1022,7 @@
             }
         }
 
-        // Function to reset the auto-hide timer
+        // Function to reset the sidebar auto-hide timer (desktop)
         function resetSidebarTimer() {
             clearTimeout(sidebarTimeout);
             startSidebarTimer();
@@ -993,6 +1035,11 @@
             
             if (isMobile) {
                 sidebar.classList.toggle('active');
+                // When sidebar is active on mobile, prevent header from auto-hiding
+                clearTimeout(mobileHeaderHideTimeout);
+                document.querySelector('.header').classList.remove('header-hidden');
+                document.getElementById('headerShowBtn').style.opacity = '0';
+                document.getElementById('headerShowBtn').style.pointerEvents = 'none';
             } else {
                 sidebar.classList.toggle('collapsed');
                 if (!sidebar.classList.contains('collapsed')) { // If sidebar just opened on desktop
@@ -1006,12 +1053,23 @@
         // Modal functions
         function openModal() {
             document.getElementById('addWidgetModal').classList.add('active');
+            // When modal is open, prevent header from auto-hiding on mobile
+            if (window.innerWidth <= 768) {
+                clearTimeout(mobileHeaderHideTimeout);
+                document.querySelector('.header').classList.remove('header-hidden');
+                document.getElementById('headerShowBtn').style.opacity = '0';
+                document.getElementById('headerShowBtn').style.pointerEvents = 'none';
+            }
         }
 
         function closeModal() {
             document.getElementById('addWidgetModal').classList.remove('active');
             document.getElementById('addWidgetForm').reset();
             document.getElementById('urlGroup').style.display = 'none';
+            // Restart mobile header auto-hide timer after closing modal
+            if (window.innerWidth <= 768) {
+                startMobileHeaderAutoHideTimer();
+            }
         }
 
         // Widget functions
@@ -1046,6 +1104,7 @@
             } else if (isMobile && sidebar.classList.contains('active')) {
                 // For mobile, if active, close it
                 sidebar.classList.remove('active');
+                startMobileHeaderAutoHideTimer(); // Restart auto-hide timer after closing sidebar on mobile
             }
         }
 
@@ -1595,6 +1654,30 @@
             }, 3000);
         }
 
+        // Function to start mobile header auto-hide timer
+        function startMobileHeaderAutoHideTimer() {
+            const header = document.querySelector('.header');
+            const headerShowBtn = document.getElementById('headerShowBtn');
+            clearTimeout(mobileHeaderHideTimeout); // Clear any existing timer
+            if (window.innerWidth <= 768) {
+                mobileHeaderHideTimeout = setTimeout(() => {
+                    header.classList.add('header-hidden');
+                    headerShowBtn.style.opacity = '1';
+                    headerShowBtn.style.pointerEvents = 'auto';
+                }, 3000); // 3 seconds
+            }
+        }
+
+        // Function to show header and clear auto-hide timer
+        function showHeaderAndClearTimer() {
+            const header = document.querySelector('.header');
+            const headerShowBtn = document.getElementById('headerShowBtn');
+            header.classList.remove('header-hidden');
+            headerShowBtn.style.opacity = '0';
+            headerShowBtn.style.pointerEvents = 'none';
+            clearTimeout(mobileHeaderHideTimeout);
+        }
+
         // Event listeners
         function initEventListeners() {
             // Theme toggle
@@ -1660,11 +1743,20 @@
                 if (window.innerWidth > 768) {
                     sidebar.classList.remove('active'); 
                     if (!sidebar.classList.contains('collapsed')) {
-                        startSidebarTimer();
+                        startSidebarTimer(); // Restart desktop sidebar timer
                     } 
+                    // Ensure header is visible on desktop
+                    document.querySelector('.header').classList.remove('header-hidden');
+                    document.getElementById('headerShowBtn').style.opacity = '0';
+                    document.getElementById('headerShowBtn').style.pointerEvents = 'none';
+                    clearTimeout(mobileHeaderHideTimeout); // Clear mobile header timer
                 } else {
                     sidebar.classList.add('collapsed');
-                    clearTimeout(sidebarTimeout); 
+                    clearTimeout(sidebarTimeout); // Clear desktop sidebar timer
+                    // Start mobile header timer if on mobile and not currently in interaction
+                    if (!document.getElementById('addWidgetModal').classList.contains('active') && !sidebar.classList.contains('active')) {
+                        startMobileHeaderAutoHideTimer();
+                    }
                 }
             });
 
@@ -1682,7 +1774,7 @@
                 }
             });
 
-            // Auto-hide and handle event listeners
+            // Auto-hide and handle event listeners (desktop sidebar)
             const sidebar = document.getElementById('sidebar');
             const dashboardGrid = document.getElementById('dashboardGrid');
             const sidebarHandle = document.getElementById('sidebarHandle');
@@ -1710,23 +1802,14 @@
                 clearTimeout(sidebarTimeout); // Stop any active auto-hide timer
             });
 
-            // Scroll event listener for mobile header hide/show
-            window.addEventListener('scroll', () => {
-                const header = document.querySelector('.header');
-                const isMobile = window.innerWidth <= 768;
-                
-                if (isMobile) {
-                    if (window.scrollY > lastScrollY && window.scrollY > header.offsetHeight) {
-                        // Scrolling down and past header height, hide header
-                        header.classList.add('header-hidden');
-                    } else if (window.scrollY < lastScrollY) {
-                        // Scrolling up, show header
-                        header.classList.remove('header-hidden');
-                    }
-                    lastScrollY = window.scrollY;
-                } else {
-                    // Ensure header is always visible on desktop
-                    header.classList.remove('header-hidden');
+            // Event listener for the new header show button (mobile)
+            document.getElementById('headerShowBtn').addEventListener('click', showHeaderAndClearTimer);
+
+            // Add an event listener to the header itself to reset the timer on touch/click (mobile)
+            document.querySelector('.header').addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    showHeaderAndClearTimer();
+                    startMobileHeaderAutoHideTimer(); // Restart timer after interaction
                 }
             });
         }
@@ -1756,7 +1839,7 @@
                     // No need to start timer here as it's collapsed
                 } else {
                     sidebar.classList.add('collapsed'); // Always collapsed on mobile initially
-                    clearTimeout(sidebarTimeout); 
+                    startMobileHeaderAutoHideTimer(); // Start mobile header auto-hide timer on load
                 }
 
                 console.log('Dashboard initialized successfully');
