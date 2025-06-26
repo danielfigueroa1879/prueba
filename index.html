@@ -715,7 +715,8 @@
             }
 
             .widget {
-                min-height: 180px; /* Se mantiene para visibilidad del video */
+                min-height: auto; /* Permite que la altura se ajuste al contenido real del video */
+                height: auto; /* Permite que la altura se ajuste al contenido real del video */
             }
 
             /* Make widget titles and icons much smaller on mobile */
@@ -1293,7 +1294,9 @@
             if (iframe && widget) {
                 const embedUrl = convertToEmbedUrl(widget.url);
                 if (embedUrl) {
-                    iframe.src = embedUrl; // Reload iframe with the stored URL
+                    // Ensure 'playsinline=1' is always added for mobile
+                    const finalEmbedUrl = embedUrl.includes('?') ? `${embedUrl}&playsinline=1` : `${embedUrl}?playsinline=1`;
+                    iframe.src = finalEmbedUrl; // Reload iframe with the stored URL
                     showToast('Widget actualizado', 'success');
                 } else {
                     showToast('No se pudo actualizar: URL no válida.', 'error');
@@ -1518,7 +1521,7 @@
                         class="widget-iframe"
                         frameborder="0"
                         allowfullscreen
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
                         referrerpolicy="strict-origin-when-cross-origin"
                         loading="lazy">
                     </iframe>
@@ -1614,13 +1617,16 @@
             if (inputSection && playerSection && iframeContainer && widgetContentElement) {
                 inputSection.style.display = 'none';
                 playerSection.style.display = 'block';
+                // Add playsinline=1 to the iframe source
+                const finalEmbedUrl = embedUrl.includes('?') ? `${embedUrl}&playsinline=1` : `${embedUrl}?playsinline=1`;
+
                 iframeContainer.innerHTML = `
                     <iframe 
-                        src="${embedUrl}"
+                        src="${finalEmbedUrl}"
                         class="widget-iframe"
                         frameborder="0"
                         allowfullscreen
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
                         referrerpolicy="strict-origin-when-cross-origin">
                     </iframe>
                 `;
