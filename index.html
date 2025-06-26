@@ -36,7 +36,7 @@
             --border-radius-lg: 1rem;
 
             /* Altura de encabezado móvil (ajustar si es necesario) */
-            --mobile-header-height: 60px; /* Altura estimada del header en móvil */
+            --mobile-header-height: 50px; /* Reducido a 50px para hacerlo más pequeño */
         }
 
         [data-theme="dark"] {
@@ -663,43 +663,35 @@
         @media (max-width: 768px) {
             /* Reduce header padding and height to make it much smaller on mobile */
             .header {
-                padding: calc(var(--spacing-xxs) / 2); /* Very small padding */
-                height: calc(var(--mobile-header-height) / 2); /* Half of original mobile height */
+                padding: 1px 2px; /* Reducido a 1px vertical, 2px horizontal */
+                height: var(--mobile-header-height); /* Usa la variable ajustada */
             }
             /* Adjust the top value when hidden to match the new, smaller height */
             .header.header-hidden {
-                top: calc(-1 * var(--mobile-header-height) / 2); 
+                top: calc(-1 * var(--mobile-header-height)); 
             }
 
             .header-content {
-                flex-direction: row; /* Keep content in a row */
+                flex-direction: row;
                 align-items: center;
-                justify-content: space-between; /* Space out items */
-                flex-wrap: nowrap; /* Prevent wrapping */
-                height: 100%; /* Occupy full height of the header */
+                justify-content: space-between;
+                flex-wrap: nowrap;
+                height: 100%;
             }
 
             .header-controls {
-                flex-grow: 1; /* Allow controls to take available space */
-                flex-shrink: 1; /* Allow controls to shrink if needed */
-                justify-content: flex-end; /* Align controls to the right */
-                gap: var(--spacing-xxs); /* Very small gap between controls */
-                min-width: 0; /* Prevent overflow issues with flex items */
+                flex-grow: 1;
+                flex-shrink: 1;
+                justify-content: flex-end;
+                gap: 2px; /* Reducido el gap entre controles */
+                min-width: 0;
             }
 
-            /* Search input is removed from HTML */
-            /* .search-input { display: none; } */
-
+            /* Sidebar top position now based on new mobile header height */
             .sidebar {
-                /* Sidebar top position now based on new mobile header height */
-                top: calc(var(--mobile-header-height) / 2); 
-                height: calc(100vh - var(--mobile-header-height) / 2);
+                top: var(--mobile-header-height); 
+                height: calc(100vh - var(--mobile-header-height));
                 z-index: 1500;
-                transition: left 0.3s ease;
-            }
-
-            .sidebar.active {
-                left: 0;
             }
 
             .dashboard {
@@ -708,7 +700,7 @@
 
             /* Adjust main-container padding-top based on new, smaller mobile header height */
             .main-container {
-                padding-top: calc(var(--mobile-header-height) / 2); /* Space for visible fixed header */
+                padding-top: var(--mobile-header-height); /* Espacio para el header visible */
             }
 
             /* Adjust main-container padding when header is hidden */
@@ -718,81 +710,78 @@
 
 
             .dashboard-grid {
-                /* Adjust to try and fit two columns, or one if too narrow */
-                grid-template-columns: repeat(auto-fit, minmax(calc(50% - var(--spacing-xxs) * 1.5), 1fr)); /* Use smallest gap */
-                gap: var(--spacing-xxs); /* Very small gap between videos */
+                grid-template-columns: repeat(auto-fit, minmax(calc(50% - 2px), 1fr)); /* Pequeño gap entre videos */
+                gap: 4px; /* Gap entre videos */
             }
 
             .widget {
-                min-height: 250px; /* Increased minimum height for videos to be visible */
+                min-height: 180px; /* Se mantiene para visibilidad del video */
             }
 
             /* Make widget titles and icons much smaller on mobile */
             .widget-title {
-                font-size: 0.25rem; /* Reduced to one-quarter of initial 0.85rem */
-                gap: var(--spacing-xxs); /* Keep small gap */
+                font-size: 0.2rem; /* Más pequeño */
+                gap: 1px; /* Gap más pequeño */
             }
 
             .widget-title .icon {
-                font-size: 0.35rem; /* Reduced to one-quarter of initial 1.2rem */
+                font-size: 0.25rem; /* Más pequeño */
             }
 
             /* Ocultar la barra de controles inferior del reproductor de YouTube en móvil */
             .youtube-player-controls {
-                display: none; /* Hide the entire controls bar on mobile */
+                display: none;
             }
             
-            /* Reduce font size for subtitle within YouTube input section */
-            /* Note: The subtitle paragraph is removed from YouTube input section HTML */
-            /* If it were still there, this rule would apply: */
+            /* Reduce font size for subtitle within YouTube input section (if it were there) */
             .youtube-input-section p {
-                font-size: 0.325rem; /* Half of 0.65rem */
+                font-size: 0.3rem; 
             }
 
             /* Adjust mobile header controls for reduced size */
             .header .btn-icon {
-                width: 15px; /* Further reduced width */
-                height: 15px; /* Further reduced height */
-                padding: 0; /* Remove padding */
-                font-size: 0.3rem; /* Further smaller icon size */
+                width: 15px;
+                height: 15px;
+                padding: 0;
+                font-size: 0.3rem;
             }
 
             .header .logo {
-                font-size: 0.5rem; /* Further reduced logo font size */
+                font-size: 0.5rem; /* Muy pequeño */
             }
 
             .header .theme-toggle {
-                width: 20px; /* Further reduced width */
-                height: 10px; /* Further reduced height */
+                width: 20px;
+                height: 10px;
                 border-radius: 5px;
             }
 
             .header .theme-toggle::before {
-                width: 8px; /* Further reduced size */
-                height: 8px; /* Further reduced size */
-                top: 1px; /* Adjust position */
-                left: 1px; /* Adjust position */
+                width: 8px;
+                height: 8px;
+                top: 1px;
+                left: 1px;
             }
 
             [data-theme="dark"] .header .theme-toggle::before {
-                transform: translateX(9px); /* Adjust translation for smaller size */
+                transform: translateX(9px);
             }
 
             .header .btn-primary {
-                font-size: 0.3rem; /* Further reduced font size for button text */
-                padding: var(--spacing-xxs) var(--spacing-xs); /* Keep small padding */
-                gap: var(--spacing-xxs); /* Keep small gap */
+                font-size: 0.3rem;
+                padding: 1px 2px; /* Más pequeño */
+                gap: 1px; /* Más pequeño */
             }
 
-            /* Further reduce the size of the buttons in the widget header controls */
-            .widget-header .widget-controls .btn-icon { /* Targeted directly to ensure override */
-                width: 10px; /* Reduced for very small size */
-                height: 10px; /* Reduced for very small size */
-                font-size: 0.3rem; /* Reduced for very small size */
-                padding: 0; /* No padding */
+            /* Reduce the size of the buttons in the widget header controls (Actualizar, Enlace, Eliminar) */
+            .widget-header .widget-controls .btn-icon {
+                width: 14px; /* Reducido para ser muy pequeño */
+                height: 14px; /* Reducido para ser muy pequeño */
+                font-size: 0.35rem; /* Reducido para ser muy pequeño */
+                padding: 0; /* Sin padding adicional */
             }
             .widget-header .widget-controls {
-                gap: 1px; /* Minimal gap between these specific buttons */
+                gap: 2px; /* Pequeño gap entre estos botones */
             }
 
 
@@ -807,30 +796,30 @@
 
             /* Adjust the header show button to be smaller */
             .header-show-btn {
-                padding: 2px 4px; /* Adjusted padding to be slightly larger for tap target */
-                font-size: 0.7rem; /* Adjusted icon size to be visible */
+                padding: 2px 4px; /* Ajustado para ser más pequeño pero funcional */
+                font-size: 0.6rem; /* Ajustado el tamaño del ícono de la flecha */
             }
 
             /* Sidebar elements reduction */
             .sidebar-header {
-                padding: var(--spacing-xs); /* Smaller padding */
-                margin-bottom: var(--spacing-xs); /* Smaller margin */
+                padding: var(--spacing-xs);
+                margin-bottom: var(--spacing-xs);
             }
             .sidebar-title {
-                font-size: 0.7rem; /* Smaller sidebar title */
+                font-size: 0.7rem;
             }
             .widget-item {
-                padding: var(--spacing-xs); /* Smaller padding for items */
-                font-size: 0.6rem; /* Smaller font for item text */
-                gap: var(--spacing-xs); /* Smaller gap */
+                padding: var(--spacing-xs);
+                font-size: 0.6rem;
+                gap: var(--spacing-xs);
             }
             .widget-item .widget-icon {
-                font-size: 0.8rem; /* Smaller icon size for items */
-                width: 15px; /* Adjust width */
-                height: 15px; /* Adjust height */
+                font-size: 0.8rem;
+                width: 15px;
+                height: 15px;
             }
             .sidebar-section {
-                margin-bottom: var(--spacing-md); /* Slightly reduced section margin */
+                margin-bottom: var(--spacing-md);
             }
         }
 
@@ -1611,7 +1600,7 @@
         }
 
         // Helper function to load YouTube video/playlist into the iframe
-        function loadYouTubeVideoInitial(widgetId, url) { /* Removed 'title' param as it's not directly used here to set the inner player title */
+        function loadYouTubeVideoInitial(widgetId, url) { /* 'title' param is kept for consistency with preset calls, but not directly used here for inner widget title */
             const embedUrl = convertToEmbedUrl(url);
             if (!embedUrl) {
                 return; 
