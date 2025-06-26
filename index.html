@@ -524,7 +524,7 @@
 
         /* Nueva clase para el contenedor responsivo del iframe */
         .youtube-responsive-container {
-            position: relative;
+            position: relative; /* Added for positioning context */
             padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9 / 16 = 0.5625) */
             height: 0;
             overflow: hidden;
@@ -540,6 +540,7 @@
             height: 100%; 
             border: none;
             border-radius: var(--border-radius); 
+            z-index: 10; /* Ensures iframe is on top */
         }
 
         .widget-placeholder {
@@ -1292,11 +1293,9 @@
             const widget = widgets.find(w => w.id === widgetId);
 
             if (iframe && widget) {
-                const embedUrl = convertToEmbedUrl(widget.url);
+                const embedUrl = getYouTubeEmbedUrl(widget.url); /* Use the new helper function */
                 if (embedUrl) {
-                    // Ensure 'playsinline=1' is always added for mobile
-                    const finalEmbedUrl = getYouTubeEmbedUrl(embedUrl); /* Use the new helper function */
-                    iframe.src = finalEmbedUrl; // Reload iframe with the stored URL
+                    iframe.src = embedUrl; // Reload iframe with the stored URL
                     showToast('Widget actualizado', 'success');
                 } else {
                     showToast('No se pudo actualizar: URL no válida.', 'error');
